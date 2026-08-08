@@ -27,7 +27,7 @@ export default function MemberOrdersPage() {
 
   return (
     <MemberGate>
-      {() => (
+      {(_) => (
         <div className="sp-page">
           <div className="sp-page-title">
             <h1>Siparişlerim</h1>

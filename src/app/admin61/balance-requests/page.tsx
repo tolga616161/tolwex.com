@@ -15,11 +15,19 @@ type Item = {
 
 type Bank = { name: string; iban: string; iban_formatted: string; holder: string };
 
+const STATUS_TR: Record<string, string> = {
+  pending: "Beklemede",
+  approved: "Onaylandı",
+  rejected: "Reddedildi",
+};
+
 export default function AdminBalanceRequestsPage() {
   const [items, setItems] = useState<Item[]>([]);
   const [bank, setBank] = useState<Bank | null>(null);
   const [filter, setFilter] = useState<"pending" | "all">("pending");
   const [busy, setBusy] = useState<string | null>(null);
+  const [msg, setMsg] = useState<string | null>(null);
+  const [err, setErr] = useState<string | null>(null);
 
   async function load() {
     const [d, s] = await Promise.all([
@@ -32,6 +40,8 @@ export default function AdminBalanceRequestsPage() {
 
   useEffect(() => {
     load();
+    const t = setInterval(load, 20000);
+    return () => clearInterval(t);
   }, []);
 
   const visible = useMemo(() => {
@@ -40,16 +50,32 @@ export default function AdminBalanceRequestsPage() {
   }, [items, filter]);
 
   const pendingCount = items.filter((i) => i.status === "pending").length;
+  const pendingTotal = items
+    .filter((i) => i.status === "pending")
+    .reduce((s, i) => s + i.amount, 0);
 
   async function decide(id: string, status: "approved" | "rejected") {
-    setBusy(id + status);
-    await fetch("/api/admin/balance-requests", {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ id, status }),
-    });
-    setBusy(null);
-    load();
+    setBusy(id);
+    setMsg(null);
+    setErr(null);
+    try {
+      const res = await fetch("/api/admin/balance-requests", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id, status }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        setErr(data.error || "İşlem başarısız");
+        return;
+      }
+      setMsg(status === "approved" ? "Ödeme onaylandı — bakiye yüklendi" : "Bildirim reddedildi");
+      await load();
+    } catch {
+      setErr("Ağ hatası");
+    } finally {
+      setBusy(null);
+    }
   }
 
   return (
@@ -58,7 +84,7 @@ export default function AdminBalanceRequestsPage() {
         <div>
           <h2>Ödeme Bildirimleri</h2>
           <p className="muted">
-            Havale/EFT bildirimlerini onayla — bakiyeyi otomatik yükler ({pendingCount} bekleyen)
+            {pendingCount} bekleyen · {pendingTotal.toFixed(2)} ₺ — onayda bakiye otomatik yüklenir
           </p>
         </div>
         <div className="flex gap-2">
@@ -67,7 +93,7 @@ export default function AdminBalanceRequestsPage() {
             className={`btn ${filter === "pending" ? "btn-primary" : "btn-ghost"}`}
             onClick={() => setFilter("pending")}
           >
-            Bekleyen
+            Bekleyen ({pendingCount})
           </button>
           <button
             type="button"
@@ -76,13 +102,19 @@ export default function AdminBalanceRequestsPage() {
           >
             Tümü
           </button>
+          <button type="button" className="btn btn-ghost" onClick={() => load()}>
+            Yenile
+          </button>
         </div>
       </div>
+
+      {msg ? <p className="mb-3 text-sm" style={{ color: "#6ee7a8" }}>{msg}</p> : null}
+      {err ? <p className="mb-3 text-sm" style={{ color: "#f87171" }}>{err}</p> : null}
 
       {bank ? (
         <div className="admin-panel mb-4 bank-admin-strip">
           <div>
-            <span className="muted text-xs">Banka hesabı</span>
+            <span className="muted text-xs">Banka hesabı (üyelerin gördüğü)</span>
             <strong>
               {bank.name} · {bank.holder}
             </strong>
@@ -101,7 +133,7 @@ export default function AdminBalanceRequestsPage() {
               <th>Not</th>
               <th>Tarih</th>
               <th>Durum</th>
-              <th></th>
+              <th>İşlem</th>
             </tr>
           </thead>
           <tbody>
@@ -115,8 +147,8 @@ export default function AdminBalanceRequestsPage() {
               visible.map((i) => (
                 <tr key={i.id}>
                   <td>
-                    <div>{i.member.username}</div>
-                    <div className="muted text-xs">{i.member.email}</div>
+                    <div>{i.member?.username || "—"}</div>
+                    <div className="muted text-xs">{i.member?.email}</div>
                   </td>
                   <td>
                     <strong>{i.amount.toFixed(2)} ₺</strong>
@@ -127,7 +159,9 @@ export default function AdminBalanceRequestsPage() {
                     {new Date(i.createdAt).toLocaleString("tr-TR")}
                   </td>
                   <td>
-                    <span className={`pay-status pay-${i.status}`}>{i.status}</span>
+                    <span className={`pay-status pay-${i.status}`}>
+                      {STATUS_TR[i.status] || i.status}
+                    </span>
                   </td>
                   <td>
                     {i.status === "pending" ? (
@@ -135,21 +169,23 @@ export default function AdminBalanceRequestsPage() {
                         <button
                           type="button"
                           className="btn btn-primary"
-                          disabled={busy === i.id + "approved"}
+                          disabled={busy === i.id}
                           onClick={() => decide(i.id, "approved")}
                         >
-                          Onayla
+                          {busy === i.id ? "…" : "Onayla"}
                         </button>
                         <button
                           type="button"
                           className="btn btn-ghost"
-                          disabled={busy === i.id + "rejected"}
+                          disabled={busy === i.id}
                           onClick={() => decide(i.id, "rejected")}
                         >
                           Reddet
                         </button>
                       </div>
-                    ) : null}
+                    ) : (
+                      <span className="muted text-xs">—</span>
+                    )}
                   </td>
                 </tr>
               ))

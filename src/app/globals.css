@@ -2256,6 +2256,36 @@ body:has(.admin-saas) main { padding: 0; }
   box-shadow: 0 24px 60px rgba(0, 0, 0, 0.45);
 }
 
+.pay-grid {
+  display: grid;
+  gap: 1rem;
+}
+@media (min-width: 960px) {
+  .pay-grid {
+    grid-template-columns: 1.1fr 0.9fr;
+    align-items: start;
+  }
+}
+.pay-col {
+  display: grid;
+  gap: 0;
+  min-width: 0;
+}
+a.sp-balance-pill {
+  text-decoration: none;
+  transition: transform 0.15s ease, background 0.15s ease;
+}
+a.sp-balance-pill:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.08);
+}
+a.sp-user {
+  text-decoration: none;
+}
+a.sp-user:hover {
+  color: #fff;
+}
+
 /* —— ANNOUNCEMENT + SOCIAL LOGOS + BANK —— */
 .announce-banner {
   position: sticky;

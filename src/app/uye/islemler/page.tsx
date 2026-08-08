@@ -1,9 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { MemberPanelShell } from "@/components/smm/MemberPanelShell";
+import { MemberGate } from "@/components/smm/MemberGate";
 
-type Me = { username: string; email: string; balance: number };
 type Tx = {
   id: string;
   type: string;
@@ -13,61 +12,67 @@ type Tx = {
   createdAt: string;
 };
 
+const TYPE_TR: Record<string, string> = {
+  deposit: "Bakiye yükleme",
+  coupon: "Kupon",
+  order: "Sipariş",
+  refund: "İade",
+  adjust: "Düzeltme",
+};
+
 export default function MemberTransactionsPage() {
-  const [me, setMe] = useState<Me | null>(null);
   const [items, setItems] = useState<Tx[]>([]);
 
   useEffect(() => {
-    Promise.all([
-      fetch("/api/member/profile").then((r) => (r.ok ? r.json() : null)),
-      fetch("/api/member/transactions").then((r) => (r.ok ? r.json() : null)),
-    ]).then(([p, t]) => {
-      if (p?.member) {
-        setMe({
-          username: p.member.username,
-          email: p.member.email,
-          balance: p.member.balance,
-        });
-      }
-      setItems(t?.items || []);
-    });
+    fetch("/api/member/transactions", { credentials: "same-origin" })
+      .then((r) => (r.ok ? r.json() : null))
+      .then((t) => setItems(t?.items || []));
   }, []);
 
-  if (!me) return <div className="site-shell py-16 muted">Yükleniyor…</div>;
-
   return (
-    <MemberPanelShell username={me.username} email={me.email} balance={me.balance}>
-      <div className="member-page">
-        <div className="section-head mb-6">
-          <p className="section-kicker">İşlem Geçmişi</p>
-          <h1 className="section-title">Cüzdan hareketleri</h1>
+    <MemberGate>
+      {() => (
+        <div className="sp-page">
+          <div className="sp-page-title">
+            <h1>İşlem Geçmişi</h1>
+            <p>Cüzdan hareketleri</p>
+          </div>
+          <div className="sp-card">
+            <div className="sp-table-wrap">
+              <table className="sp-table">
+                <thead>
+                  <tr>
+                    <th>Tür</th>
+                    <th>Tutar</th>
+                    <th>Bakiye</th>
+                    <th>Not</th>
+                    <th>Tarih</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {items.map((t) => (
+                    <tr key={t.id}>
+                      <td>{TYPE_TR[t.type] || t.type}</td>
+                      <td style={{ color: t.amount >= 0 ? "#6ee7a8" : "#f87171" }}>
+                        {t.amount >= 0 ? "+" : ""}
+                        {t.amount.toFixed(2)} ₺
+                      </td>
+                      <td>{t.balanceAfter.toFixed(2)} ₺</td>
+                      <td className="muted text-sm">{t.note || "—"}</td>
+                      <td className="muted text-xs">
+                        {new Date(t.createdAt).toLocaleString("tr-TR")}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+              {items.length === 0 ? (
+                <p className="muted p-4 text-sm">Henüz işlem yok.</p>
+              ) : null}
+            </div>
+          </div>
         </div>
-        <div className="admin-table-wrap glass-panel rounded-2xl overflow-hidden">
-          <table className="admin-table">
-            <thead>
-              <tr>
-                <th>Tür</th>
-                <th>Tutar</th>
-                <th>Bakiye</th>
-                <th>Not</th>
-                <th>Tarih</th>
-              </tr>
-            </thead>
-            <tbody>
-              {items.map((t) => (
-                <tr key={t.id}>
-                  <td>{t.type}</td>
-                  <td>{t.amount.toFixed(2)} ₺</td>
-                  <td>{t.balanceAfter.toFixed(2)} ₺</td>
-                  <td>{t.note}</td>
-                  <td>{new Date(t.createdAt).toLocaleString("tr-TR")}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-          {items.length === 0 ? <p className="muted p-4 text-sm">İşlem yok.</p> : null}
-        </div>
-      </div>
-    </MemberPanelShell>
+      )}
+    </MemberGate>
   );
 }

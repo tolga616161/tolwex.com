@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, type ReactNode } from "react";
+import { useCallback, useEffect, useState, type ReactNode } from "react";
 import { useRouter } from "next/navigation";
 import { MemberPanelShell } from "@/components/smm/MemberPanelShell";
 
@@ -13,47 +13,61 @@ export type MemberMe = {
   spent: number;
 };
 
+export type MemberGateApi = {
+  me: MemberMe;
+  refreshMe: () => Promise<void>;
+  setBalance: (balance: number) => void;
+};
+
 /** Client-side auth gate — avoids SSR instance race after register/login. */
 export function MemberGate({
   children,
 }: {
-  children: (me: MemberMe) => ReactNode;
+  children: (api: MemberGateApi) => ReactNode;
 }) {
   const router = useRouter();
   const [me, setMe] = useState<MemberMe | null>(null);
   const [error, setError] = useState<string | null>(null);
 
+  const refreshMe = useCallback(async () => {
+    const res = await fetch("/api/member/profile", { credentials: "same-origin" });
+    if (res.status === 401) {
+      router.replace("/uye/giris");
+      return;
+    }
+    const data = await res.json().catch(() => null);
+    if (!data?.member) {
+      router.replace("/uye/giris");
+      return;
+    }
+    setMe({
+      id: data.member.id,
+      username: data.member.username || data.member.name || "üye",
+      email: data.member.email,
+      name: data.member.name || "",
+      balance: Number(data.member.balance) || 0,
+      spent: Number(data.member.spent) || 0,
+    });
+  }, [router]);
+
   useEffect(() => {
     let alive = true;
     (async () => {
       try {
-        const res = await fetch("/api/member/profile", { credentials: "same-origin" });
-        if (res.status === 401) {
-          router.replace("/uye/giris");
-          return;
-        }
-        const data = await res.json().catch(() => null);
-        if (!alive) return;
-        if (!data?.member) {
-          router.replace("/uye/giris");
-          return;
-        }
-        setMe({
-          id: data.member.id,
-          username: data.member.username || data.member.name || "üye",
-          email: data.member.email,
-          name: data.member.name || "",
-          balance: Number(data.member.balance) || 0,
-          spent: Number(data.member.spent) || 0,
-        });
+        await refreshMe();
       } catch {
         if (alive) setError("Bağlantı hatası");
       }
     })();
+    const onFocus = () => {
+      refreshMe().catch(() => undefined);
+    };
+    window.addEventListener("focus", onFocus);
     return () => {
       alive = false;
+      window.removeEventListener("focus", onFocus);
     };
-  }, [router]);
+  }, [refreshMe]);
 
   if (error) {
     return (
@@ -76,9 +90,15 @@ export function MemberGate({
     );
   }
 
+  const api: MemberGateApi = {
+    me,
+    refreshMe,
+    setBalance: (balance: number) => setMe((m) => (m ? { ...m, balance } : m)),
+  };
+
   return (
     <MemberPanelShell username={me.username} email={me.email} balance={me.balance}>
-      {children(me)}
+      {children(api)}
     </MemberPanelShell>
   );
 }

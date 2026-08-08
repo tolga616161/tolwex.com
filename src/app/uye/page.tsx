@@ -7,7 +7,7 @@ import { NewOrderForm } from "@/components/smm/NewOrderForm";
 export default function MemberHomePage() {
   return (
     <MemberGate>
-      {(me) => (
+      {({ me }) => (
         <div className="sp-page">
           <div className="sp-page-title">
             <h1>Yeni Sipariş</h1>

@@ -32,7 +32,7 @@ export default function MemberStatsPage() {
 
   return (
     <MemberGate>
-      {(me) => (
+      {({ me }) => (
         <div className="sp-page">
           <div className="sp-page-title">
             <h1>İstatistikler</h1>

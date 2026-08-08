@@ -74,6 +74,24 @@ export async function pullMembersFromGist(): Promise<{ ok: boolean; count: numbe
 
     for (const m of list) {
       if (!m?.id || !m.username || !m.email || !m.passwordHash) continue;
+      const existing = await db.member.findUnique({ where: { id: m.id } });
+      const remoteUpdated = m.updatedAt ? new Date(m.updatedAt).getTime() : 0;
+      // Prefer newer local balance/spent so concurrent deposits are not wiped
+      if (existing && existing.updatedAt.getTime() > remoteUpdated) {
+        await db.member.update({
+          where: { id: m.id },
+          data: {
+            username: m.username,
+            email: m.email,
+            passwordHash: m.passwordHash,
+            name: m.name || m.username,
+            phone: m.phone || "",
+            apiKey: m.apiKey || existing.apiKey || randomKey(),
+            active: m.active !== false,
+          },
+        });
+        continue;
+      }
       await db.member.upsert({
         where: { id: m.id },
         create: {
@@ -100,7 +118,7 @@ export async function pullMembersFromGist(): Promise<{ ok: boolean; count: numbe
           spent: Number(m.spent) || 0,
           apiKey: m.apiKey || randomKey(),
           active: m.active !== false,
-          updatedAt: new Date(),
+          updatedAt: m.updatedAt ? new Date(m.updatedAt) : new Date(),
         },
       });
     }

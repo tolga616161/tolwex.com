@@ -3,6 +3,7 @@ import fs from "fs";
 import path from "path";
 import { scheduleDurableDbPush } from "@/lib/db-sync";
 import { pullMembersFromGist } from "@/lib/members-durable";
+import { pullPaymentsFromGist } from "@/lib/payments-durable";
 
 /**
  * On Vercel, filesystem is read-only except /tmp.
@@ -58,6 +59,7 @@ export function ensureDbHydrated(force = false): Promise<void> {
         return;
       }
       await pullMembersFromGist();
+      await pullPaymentsFromGist();
     })().catch(() => undefined);
   }
   return hydratePromise;

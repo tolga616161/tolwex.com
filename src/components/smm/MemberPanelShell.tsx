@@ -10,10 +10,9 @@ const NAV = [
   { href: "/uye/siparisler", label: "Siparişlerim" },
   { href: "/uye/servisler", label: "Servisler" },
   { href: "/uye/bakiye", label: "Bakiye Yükle" },
+  { href: "/uye/islemler", label: "İşlemler" },
   { href: "/uye/istatistik", label: "İstatistik" },
-  { href: "/uye/islemler", label: "İşlem Geçmişi" },
   { href: "/uye/destek", label: "Destek" },
-  { href: "/uye/sss", label: "SSS" },
   { href: "/uye/api", label: "API" },
   { href: "/uye/profil", label: "Profil" },
 ];
@@ -45,11 +44,15 @@ export function MemberPanelShell({
           </Link>
           <div className="sp-top-meta">
             {typeof balance === "number" ? (
-              <span className="sp-balance-pill">{balance.toFixed(2)} ₺</span>
+              <Link href="/uye/bakiye" className="sp-balance-pill" title="Bakiye yükle">
+                {balance.toFixed(2)} ₺
+              </Link>
             ) : null}
-            <span className="sp-user">{username}</span>
+            <Link href="/uye/profil" className="sp-user" title={email}>
+              {username}
+            </Link>
             <button type="button" className="sp-logout" onClick={logout}>
-              Çıkış Yap
+              Çıkış
             </button>
           </div>
         </div>
@@ -70,10 +73,7 @@ export function MemberPanelShell({
           })}
         </nav>
       </header>
-      <main className="sp-main">
-        <p className="sp-email-hint muted">{email}</p>
-        {children}
-      </main>
+      <main className="sp-main">{children}</main>
     </div>
   );
 }
