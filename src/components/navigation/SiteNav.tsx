@@ -8,11 +8,10 @@ import { whatsappUrl } from "@/lib/contact";
 
 const NAV = [
   { label: "Ana Sayfa", href: "/" },
+  { label: "Hizmetler", href: "/hizmetler" },
   { label: "Eski Hesap", href: "/urunler/eski-tarihli-hesaplar" },
-  { label: "Projeli", href: "/urunler/projeli-hesaplar" },
   { label: "Kapanan Hesap", href: "/urunler/kapanan-hesap-aktif-etme" },
-  { label: "Ürünler", href: "/urunler" },
-  { label: "Nasıl Çalışır?", href: "/#nasil-calisir" },
+  { label: "Üye Girişi", href: "/uye/giris" },
 ];
 
 export function SiteNav() {
@@ -75,21 +74,19 @@ export function SiteNav() {
           </nav>
           <div className="mt-10 grid gap-3">
             <Link
-              href="/urunler/kapanan-hesap-aktif-etme"
+              href="/hizmetler"
               className="btn btn-ghost"
               onClick={() => setMobileOpen(false)}
             >
-              Hesabı Yükle
+              SMM Hizmetler
             </Link>
-            <a
-              href={wa}
+            <Link
+              href="/uye/giris"
               className="btn btn-primary"
-              target="_blank"
-              rel="noopener noreferrer"
               onClick={() => setMobileOpen(false)}
             >
-              WhatsApp Destek
-            </a>
+              Üye Girişi
+            </Link>
           </div>
         </div>
       </div>,
@@ -125,8 +122,8 @@ export function SiteNav() {
         </nav>
 
         <div className="nav-actions">
-          <Link href="/urunler" className="nav-link nav-login">
-            Ürünler
+          <Link href="/uye/giris" className="nav-link nav-login">
+            Üye Girişi
           </Link>
           <a href={wa} className="btn btn-primary nav-cta" target="_blank" rel="noopener noreferrer">
             WhatsApp

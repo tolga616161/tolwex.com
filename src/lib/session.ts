@@ -8,6 +8,8 @@ export type AppSession = {
   oauthState?: string;
   oauthStateExpiresAt?: number;
   isAdmin?: boolean;
+  memberId?: string;
+  memberEmail?: string;
 };
 
 function isHttpsApp(): boolean {

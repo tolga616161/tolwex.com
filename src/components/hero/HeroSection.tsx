@@ -17,8 +17,11 @@ export function HeroSection() {
           ekranını yükle, nedeni yaz, WhatsApp’tan takip et.
         </p>
         <div className="hero-actions">
-          <Link href="/urunler/eski-tarihli-hesaplar" className="btn btn-primary">
-            Eski Hesaplar
+          <Link href="/hizmetler" className="btn btn-primary">
+            SMM Hizmetler
+          </Link>
+          <Link href="/uye/giris" className="btn btn-ghost">
+            Üye Girişi
           </Link>
           <Link href="/urunler/kapanan-hesap-aktif-etme" className="btn btn-ghost">
             Kapanan Hesap Aç

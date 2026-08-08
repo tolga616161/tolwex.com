@@ -1606,3 +1606,104 @@ body:has(.admin-saas) main { padding: 0; }
 .mt-4 { margin-top: 1rem; }
 .mt-6 { margin-top: 1.5rem; }
 .text-xs { font-size: 0.75rem; }
+
+/* —— SMM CATALOG / MEMBER —— */
+.smm-toolbar {
+  display: grid;
+  gap: 0.75rem;
+  margin-bottom: 1.25rem;
+}
+@media (min-width: 720px) {
+  .smm-toolbar {
+    grid-template-columns: 1.4fr 1fr;
+  }
+}
+.smm-toolbar input,
+.smm-toolbar select,
+.smm-modal-card input,
+.member-auth-card input {
+  width: 100%;
+  border: 1px solid var(--line);
+  border-radius: 0.75rem;
+  background: rgba(8, 8, 12, 0.85);
+  color: #f2f2f2;
+  padding: 0.75rem 0.9rem;
+  font: inherit;
+}
+.smm-grid {
+  display: grid;
+  gap: 0.9rem;
+  grid-template-columns: 1fr;
+}
+@media (min-width: 700px) {
+  .smm-grid { grid-template-columns: repeat(2, 1fr); }
+}
+@media (min-width: 1100px) {
+  .smm-grid { grid-template-columns: repeat(3, 1fr); }
+}
+.smm-card {
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 1.1rem;
+  padding: 1.1rem;
+  background: rgba(10, 10, 14, 0.72);
+  backdrop-filter: blur(8px);
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  min-height: 210px;
+}
+.smm-card h3 {
+  margin: 0;
+  font-size: 1rem;
+  line-height: 1.35;
+}
+.smm-cat {
+  margin: 0;
+  font-size: 0.72rem;
+  letter-spacing: 0.04em;
+  color: #8aa4c8;
+}
+.smm-meta {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.5rem;
+  font-size: 0.78rem;
+  color: #888;
+}
+.smm-price {
+  margin: 0.2rem 0 0.4rem;
+  font-size: 0.95rem;
+}
+.smm-price span { color: #888; margin-left: 0.35rem; font-size: 0.8rem; }
+.smm-pager {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+.smm-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  background: rgba(0, 0, 0, 0.65);
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+}
+.smm-modal-card {
+  width: min(440px, 100%);
+  background: #111;
+  border: 1px solid var(--line);
+  border-radius: 1.2rem;
+  padding: 1.25rem;
+  display: grid;
+  gap: 0.75rem;
+}
+.smm-modal-card label {
+  display: grid;
+  gap: 0.35rem;
+  font-size: 0.85rem;
+  color: #bbb;
+}
+.member-auth-card label { margin-bottom: 0.15rem; }

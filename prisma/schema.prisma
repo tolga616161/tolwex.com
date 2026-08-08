@@ -205,3 +205,71 @@ model AdminNotification {
 
   @@index([read, createdAt])
 }
+
+/// Site members (customer accounts)
+model Member {
+  id           String     @id @default(cuid())
+  email        String     @unique
+  passwordHash String
+  name         String     @default("")
+  phone        String     @default("")
+  active       Boolean    @default(true)
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+  orders       SmmOrder[]
+
+  @@index([createdAt])
+}
+
+/// Cached SMM panel services (smmapi.com) with markup sell rate
+model SmmService {
+  id                String   @id @default(cuid())
+  /// Provider service id from SMM API
+  providerServiceId Int      @unique
+  name              String
+  type              String   @default("Default")
+  category          String   @default("")
+  /// Provider rate per 1000 (TRY)
+  rate              Float
+  /// Customer sell rate = rate * (1 + markup) — default +50%
+  sellRate          Float
+  min               Int      @default(1)
+  max               Int      @default(1000000)
+  dripfeed          Boolean  @default(false)
+  refill            Boolean  @default(false)
+  cancel            Boolean  @default(false)
+  active            Boolean  @default(true)
+  syncedAt          DateTime @default(now())
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  orders            SmmOrder[]
+
+  @@index([category, active])
+  @@index([active, sellRate])
+  @@index([name])
+}
+
+/// Member orders placed against SMM services
+model SmmOrder {
+  id              String     @id @default(cuid())
+  memberId        String
+  member          Member     @relation(fields: [memberId], references: [id], onDelete: Cascade)
+  serviceId       String?
+  service         SmmService? @relation(fields: [serviceId], references: [id], onDelete: SetNull)
+  providerServiceId Int
+  serviceName     String     @default("")
+  link            String
+  quantity        Int
+  /// Charged to customer (sell rate)
+  charge          Float      @default(0)
+  /// Provider cost estimate
+  cost            Float      @default(0)
+  status          String     @default("pending") // pending | processing | completed | partial | canceled | error
+  providerOrderId String?
+  errorMessage    String?
+  createdAt       DateTime   @default(now())
+  updatedAt       DateTime   @updatedAt
+
+  @@index([memberId, createdAt])
+  @@index([status, createdAt])
+}
