@@ -129,28 +129,73 @@ export const CATEGORIES: CategoryItem[] = [
 
 export const MEGA_MENU = [
   {
-    title: "Social Media",
+    title: "Ürün Kataloğu",
     items: [
-      { label: "Instagram", href: "/instagram/connect", desc: "OAuth hesap kontrolü" },
-      { label: "Facebook", href: "/instagram/connect", desc: "Meta bağlantısı" },
-      { label: "TikTok", href: "/#categories", desc: "Kısa video büyümesi" },
+      {
+        label: "Tüm Ürünler",
+        href: "/urunler",
+        desc: "Mağaza vitrini",
+      },
+      {
+        label: "Instagram Güvenlik",
+        href: "/urunler/instagram-hesap-guvenlik-kontrolu",
+        desc: "₺499 · OAuth kontrol",
+      },
+      {
+        label: "Instagram Yönetim",
+        href: "/urunler/instagram-yonetim-paketi",
+        desc: "₺4.990 · Aylık paket",
+      },
+      {
+        label: "Kurumsal Sosyal",
+        href: "/urunler/sosyal-medya-kurumsal",
+        desc: "₺8.990 · 3 kanal",
+      },
     ],
   },
   {
-    title: "Reklam",
+    title: "Reklam Ürünleri",
     items: [
-      { label: "Meta Ads", href: "/#categories", desc: "Instagram & Facebook reklam" },
-      { label: "Google Ads", href: "/#categories", desc: "Arama ve performans" },
-      { label: "TikTok Ads", href: "/#categories", desc: "Spark & in-feed" },
+      {
+        label: "Meta Ads",
+        href: "/urunler/meta-ads-baslangic",
+        desc: "₺3.490 · FB + IG",
+      },
+      {
+        label: "Google Ads",
+        href: "/urunler/google-ads-arama",
+        desc: "₺3.990 · Arama ağı",
+      },
+      {
+        label: "TikTok İçerik",
+        href: "/urunler/tiktok-icerik-paketi",
+        desc: "₺2.990 · Senaryo paketi",
+      },
     ],
   },
   {
     title: "Dijital",
     items: [
-      { label: "SEO", href: "/#categories", desc: "Organik görünürlük" },
-      { label: "Web Tasarım", href: "/#categories", desc: "Premium arayüzler" },
-      { label: "İçerik", href: "/#categories", desc: "Marka anlatımı" },
-      { label: "Marka Yönetimi", href: "/instagram/security", desc: "Güvenlik & itibar" },
+      {
+        label: "SEO Denetim",
+        href: "/urunler/seo-baslangic-denetimi",
+        desc: "₺2.490 · Teknik rapor",
+      },
+      {
+        label: "Landing Tasarım",
+        href: "/urunler/web-tasarim-landing",
+        desc: "₺7.500 · Premium UI",
+      },
+      {
+        label: "Instagram Bağla",
+        href: "/instagram/connect",
+        desc: "Resmi Meta OAuth",
+      },
+      {
+        label: "Güvenlik Merkezi",
+        href: "/instagram/security",
+        desc: "Checklist + rehber",
+      },
     ],
   },
 ];

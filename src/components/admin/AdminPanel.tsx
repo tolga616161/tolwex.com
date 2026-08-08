@@ -92,8 +92,7 @@ export function AdminPanel() {
       <form onSubmit={login} className="surface rounded-2xl p-6 max-w-md space-y-4">
         <h1 className="display text-3xl">Admin Girişi</h1>
         <p className="muted text-sm">
-          Development ortamında ADMIN_PASSWORD boşsa giriş açıktır. Production’da mutlaka
-          ayarlayın.
+          Ürün kataloğu ve Meta ayarları için giriş yapın.
         </p>
         <input
           type="password"
