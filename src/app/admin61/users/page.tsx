@@ -1,96 +1,96 @@
 "use client";
 
-import Link from "next/link";
 import { useEffect, useState } from "react";
 
-type UserRow = {
+type Member = {
   id: string;
-  igUsername: string | null;
-  platform: string;
+  username: string;
+  email: string;
+  balance: number;
   active: boolean;
-  connected: boolean;
-  disconnected: boolean;
-  tokenStatus: string;
-  lastSeen: string;
   createdAt: string;
+  _count: { orders: number };
 };
 
 export default function AdminUsersPage() {
-  const [q, setQ] = useState("");
-  const [filter, setFilter] = useState("all");
-  const [users, setUsers] = useState<UserRow[]>([]);
+  const [members, setMembers] = useState<Member[]>([]);
+  const [delta, setDelta] = useState<Record<string, string>>({});
+
+  async function load() {
+    const d = await fetch("/api/admin/members").then((r) => (r.ok ? r.json() : null));
+    setMembers(d?.members || []);
+  }
 
   useEffect(() => {
-    const sp = new URLSearchParams({ q, filter, limit: "100" });
-    fetch(`/api/admin/users?${sp}`)
-      .then((r) => (r.ok ? r.json() : { users: [] }))
-      .then((d) => setUsers(d.users || []));
-  }, [q, filter]);
+    load();
+  }, []);
+
+  async function patch(id: string, body: Record<string, unknown>) {
+    await fetch("/api/admin/members", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id, ...body }),
+    });
+    load();
+  }
 
   return (
     <div className="admin-page">
       <div className="admin-page-head">
         <div>
           <h2>Kullanıcılar</h2>
-          <p className="muted">Visitor session + Instagram bağlantıları. Token gösterilmez.</p>
+          <p className="muted">Üye hesapları ve bakiye</p>
         </div>
       </div>
-
-      <div className="admin-toolbar">
-        <input
-          placeholder="@kullanıcı / ID / platform"
-          value={q}
-          onChange={(e) => setQ(e.target.value)}
-        />
-        <select value={filter} onChange={(e) => setFilter(e.target.value)}>
-          <option value="all">Tümü</option>
-          <option value="active">Aktif</option>
-          <option value="passive">Pasif</option>
-          <option value="connected">Bağlı</option>
-          <option value="disconnected">Bağlantısı kesilmiş</option>
-        </select>
-      </div>
-
       <div className="admin-table-wrap">
         <table className="admin-table">
           <thead>
             <tr>
-              <th>ID</th>
               <th>Kullanıcı</th>
-              <th>Platform</th>
+              <th>Bakiye</th>
+              <th>Sipariş</th>
               <th>Durum</th>
-              <th>Son görülme</th>
-              <th />
+              <th>İşlem</th>
             </tr>
           </thead>
           <tbody>
-            {users.length === 0 ? (
-              <tr>
-                <td colSpan={6} className="muted">
-                  Kayıt yok veya filtre sonucu boş.
+            {members.map((m) => (
+              <tr key={m.id}>
+                <td>
+                  <div>{m.username}</div>
+                  <div className="muted text-xs">{m.email}</div>
+                </td>
+                <td>{m.balance.toFixed(2)} ₺</td>
+                <td>{m._count.orders}</td>
+                <td>{m.active ? "aktif" : "pasif"}</td>
+                <td>
+                  <div className="flex flex-wrap gap-2 items-center">
+                    <input
+                      style={{ width: 90 }}
+                      placeholder="+/-"
+                      value={delta[m.id] || ""}
+                      onChange={(e) => setDelta((s) => ({ ...s, [m.id]: e.target.value }))}
+                    />
+                    <button
+                      type="button"
+                      className="btn btn-ghost"
+                      onClick={() =>
+                        patch(m.id, { balanceDelta: Number(delta[m.id] || 0), note: "Admin düzeltme" })
+                      }
+                    >
+                      Bakiye
+                    </button>
+                    <button
+                      type="button"
+                      className="btn btn-ghost"
+                      onClick={() => patch(m.id, { active: !m.active })}
+                    >
+                      {m.active ? "Pasifleştir" : "Aktifleştir"}
+                    </button>
+                  </div>
                 </td>
               </tr>
-            ) : (
-              users.map((u) => (
-                <tr key={u.id}>
-                  <td>
-                    <code>{u.id.slice(0, 10)}…</code>
-                  </td>
-                  <td>{u.igUsername ? `@${u.igUsername}` : "—"}</td>
-                  <td>{u.platform}</td>
-                  <td>
-                    {u.connected ? "Bağlı" : u.disconnected ? "Kesilmiş" : "Pasif"}
-                    {u.active ? " · aktif" : ""}
-                  </td>
-                  <td>{new Date(u.lastSeen).toLocaleString("tr-TR")}</td>
-                  <td>
-                    <Link href={`/admin61/users/${u.id}`} className="btn btn-ghost btn-sm">
-                      Detay
-                    </Link>
-                  </td>
-                </tr>
-              ))
-            )}
+            ))}
           </tbody>
         </table>
       </div>

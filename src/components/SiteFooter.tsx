@@ -15,7 +15,7 @@ export function SiteFooter() {
       <div className="site-shell footer-inner">
         <div className="footer-brand">
           <TolwexLogo size="md" />
-          <p className="footer-tag">SMM hizmetleri · smmapi.com otomasyon</p>
+          <p className="footer-tag">Profesyonel SMM Panel</p>
         </div>
         <nav className="footer-links" aria-label="Footer">
           {LINKS.map((l) => (
@@ -24,17 +24,6 @@ export function SiteFooter() {
             </Link>
           ))}
         </nav>
-        <div className="footer-social" aria-label="Sosyal">
-          <span className="footer-social-icon" aria-hidden>
-            IG
-          </span>
-          <span className="footer-social-icon" aria-hidden>
-            X
-          </span>
-          <span className="footer-social-icon" aria-hidden>
-            YT
-          </span>
-        </div>
       </div>
       <div className="site-shell footer-bottom">
         <p>© {new Date().getFullYear()} TOLWEX. Tüm hakları saklıdır.</p>

@@ -19,9 +19,9 @@ const body = IBM_Plex_Sans({
 });
 
 export const metadata: Metadata = {
-  title: "TOLWEX — Meta Eski · Projeli · Kapanan Hesap",
+  title: "TOLWEX — Profesyonel SMM Panel",
   description:
-    "Meta eski tarihli hesap, projeli hesap paketleri ve kapanan hesap açma. Kapanma ekranı yükle, nedeni yaz, WhatsApp ile takip et.",
+    "TOLWEX SMM paneli: üye hesabı, bakiye, binlerce servis ve otomatik sipariş.",
   icons: {
     icon: [{ url: "/favicon.svg", type: "image/svg+xml" }],
   },

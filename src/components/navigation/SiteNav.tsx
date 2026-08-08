@@ -37,7 +37,7 @@ export function SiteNav() {
     };
   }, [mobileOpen]);
 
-  const wa = whatsappUrl("Merhaba, TOLWEX SMM hakkında yazıyorum.");
+  const wa = whatsappUrl("Merhaba, TOLWEX SMM paneli hakkında yazıyorum.");
 
   const mobileMenu =
     mounted &&
@@ -73,13 +73,6 @@ export function SiteNav() {
             ))}
           </nav>
           <div className="mt-10 grid gap-3">
-            <Link
-              href="/hizmetler"
-              className="btn btn-ghost"
-              onClick={() => setMobileOpen(false)}
-            >
-              SMM Hizmetler
-            </Link>
             <Link
               href="/uye/giris"
               className="btn btn-primary"

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/db";
-import { getSession } from "@/lib/session";
+import { adjustBalance, requireMember } from "@/lib/member";
 import { placeSmmOrder } from "@/lib/smm/client";
 import { rateLimit } from "@/lib/rate-limit";
 import { writeAuditLog } from "@/lib/audit";
@@ -12,15 +12,6 @@ const schema = z.object({
   quantity: z.number().int().positive(),
 });
 
-async function requireMember() {
-  const session = await getSession();
-  if (!session.memberId) return null;
-  const member = await prisma.member.findUnique({
-    where: { id: session.memberId, active: true },
-  });
-  return member;
-}
-
 export async function GET() {
   const member = await requireMember();
   if (!member) return NextResponse.json({ error: "Giriş gerekli" }, { status: 401 });
@@ -28,7 +19,7 @@ export async function GET() {
   const orders = await prisma.smmOrder.findMany({
     where: { memberId: member.id },
     orderBy: { createdAt: "desc" },
-    take: 50,
+    take: 100,
   });
   return NextResponse.json({ orders });
 }
@@ -62,8 +53,15 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  const charge = (service.sellRate * parsed.data.quantity) / 1000;
-  const cost = (service.rate * parsed.data.quantity) / 1000;
+  const charge = Math.round(((service.sellRate * parsed.data.quantity) / 1000) * 10000) / 10000;
+  const cost = Math.round(((service.rate * parsed.data.quantity) / 1000) * 10000) / 10000;
+
+  if (member.balance < charge) {
+    return NextResponse.json(
+      { error: `Yetersiz bakiye. Gerekli: ${charge.toFixed(2)} ₺ · Bakiye: ${member.balance.toFixed(2)} ₺` },
+      { status: 402 }
+    );
+  }
 
   let providerOrderId: string | null = null;
   let status = "pending";
@@ -82,6 +80,33 @@ export async function POST(req: NextRequest) {
     errorMessage = e instanceof Error ? e.message : "Sipariş gönderilemedi";
   }
 
+  if (status === "error") {
+    const order = await prisma.smmOrder.create({
+      data: {
+        memberId: member.id,
+        serviceId: service.id,
+        providerServiceId: service.providerServiceId,
+        serviceName: service.name,
+        link: parsed.data.link.trim(),
+        quantity: parsed.data.quantity,
+        charge,
+        cost,
+        status,
+        providerOrderId,
+        errorMessage: errorMessage || undefined,
+      },
+    });
+    await writeAuditLog({
+      action: "smm.order_error",
+      actorType: "visitor",
+      actorId: member.id,
+      metadata: { orderId: order.id },
+    });
+    return NextResponse.json({ error: errorMessage || "Sipariş başarısız", order }, { status: 502 });
+  }
+
+  await adjustBalance(member.id, -charge, "order", `Sipariş · ${service.name}`, "");
+
   const order = await prisma.smmOrder.create({
     data: {
       memberId: member.id,
@@ -90,31 +115,24 @@ export async function POST(req: NextRequest) {
       serviceName: service.name,
       link: parsed.data.link.trim(),
       quantity: parsed.data.quantity,
-      charge: Math.round(charge * 10000) / 10000,
-      cost: Math.round(cost * 10000) / 10000,
+      charge,
+      cost,
       status,
       providerOrderId,
-      errorMessage: errorMessage || undefined,
     },
+  });
+
+  await prisma.walletTransaction.updateMany({
+    where: { memberId: member.id, type: "order", refId: "" },
+    data: { refId: order.id },
   });
 
   await writeAuditLog({
-    action: status === "error" ? "smm.order_error" : "smm.order",
+    action: "smm.order",
     actorType: "visitor",
     actorId: member.id,
-    metadata: {
-      orderId: order.id,
-      providerServiceId: service.providerServiceId,
-      status,
-    },
+    metadata: { orderId: order.id, providerServiceId: service.providerServiceId },
   });
-
-  if (status === "error") {
-    return NextResponse.json(
-      { error: errorMessage || "Sipariş başarısız", order },
-      { status: 502 }
-    );
-  }
 
   return NextResponse.json({ ok: true, order });
 }

@@ -8,29 +8,14 @@ export function HeroSection() {
     <section className="hero-stage panel-hero">
       <div className="site-shell panel-hero-grid">
         <div className="hero-copy panel-hero-copy">
-          <p className="hero-kicker">TOLWEX · SMM Panel</p>
+          <p className="hero-kicker">TOLWEX</p>
           <h1 className="hero-title display">
-            <span className="title-line">EN İYİ SMM</span>
-            <span className="title-line hero-title-accent">PAZARLAMA PANELİ.</span>
+            <span className="title-line">PROFESYONEL</span>
+            <span className="title-line hero-title-accent">SMM PANEL.</span>
           </h1>
           <p className="hero-sub">
-            smmapi.com servisleri otomatik senkron. Üye ol, giriş yap, sipariş ver —
-            Instagram bağlama yok.
+            Binlerce servis, üye paneli, bakiye ve otomatik sipariş — tek yerden yönetin.
           </p>
-          <div className="panel-stats">
-            <div>
-              <strong>2000+</strong>
-              <span>Servis</span>
-            </div>
-            <div>
-              <strong>%50</strong>
-              <span>Kârlı fiyat</span>
-            </div>
-            <div>
-              <strong>7/24</strong>
-              <span>Otomasyon</span>
-            </div>
-          </div>
           <div className="hero-actions">
             <Link href="/uye/kayit" className="btn btn-ghost">
               Üye ol

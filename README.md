@@ -1,23 +1,28 @@
-# TOLWEX — Dijital Medya & Instagram Hesap Kontrolü
+# TOLWEX — Profesyonel SMM Panel
 
-Production domain: **https://tolwex.com**
+Üye paneli, bakiye, kupon, destek ve smmapi.com servis senkronu ile çalışan SMM paneli.
 
-- Resmi Meta / Instagram OAuth (şifre istenmez)
-- Haber silme, fake hesap kapatma ve dijital ürünler
-- Admin ürün/fiyat paneli
-- WhatsApp: +90 533 823 61 75
+## Özellikler
 
-## Dev
+- Üye kayıt / giriş (kullanıcı adı + şifre)
+- Yeni sipariş, siparişler, servis kataloğu
+- Bakiye talepleri ve kupon kullanımı
+- Destek talepleri
+- Admin: kullanıcılar, siparişler, servisler, kategoriler, kuponlar, API senkron, loglar
+
+## Ortam değişkenleri
+
+- `DATABASE_URL`
+- `SESSION_SECRET`
+- `ADMIN_PASSWORD`
+- `SMM_API_KEY`
+- `SMM_API_URL` (varsayılan: `https://smmapi.com/api/v2`)
+- `SMM_MARKUP_PERCENT` (varsayılan: `50`)
+
+## Geliştirme
 
 ```bash
 npm install
 npx prisma db push
-npx prisma db seed
 npm run dev
 ```
-
-## Docs
-
-- `docs/NEYI-NEREVE-YAZ.md` — Meta + Hostinger neyi nereye
-- `docs/HOSTINGER-DEPLOY.md` — Deploy adımları
-- `docs/META_APP_SETUP.md` — Meta App Domains

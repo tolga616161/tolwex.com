@@ -1,25 +1,22 @@
+export const metadata = { title: "Kullanım Şartları — TOLWEX" };
+
 export default function TermsPage() {
   return (
-    <div className="site-shell py-10 pb-20 max-w-3xl">
-      <h1 className="display text-4xl font-bold mb-6">Kullanım Koşulları</h1>
-      <div className="space-y-5 muted leading-relaxed">
+    <div className="site-shell py-16 max-w-3xl">
+      <h1 className="display text-3xl mb-6">Kullanım Şartları</h1>
+      <div className="grid gap-4 muted text-sm leading-relaxed">
         <p>
-          Bu hizmet, Instagram hesap bağlantısını yalnızca resmi Meta OAuth ile
-          sağlar. Kullanıcılar kendi Meta/Instagram hesaplarıyla giriş yapar ve
-          izinleri kendileri onaylar.
+          TOLWEX üzerinden verilen SMM siparişleri otomatik olarak tedarikçi API’sine
+          iletilir. Yanlış link veya hesap bilgisi kullanıcı sorumluluğundadır.
         </p>
+        <h2 className="display text-xl text-white">Bakiye</h2>
         <p>
-          Platform, Instagram şifresi, cookie, session veya 2FA kodu talep etmez.
-          Kullanıcılar hesap güvenlik önlemlerinden (2FA, güçlü parola, cihaz
-          kontrolü) kendileri sorumludur.
+          Yüklenen bakiyeler siparişlerde kullanılır. Onaylanmış bakiyeler ve tamamlanan
+          siparişler için iade politikası destek üzerinden değerlendirilir.
         </p>
+        <h2 className="display text-xl text-white">Hesap</h2>
         <p>
-          Meta API’nin sağlamadığı veriler tahmin edilmez; güvenlik skoru veya selfie
-          doğrulama gibi API dışı iddialar üretilmez.
-        </p>
-        <p>
-          Hizmet “olduğu gibi” sunulur. Meta API kesintileri, izin değişiklikleri veya
-          token süreleri bağlantı deneyimini etkileyebilir.
+          Hesap güvenliği kullanıcıya aittir. Şüpheli kullanımda hesap askıya alınabilir.
         </p>
       </div>
     </div>

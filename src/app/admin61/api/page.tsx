@@ -1,72 +1,67 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { StatusPill } from "@/components/admin/saas/AdminWidgets";
-import Link from "next/link";
 
 export default function AdminApiPage() {
-  const [status, setStatus] = useState<Record<string, unknown> | null>(null);
+  const [info, setInfo] = useState<{
+    smm_api_url?: string;
+    smm_api_configured?: boolean;
+    markup_percent?: number;
+  } | null>(null);
+  const [syncMsg, setSyncMsg] = useState<string | null>(null);
+  const [busy, setBusy] = useState(false);
 
   useEffect(() => {
-    fetch("/api/meta/config")
+    fetch("/api/admin/settings")
       .then((r) => (r.ok ? r.json() : null))
-      .then(setStatus);
+      .then((d) => setInfo(d?.settings || null));
   }, []);
+
+  async function sync() {
+    setBusy(true);
+    setSyncMsg(null);
+    const res = await fetch("/api/admin/smm/sync", { method: "POST" });
+    const data = await res.json().catch(() => ({}));
+    setBusy(false);
+    if (!res.ok) {
+      setSyncMsg(data.error || "Senkron başarısız");
+      return;
+    }
+    setSyncMsg(
+      `Senkron tamam: ${data.upserted ?? "?"} servis · ${data.categories ?? "?"} kategori · markup %${data.markupPercent ?? ""}`
+    );
+  }
 
   return (
     <div className="admin-page">
       <div className="admin-page-head">
         <div>
-          <h2>API Yönetimi</h2>
-          <p className="muted">Meta Graph API sağlık ve uç noktalar</p>
-        </div>
-        <Link href="/admin61/meta" className="btn btn-primary">
-          Meta ayarları
-        </Link>
-      </div>
-
-      <div className="admin-stat-grid">
-        <div className="admin-stat">
-          <p className="admin-stat-label">Durum</p>
-          <StatusPill status={String(status?.connectionStatus || "NOT CONNECTED")} />
-        </div>
-        <div className="admin-stat">
-          <p className="admin-stat-label">API Version</p>
-          <p className="admin-stat-value text-base">{String(status?.apiVersion || "—")}</p>
-        </div>
-        <div className="admin-stat">
-          <p className="admin-stat-label">Kaynak</p>
-          <p className="admin-stat-value text-base">{String(status?.source || "—")}</p>
+          <h2>API Ayarları</h2>
+          <p className="muted">smmapi.com entegrasyonu</p>
         </div>
       </div>
 
-      <div className="admin-panel">
-        <h3>Uç noktalar</h3>
-        <ul className="admin-usage-list">
-          <li>
-            <span>OAuth Start</span>
-            <code>/api/meta/oauth/start</code>
-          </li>
-          <li>
-            <span>OAuth Callback</span>
-            <code>/api/meta/oauth/callback</code>
-          </li>
-          <li>
-            <span>Webhook</span>
-            <code>/api/meta/webhook</code>
-          </li>
-          <li>
-            <span>Status</span>
-            <code>/api/meta/status</code>
-          </li>
-          <li>
-            <span>Dashboard</span>
-            <code>/api/meta/dashboard</code>
-          </li>
-        </ul>
-        {status?.lastApiError ? (
-          <p className="admin-error mt-4">Son hata: {String(status.lastApiError)}</p>
-        ) : null}
+      <div className="admin-panel grid gap-3 max-w-xl">
+        <p>
+          <span className="muted">API URL: </span>
+          <code>{info?.smm_api_url || "—"}</code>
+        </p>
+        <p>
+          <span className="muted">API Key: </span>
+          {info?.smm_api_configured ? "yapılandırıldı (env)" : "eksik"}
+        </p>
+        <p>
+          <span className="muted">Markup: </span>%{info?.markup_percent ?? "—"}
+        </p>
+        <p className="muted text-sm">
+          Anahtar ve markup yalnızca ortam değişkenlerinden okunur:
+          <code> SMM_API_KEY</code>, <code> SMM_API_URL</code>,{" "}
+          <code> SMM_MARKUP_PERCENT</code>.
+        </p>
+        <button type="button" className="btn btn-primary" onClick={sync} disabled={busy}>
+          {busy ? "Senkronlanıyor…" : "Servisleri senkronize et"}
+        </button>
+        {syncMsg ? <p className="text-sm">{syncMsg}</p> : null}
       </div>
     </div>
   );

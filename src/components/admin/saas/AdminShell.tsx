@@ -4,24 +4,18 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState, type ReactNode } from "react";
 
-const NAV: Array<{ href: string; label: string; icon: string }> = [
-  { href: "/admin61", label: "Dashboard", icon: "▣" },
-  { href: "/admin61/users", label: "Kullanıcılar", icon: "◎" },
-  { href: "/admin61/instagram", label: "Instagram Hesapları", icon: "◍" },
-  { href: "/admin61/analyses", label: "Analizler", icon: "◫" },
-  { href: "/admin61/analyses/profile-visits", label: "Profil Ziyaret Analizi", icon: "◉" },
-  { href: "/admin61/analyses/blocking", label: "Engelleme Analizi", icon: "⊘" },
-  { href: "/admin61/analyses/unfollowers", label: "Takipten Çıkanlar", icon: "↺" },
-  { href: "/admin61/analyses/non-followers", label: "Takip Etmeyenler", icon: "⇄" },
-  { href: "/admin61/analyses/fake-risk", label: "Fake Hesap Analizi", icon: "⚠" },
-  { href: "/admin61/smm", label: "SMM Servisler", icon: "◈" },
-  { href: "/admin61/products", label: "Manuel Hizmetler", icon: "▤" },
-  { href: "/admin61/contents", label: "İçerikler", icon: "☰" },
-  { href: "/admin61/meta", label: "Meta Developer", icon: "⬡" },
-  { href: "/admin61/api", label: "API Yönetimi", icon: "⚡" },
-  { href: "/admin61/logs", label: "Sistem Logları", icon: "≡" },
-  { href: "/admin61/notifications", label: "Bildirimler", icon: "✦" },
-  { href: "/admin61/settings", label: "Ayarlar", icon: "⚙" },
+const NAV: Array<{ href: string; label: string }> = [
+  { href: "/admin61", label: "Dashboard" },
+  { href: "/admin61/users", label: "Kullanıcılar" },
+  { href: "/admin61/orders", label: "Siparişler" },
+  { href: "/admin61/services", label: "Servisler" },
+  { href: "/admin61/categories", label: "Kategoriler" },
+  { href: "/admin61/balance-requests", label: "Bakiye Talepleri" },
+  { href: "/admin61/coupons", label: "Kuponlar" },
+  { href: "/admin61/support", label: "Destek" },
+  { href: "/admin61/api", label: "API Ayarları" },
+  { href: "/admin61/settings", label: "Ayarlar" },
+  { href: "/admin61/logs", label: "Loglar" },
 ];
 
 export function AdminShell({ children }: { children: ReactNode }) {
@@ -32,9 +26,9 @@ export function AdminShell({ children }: { children: ReactNode }) {
   const [open, setOpen] = useState(false);
 
   useEffect(() => {
-    fetch("/api/admin/production-checklist").then(async (r) => {
-      setAuthed(r.ok);
-    });
+    fetch("/api/admin/login")
+      .then((r) => setAuthed(r.ok))
+      .catch(() => setAuthed(false));
   }, []);
 
   async function login(e: React.FormEvent) {
@@ -72,7 +66,7 @@ export function AdminShell({ children }: { children: ReactNode }) {
         <form onSubmit={login} className="admin-login-card">
           <p className="admin-brand">TOLWEX ADMIN</p>
           <h1>Yönetim girişi</h1>
-          <p className="muted">Premium social intelligence kontrol paneli</p>
+          <p className="muted">SMM panel kontrol merkezi</p>
           <label htmlFor="admin-pw">Şifre</label>
           <input
             id="admin-pw"
@@ -105,7 +99,7 @@ export function AdminShell({ children }: { children: ReactNode }) {
       <aside className={`admin-sidebar ${open ? "open" : ""}`}>
         <div className="admin-sidebar-head">
           <span className="admin-brand">TOLWEX</span>
-          <span className="admin-brand-sub">ADMIN</span>
+          <span className="admin-brand-sub">SMM ADMIN</span>
         </div>
         <nav className="admin-nav">
           {NAV.map((item) => {
@@ -120,9 +114,6 @@ export function AdminShell({ children }: { children: ReactNode }) {
                 className={`admin-nav-link ${active ? "active" : ""}`}
                 onClick={() => setOpen(false)}
               >
-                <span className="admin-nav-icon" aria-hidden>
-                  {item.icon}
-                </span>
                 <span>{item.label}</span>
               </Link>
             );
@@ -140,7 +131,7 @@ export function AdminShell({ children }: { children: ReactNode }) {
       <div className="admin-main">
         <header className="admin-topbar">
           <div>
-            <p className="admin-topbar-kicker">Social Intelligence Platform</p>
+            <p className="admin-topbar-kicker">TOLWEX SMM Panel</p>
             <h1 className="admin-topbar-title">Kontrol Merkezi</h1>
           </div>
         </header>

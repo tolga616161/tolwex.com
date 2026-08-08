@@ -1830,3 +1830,42 @@ body:has(.admin-saas) main { padding: 0; }
 @media (min-width: 900px) {
   .steps-4 { grid-template-columns: repeat(4, 1fr); }
 }
+
+.member-stat-grid {
+  display: grid;
+  gap: 0.85rem;
+  grid-template-columns: 1fr;
+}
+@media (min-width: 720px) {
+  .member-stat-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+.member-balance {
+  font-size: 0.85rem;
+  color: #cfcfcf;
+}
+.member-balance strong {
+  color: #fff;
+}
+.member-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.65rem;
+}
+.member-list li {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  font-size: 0.9rem;
+  padding-bottom: 0.65rem;
+  border-bottom: 1px solid var(--line);
+}
+.member-list li:last-child {
+  border-bottom: 0;
+  padding-bottom: 0;
+}
+

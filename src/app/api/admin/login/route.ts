@@ -38,6 +38,14 @@ export async function POST(req: NextRequest) {
   return NextResponse.json({ ok: true });
 }
 
+export async function GET() {
+  const session = await getSession();
+  if (!session.isAdmin) {
+    return NextResponse.json({ ok: false }, { status: 401 });
+  }
+  return NextResponse.json({ ok: true });
+}
+
 export async function DELETE() {
   const session = await getSession();
   session.isAdmin = false;

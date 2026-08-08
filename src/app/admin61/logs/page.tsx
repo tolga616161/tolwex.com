@@ -17,13 +17,13 @@ export default function AdminLogsPage() {
     <div className="admin-page">
       <div className="admin-page-head">
         <div>
-          <h2>Sistem Logları</h2>
-          <p className="muted">Audit log — token/secret içermez.</p>
+          <h2>Loglar</h2>
+          <p className="muted">Sistem audit kayıtları</p>
         </div>
       </div>
       <div className="admin-toolbar">
         <input
-          placeholder="Aksiyon filtresi (ör. oauth)"
+          placeholder="Aksiyon filtresi (ör. smm.order)"
           value={action}
           onChange={(e) => setAction(e.target.value)}
         />
@@ -46,7 +46,8 @@ export default function AdminLogsPage() {
                   <code>{String(l.action)}</code>
                 </td>
                 <td>
-                  {String(l.actorType)} {l.actorId ? `· ${String(l.actorId).slice(0, 8)}` : ""}
+                  {String(l.actorType)}{" "}
+                  {l.actorId ? `· ${String(l.actorId).slice(0, 8)}` : ""}
                 </td>
                 <td>
                   <code className="text-xs">{JSON.stringify(l.metadata)}</code>
