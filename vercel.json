@@ -1,6 +1,6 @@
 {
   "framework": "nextjs",
-  "buildCommand": "prisma generate && prisma db push && npx tsx prisma/seed.ts && next build",
+  "buildCommand": "prisma generate && DATABASE_URL=\"file:./prisma/data.db\" prisma db push && DATABASE_URL=\"file:./prisma/data.db\" npx tsx prisma/seed.ts && next build",
   "installCommand": "npm ci",
   "regions": ["fra1"]
 }

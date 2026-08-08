@@ -9,7 +9,13 @@ const nextConfig: NextConfig = {
         images: { unoptimized: true },
         trailingSlash: true,
       }
-    : {}),
+    : {
+        // Ship prebuilt SQLite seed DB into serverless functions (copied to /tmp at runtime)
+        outputFileTracingIncludes: {
+          "/api/**/*": ["./prisma/data.db"],
+          "/admin61/**/*": ["./prisma/data.db"],
+        },
+      }),
 };
 
 export default nextConfig;
