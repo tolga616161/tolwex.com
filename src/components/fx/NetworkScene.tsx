@@ -5,109 +5,54 @@ import { Float, Line } from "@react-three/drei";
 import { Suspense, useEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
 
-type Kind =
-  | "lock"
-  | "key"
-  | "shield"
-  | "ig"
-  | "yt"
-  | "fb"
-  | "x"
-  | "tt"
-  | "user"
-  | "cloud"
-  | "chart"
-  | "node";
+type Kind = "lock" | "key" | "shield" | "ig" | "yt" | "fb" | "x" | "tt" | "user" | "node";
 
-type NodeSpec = {
-  position: [number, number, number];
-  scale: number;
+type OrbitItem = {
   kind: Kind;
+  scale: number;
+  radius: number;
+  y: number;
+  speed: number;
+  phase: number;
   glow?: number;
 };
 
-/** Dense, visible white/beige 3D social + security objects across the page. */
-const NODES: NodeSpec[] = [
-  // Hero — big & close
-  { position: [2.6, 1.5, 0.6], scale: 1.55, kind: "ig", glow: 1.2 },
-  { position: [-2.8, 1.1, 0.3], scale: 1.4, kind: "lock", glow: 1.1 },
-  { position: [0.2, 2.2, -1.4], scale: 1.25, kind: "key", glow: 1 },
-  { position: [-1.4, -0.2, 0.8], scale: 1.15, kind: "fb", glow: 1.1 },
-  { position: [1.5, -0.6, 0.5], scale: 1.1, kind: "x", glow: 1 },
-  { position: [3.2, -1.2, -0.8], scale: 1.05, kind: "yt", glow: 0.9 },
-  { position: [-3.1, -1.5, -0.5], scale: 1.0, kind: "tt", glow: 0.9 },
-  { position: [0.8, 0.8, -2.2], scale: 0.7, kind: "node", glow: 1.4 },
-  { position: [-2.0, 2.0, -2.6], scale: 0.55, kind: "node", glow: 1.2 },
-  // Mid page — services / social swarm
-  { position: [-2.4, -3.0, 0.2], scale: 1.25, kind: "ig", glow: 1 },
-  { position: [2.5, -3.4, 0.4], scale: 1.2, kind: "fb", glow: 1 },
-  { position: [0.0, -4.0, -0.6], scale: 1.15, kind: "yt", glow: 0.95 },
-  { position: [-1.6, -4.8, 0.5], scale: 1.1, kind: "x", glow: 1 },
-  { position: [1.8, -5.2, -0.2], scale: 1.05, kind: "tt", glow: 0.95 },
-  { position: [3.0, -4.2, -1.8], scale: 1.2, kind: "lock", glow: 1 },
-  { position: [-3.0, -5.6, -1.4], scale: 1.0, kind: "key", glow: 0.9 },
-  { position: [0.6, -6.2, -2.4], scale: 0.65, kind: "node", glow: 1.3 },
-  // Analytics band
-  { position: [-2.2, -8.0, 0.3], scale: 1.25, kind: "chart", glow: 1 },
-  { position: [0.5, -8.6, 0.1], scale: 1.1, kind: "user", glow: 0.95 },
-  { position: [2.6, -8.2, -0.5], scale: 1.05, kind: "cloud", glow: 0.85 },
-  { position: [-0.8, -9.4, -1.6], scale: 1.15, kind: "ig", glow: 1 },
-  { position: [1.8, -10.0, 0.4], scale: 1.0, kind: "shield", glow: 1 },
-  // Security band
-  { position: [-2.0, -12.5, 0.5], scale: 1.45, kind: "lock", glow: 1.2 },
-  { position: [0.4, -13.2, -0.2], scale: 1.3, kind: "shield", glow: 1.1 },
-  { position: [2.8, -12.8, 0.3], scale: 1.25, kind: "key", glow: 1 },
-  { position: [-1.2, -14.4, -1.2], scale: 1.05, kind: "fb", glow: 0.9 },
-  { position: [1.6, -14.8, -0.8], scale: 1.0, kind: "x", glow: 0.9 },
-  // Lower page
-  { position: [-2.4, -17.5, 0.2], scale: 1.15, kind: "ig", glow: 1 },
-  { position: [2.2, -18.0, 0.0], scale: 1.1, kind: "yt", glow: 0.9 },
-  { position: [0.0, -18.8, -1.0], scale: 1.05, kind: "tt", glow: 0.9 },
-  { position: [-1.6, -19.6, 0.4], scale: 0.95, kind: "user", glow: 0.85 },
-  { position: [1.4, -20.2, -1.6], scale: 0.9, kind: "lock", glow: 1 },
-  { position: [2.8, -21.0, -0.4], scale: 0.7, kind: "node", glow: 1.2 },
-  { position: [-2.8, -21.4, -1.2], scale: 0.65, kind: "node", glow: 1.1 },
+/** Icons orbiting under / around a globe — always visible in hero. */
+const ORBIT_A: OrbitItem[] = [
+  { kind: "ig", scale: 1.35, radius: 3.4, y: -1.35, speed: 0.22, phase: 0, glow: 1.35 },
+  { kind: "fb", scale: 1.2, radius: 3.4, y: -1.35, speed: 0.22, phase: 1.05, glow: 1.2 },
+  { kind: "yt", scale: 1.25, radius: 3.4, y: -1.35, speed: 0.22, phase: 2.1, glow: 1.2 },
+  { kind: "x", scale: 1.15, radius: 3.4, y: -1.35, speed: 0.22, phase: 3.15, glow: 1.15 },
+  { kind: "tt", scale: 1.15, radius: 3.4, y: -1.35, speed: 0.22, phase: 4.2, glow: 1.15 },
+  { kind: "lock", scale: 1.4, radius: 3.4, y: -1.35, speed: 0.22, phase: 5.25, glow: 1.3 },
 ];
 
-const LINKS: Array<[number, number]> = [
-  [0, 1],
-  [0, 3],
-  [1, 2],
-  [3, 4],
-  [4, 5],
-  [5, 6],
-  [0, 7],
-  [1, 8],
-  [9, 10],
-  [10, 11],
-  [11, 12],
-  [12, 13],
-  [13, 14],
-  [14, 15],
-  [17, 18],
-  [18, 19],
-  [18, 20],
-  [20, 21],
-  [22, 23],
-  [23, 24],
-  [22, 25],
-  [24, 26],
-  [27, 28],
-  [28, 29],
-  [29, 30],
-  [30, 31],
+const ORBIT_B: OrbitItem[] = [
+  { kind: "key", scale: 1.1, radius: 4.3, y: -2.15, speed: -0.14, phase: 0.4, glow: 1.1 },
+  { kind: "shield", scale: 1.15, radius: 4.3, y: -2.15, speed: -0.14, phase: 1.45, glow: 1.15 },
+  { kind: "ig", scale: 1.0, radius: 4.3, y: -2.15, speed: -0.14, phase: 2.5, glow: 1.1 },
+  { kind: "yt", scale: 1.05, radius: 4.3, y: -2.15, speed: -0.14, phase: 3.55, glow: 1.05 },
+  { kind: "fb", scale: 1.0, radius: 4.3, y: -2.15, speed: -0.14, phase: 4.6, glow: 1.05 },
+  { kind: "lock", scale: 1.15, radius: 4.3, y: -2.15, speed: -0.14, phase: 5.65, glow: 1.2 },
+];
+
+const ORBIT_C: OrbitItem[] = [
+  { kind: "node", scale: 0.55, radius: 2.55, y: -0.55, speed: 0.35, phase: 0.2, glow: 1.5 },
+  { kind: "node", scale: 0.45, radius: 2.55, y: -0.55, speed: 0.35, phase: 1.25, glow: 1.4 },
+  { kind: "node", scale: 0.5, radius: 2.55, y: -0.55, speed: 0.35, phase: 2.3, glow: 1.4 },
+  { kind: "node", scale: 0.4, radius: 2.55, y: -0.55, speed: 0.35, phase: 3.35, glow: 1.3 },
+  { kind: "node", scale: 0.48, radius: 2.55, y: -0.55, speed: 0.35, phase: 4.4, glow: 1.4 },
+  { kind: "node", scale: 0.42, radius: 2.55, y: -0.55, speed: 0.35, phase: 5.45, glow: 1.3 },
 ];
 
 function GlowMat({
   color = "#f4f1ea",
-  emissive = "#ffffff",
-  emissiveIntensity = 0.45,
-  metalness = 0.88,
-  roughness = 0.18,
+  emissiveIntensity = 0.5,
+  metalness = 0.9,
+  roughness = 0.16,
   opacity = 0.98,
 }: {
   color?: string;
-  emissive?: string;
   emissiveIntensity?: number;
   metalness?: number;
   roughness?: number;
@@ -116,7 +61,7 @@ function GlowMat({
   return (
     <meshStandardMaterial
       color={color}
-      emissive={emissive}
+      emissive="#ffffff"
       emissiveIntensity={emissiveIntensity}
       metalness={metalness}
       roughness={roughness}
@@ -130,17 +75,17 @@ function DarkMat() {
   return (
     <meshStandardMaterial
       color="#1a1a1a"
-      metalness={0.5}
+      metalness={0.45}
       roughness={0.4}
-      emissive="#333333"
-      emissiveIntensity={0.15}
+      emissive="#2a2a2a"
+      emissiveIntensity={0.12}
     />
   );
 }
 
 function IconMesh({ kind, scale, glow = 1 }: { kind: Kind; scale: number; glow?: number }) {
   const s = scale;
-  const ei = 0.35 * glow;
+  const ei = 0.42 * glow;
   switch (kind) {
     case "lock":
       return (
@@ -174,10 +119,6 @@ function IconMesh({ kind, scale, glow = 1 }: { kind: Kind; scale: number; glow?:
             <boxGeometry args={[0.22, 0.06, 0.06]} />
             <GlowMat color="#ddd6cb" emissiveIntensity={ei * 0.8} />
           </mesh>
-          <mesh position={[0.16, -0.36, 0]}>
-            <boxGeometry args={[0.15, 0.06, 0.06]} />
-            <GlowMat color="#ddd6cb" emissiveIntensity={ei * 0.8} />
-          </mesh>
         </group>
       );
     case "shield":
@@ -191,24 +132,20 @@ function IconMesh({ kind, scale, glow = 1 }: { kind: Kind; scale: number; glow?:
             <boxGeometry args={[0.09, 0.24, 0.05]} />
             <DarkMat />
           </mesh>
-          <mesh position={[0, -0.08, 0.14]}>
-            <boxGeometry args={[0.2, 0.09, 0.05]} />
-            <DarkMat />
-          </mesh>
         </group>
       );
     case "ig":
       return (
         <group scale={s}>
           <mesh>
-            <boxGeometry args={[0.7, 0.7, 0.22]} />
-            <GlowMat color="#fffdf8" emissiveIntensity={ei * 1.15} />
+            <boxGeometry args={[0.72, 0.72, 0.22]} />
+            <GlowMat color="#fffdf8" emissiveIntensity={ei * 1.2} />
           </mesh>
           <mesh position={[0, 0, 0.14]}>
-            <torusGeometry args={[0.18, 0.05, 14, 32]} />
+            <torusGeometry args={[0.19, 0.05, 14, 32]} />
             <DarkMat />
           </mesh>
-          <mesh position={[0.22, 0.22, 0.14]}>
+          <mesh position={[0.23, 0.23, 0.14]}>
             <sphereGeometry args={[0.05, 14, 14]} />
             <DarkMat />
           </mesh>
@@ -218,11 +155,11 @@ function IconMesh({ kind, scale, glow = 1 }: { kind: Kind; scale: number; glow?:
       return (
         <group scale={s}>
           <mesh>
-            <boxGeometry args={[0.86, 0.56, 0.2]} />
+            <boxGeometry args={[0.9, 0.58, 0.2]} />
             <GlowMat color="#f8f5ef" emissiveIntensity={ei} />
           </mesh>
           <mesh position={[0.05, 0, 0.14]} rotation={[0, 0, -Math.PI / 2]}>
-            <coneGeometry args={[0.14, 0.24, 3]} />
+            <coneGeometry args={[0.15, 0.26, 3]} />
             <DarkMat />
           </mesh>
         </group>
@@ -231,7 +168,7 @@ function IconMesh({ kind, scale, glow = 1 }: { kind: Kind; scale: number; glow?:
       return (
         <group scale={s}>
           <mesh>
-            <boxGeometry args={[0.56, 0.64, 0.2]} />
+            <boxGeometry args={[0.58, 0.66, 0.2]} />
             <GlowMat color="#f7f3ec" emissiveIntensity={ei * 1.1} />
           </mesh>
           <mesh position={[0.02, -0.02, 0.13]}>
@@ -248,11 +185,11 @@ function IconMesh({ kind, scale, glow = 1 }: { kind: Kind; scale: number; glow?:
       return (
         <group scale={s}>
           <mesh rotation={[0, 0, Math.PI / 4]}>
-            <boxGeometry args={[0.8, 0.13, 0.13]} />
+            <boxGeometry args={[0.82, 0.13, 0.13]} />
             <GlowMat color="#fffaf3" emissiveIntensity={ei * 1.15} metalness={0.92} />
           </mesh>
           <mesh rotation={[0, 0, -Math.PI / 4]}>
-            <boxGeometry args={[0.8, 0.13, 0.13]} />
+            <boxGeometry args={[0.82, 0.13, 0.13]} />
             <GlowMat color="#ebe6de" emissiveIntensity={ei} metalness={0.92} />
           </mesh>
         </group>
@@ -283,139 +220,218 @@ function IconMesh({ kind, scale, glow = 1 }: { kind: Kind; scale: number; glow?:
           </mesh>
         </group>
       );
-    case "cloud":
-      return (
-        <group scale={s}>
-          <mesh position={[-0.18, 0, 0]}>
-            <sphereGeometry args={[0.26, 18, 18]} />
-            <GlowMat color="#efeae2" emissiveIntensity={ei * 0.7} opacity={0.88} roughness={0.35} />
-          </mesh>
-          <mesh position={[0.22, 0.05, 0]}>
-            <sphereGeometry args={[0.32, 18, 18]} />
-            <GlowMat color="#f8f4ee" emissiveIntensity={ei * 0.75} opacity={0.85} roughness={0.35} />
-          </mesh>
-        </group>
-      );
-    case "chart":
-      return (
-        <group scale={s}>
-          <mesh position={[-0.26, -0.05, 0]}>
-            <boxGeometry args={[0.15, 0.3, 0.15]} />
-            <GlowMat color="#e8e2d8" emissiveIntensity={ei * 0.8} />
-          </mesh>
-          <mesh position={[0, 0.1, 0]}>
-            <boxGeometry args={[0.15, 0.56, 0.15]} />
-            <GlowMat color="#f2ece4" emissiveIntensity={ei} />
-          </mesh>
-          <mesh position={[0.26, 0.22, 0]}>
-            <boxGeometry args={[0.15, 0.8, 0.15]} />
-            <GlowMat color="#fffaf3" emissiveIntensity={ei * 1.15} />
-          </mesh>
-        </group>
-      );
     default:
       return (
         <mesh scale={s}>
           <icosahedronGeometry args={[0.22, 0]} />
-          <GlowMat color="#ffffff" emissiveIntensity={ei * 1.4} metalness={0.98} roughness={0.12} />
+          <GlowMat color="#ffffff" emissiveIntensity={ei * 1.5} metalness={0.98} roughness={0.1} />
         </mesh>
       );
   }
 }
 
-function FloatingNode({
-  node,
-  index,
-  reduce,
-}: {
-  node: NodeSpec;
-  index: number;
-  reduce: boolean;
-}) {
-  const group = useRef<THREE.Group>(null);
-  const base = node.position;
-
-  useFrame(({ clock }) => {
-    if (!group.current) return;
-    const t = clock.getElapsedTime();
-    const speed = reduce ? 0.35 : 0.55 + (index % 5) * 0.08;
-    const amp = reduce ? 0.12 : 0.22 + (index % 3) * 0.05;
-    group.current.position.x = base[0] + Math.sin(t * speed + index) * amp;
-    group.current.position.y = base[1] + Math.cos(t * speed * 0.85 + index * 0.7) * amp * 1.15;
-    group.current.position.z = base[2] + Math.sin(t * speed * 0.6 + index) * amp * 0.5;
-    group.current.rotation.y = t * (0.25 + (index % 4) * 0.05) * (index % 2 === 0 ? 1 : -1);
-    group.current.rotation.x = Math.sin(t * 0.4 + index) * 0.2;
+function WorldGlobe({ reduce }: { reduce: boolean }) {
+  const ref = useRef<THREE.Group>(null);
+  useFrame((_, dt) => {
+    if (!ref.current) return;
+    ref.current.rotation.y += dt * (reduce ? 0.08 : 0.12);
+    ref.current.rotation.x = Math.sin(performance.now() * 0.0002) * 0.08;
   });
 
   return (
-    <Float
-      speed={reduce ? 0.7 : 1.4 + (index % 3) * 0.2}
-      rotationIntensity={reduce ? 0.2 : 0.55}
-      floatIntensity={reduce ? 0.3 : 0.7}
-    >
-      <group ref={group} position={node.position}>
-        <IconMesh kind={node.kind} scale={node.scale} glow={node.glow ?? 1} />
-        <pointLight
-          intensity={(reduce ? 0.25 : 0.45) * (node.glow ?? 1)}
-          distance={3.2}
-          color="#fff8ee"
-          decay={2}
+    <group ref={ref} position={[0, 0.55, -1.8]}>
+      <mesh>
+        <sphereGeometry args={[1.65, reduce ? 24 : 40, reduce ? 24 : 40]} />
+        <meshStandardMaterial
+          color="#1a1a1a"
+          metalness={0.7}
+          roughness={0.35}
+          transparent
+          opacity={0.35}
+          wireframe
+          emissive="#ffffff"
+          emissiveIntensity={0.08}
         />
-      </group>
-    </Float>
+      </mesh>
+      <mesh>
+        <sphereGeometry args={[1.55, 20, 20]} />
+        <meshStandardMaterial
+          color="#0a0a0a"
+          metalness={0.85}
+          roughness={0.4}
+          transparent
+          opacity={0.45}
+        />
+      </mesh>
+      {/* equator ring */}
+      <mesh rotation={[Math.PI / 2, 0, 0]}>
+        <torusGeometry args={[1.72, 0.012, 8, 64]} />
+        <meshStandardMaterial
+          color="#f2ebe0"
+          emissive="#ffffff"
+          emissiveIntensity={0.55}
+          transparent
+          opacity={0.7}
+        />
+      </mesh>
+      <mesh rotation={[Math.PI / 2.6, 0.4, 0.2]}>
+        <torusGeometry args={[1.78, 0.008, 8, 64]} />
+        <meshStandardMaterial
+          color="#cfc8bc"
+          emissive="#ddd"
+          emissiveIntensity={0.35}
+          transparent
+          opacity={0.45}
+        />
+      </mesh>
+      <pointLight intensity={0.55} distance={6} color="#fff8ee" position={[0, -0.4, 1]} />
+    </group>
   );
 }
 
-function DataPulses({ links }: { links: THREE.Vector3[][] }) {
-  const refs = useRef<THREE.Mesh[]>([]);
+function OrbitBelt({
+  items,
+  reduce,
+  ringRadius,
+  ringY,
+}: {
+  items: OrbitItem[];
+  reduce: boolean;
+  ringRadius: number;
+  ringY: number;
+}) {
+  const belt = useRef<THREE.Group>(null);
+  const dirs = useMemo(() => items.map(() => new THREE.Vector3()), [items]);
+
   useFrame(({ clock }) => {
+    if (!belt.current) return;
     const t = clock.getElapsedTime();
-    refs.current.forEach((mesh, i) => {
-      if (!mesh) return;
-      const pair = links[i % links.length];
-      if (!pair) return;
-      const p = (t * 0.28 + i * 0.11) % 1;
-      mesh.position.lerpVectors(pair[0], pair[1], p);
+    // whole belt slowly tips like orbiting under a planet
+    belt.current.rotation.x = -0.55 + Math.sin(t * 0.15) * 0.05;
+    belt.current.rotation.z = Math.sin(t * 0.1) * 0.08;
+
+    belt.current.children.forEach((child, i) => {
+      const item = items[i];
+      if (!item) return;
+      const a = t * item.speed + item.phase;
+      const x = Math.cos(a) * item.radius;
+      const z = Math.sin(a) * item.radius;
+      child.position.set(x, item.y, z);
+      // face outward from center
+      dirs[i].set(x, 0, z).normalize();
+      child.lookAt(dirs[i].x * 10, item.y, dirs[i].z * 10);
+      child.rotation.z += 0.01;
     });
   });
 
+  const list = reduce ? items.filter((_, i) => i % 2 === 0) : items;
+
+  return (
+    <group ref={belt} position={[0, 0.2, -1.6]}>
+      {/* faint orbit path */}
+      <mesh rotation={[Math.PI / 2, 0, 0]} position={[0, ringY, 0]}>
+        <torusGeometry args={[ringRadius, 0.01, 8, 80]} />
+        <meshStandardMaterial
+          color="#bdb6aa"
+          transparent
+          opacity={0.28}
+          emissive="#ffffff"
+          emissiveIntensity={0.2}
+        />
+      </mesh>
+      {list.map((item, i) => (
+        <group key={`${item.kind}-${i}`}>
+          <Float speed={1.1} floatIntensity={0.25} rotationIntensity={0.35}>
+            <group>
+              <IconMesh kind={item.kind} scale={item.scale} glow={item.glow ?? 1} />
+              <pointLight
+                intensity={0.35 * (item.glow ?? 1)}
+                distance={2.8}
+                color="#fff8ee"
+              />
+            </group>
+          </Float>
+        </group>
+      ))}
+    </group>
+  );
+}
+
+function AmbientDrift({ reduce }: { reduce: boolean }) {
+  const items = useMemo(
+    () =>
+      (
+        [
+          ["ig", 1.0, -4.2, 1.8, -3.2],
+          ["lock", 1.1, 4.0, 1.2, -2.8],
+          ["yt", 0.95, -3.6, -0.4, -4.0],
+          ["fb", 0.9, 3.8, -0.8, -3.6],
+          ["x", 0.85, 0.2, 2.4, -4.5],
+          ["key", 0.9, -1.5, -2.2, -3.2],
+        ] as Array<[Kind, number, number, number, number]>
+      ).filter((_, i) => !reduce || i % 2 === 0),
+    [reduce]
+  );
+
   return (
     <>
-      {links.slice(0, 18).map((_, i) => (
-        <mesh
+      {items.map(([kind, scale, x, y, z], i) => (
+        <Float
           key={i}
-          ref={(el) => {
-            if (el) refs.current[i] = el;
-          }}
+          speed={0.8 + i * 0.1}
+          floatIntensity={0.55}
+          rotationIntensity={0.5}
         >
-          <sphereGeometry args={[0.045, 12, 12]} />
-          <meshStandardMaterial
-            color="#fffaf2"
-            emissive="#ffffff"
-            emissiveIntensity={1.2}
-            metalness={0.8}
-            roughness={0.2}
-          />
-        </mesh>
+          <group position={[x, y, z]}>
+            <IconMesh kind={kind} scale={scale} glow={0.95} />
+          </group>
+        </Float>
       ))}
     </>
   );
 }
 
-function NetworkLinks({ points }: { points: THREE.Vector3[][] }) {
+function NetworkSparks({ reduce }: { reduce: boolean }) {
+  const points = useMemo(() => {
+    const a: THREE.Vector3[][] = [];
+    const n = reduce ? 6 : 12;
+    for (let i = 0; i < n; i++) {
+      const ang = (i / n) * Math.PI * 2;
+      a.push([
+        new THREE.Vector3(Math.cos(ang) * 1.7, 0.4, Math.sin(ang) * 1.7 - 1.8),
+        new THREE.Vector3(Math.cos(ang) * 3.3, -1.2, Math.sin(ang) * 3.3 - 1.6),
+      ]);
+    }
+    return a;
+  }, [reduce]);
+
+  const dots = useRef<THREE.Mesh[]>([]);
+  useFrame(({ clock }) => {
+    const t = clock.getElapsedTime();
+    dots.current.forEach((m, i) => {
+      if (!m) return;
+      const pair = points[i % points.length];
+      const p = (t * 0.25 + i * 0.08) % 1;
+      m.position.lerpVectors(pair[0], pair[1], p);
+    });
+  });
+
   return (
     <>
       {points.map((pts, i) => (
-        <Line
-          key={i}
-          points={pts}
-          color="#cfc8bc"
-          lineWidth={1.25}
-          transparent
-          opacity={0.42}
-        />
+        <Line key={i} points={pts} color="#cfc8bc" lineWidth={1} transparent opacity={0.35} />
       ))}
-      <DataPulses links={points} />
+      {points.map((_, i) => (
+        <mesh
+          key={`d-${i}`}
+          ref={(el) => {
+            if (el) dots.current[i] = el;
+          }}
+        >
+          <sphereGeometry args={[0.04, 10, 10]} />
+          <meshStandardMaterial color="#fffaf2" emissive="#fff" emissiveIntensity={1.3} />
+        </mesh>
+      ))}
     </>
   );
 }
@@ -425,16 +441,16 @@ function Particles({ count }: { count: number }) {
   const positions = useMemo(() => {
     const arr = new Float32Array(count * 3);
     for (let i = 0; i < count; i++) {
-      arr[i * 3] = (Math.random() - 0.5) * 14;
-      arr[i * 3 + 1] = 4 - Math.random() * 28;
-      arr[i * 3 + 2] = -0.2 - Math.random() * 6;
+      arr[i * 3] = (Math.random() - 0.5) * 16;
+      arr[i * 3 + 1] = (Math.random() - 0.5) * 10;
+      arr[i * 3 + 2] = -1 - Math.random() * 8;
     }
     return arr;
   }, [count]);
 
   useFrame((_, dt) => {
     if (!ref.current) return;
-    ref.current.rotation.y += dt * 0.02;
+    ref.current.rotation.y += dt * 0.025;
   });
 
   return (
@@ -442,27 +458,21 @@ function Particles({ count }: { count: number }) {
       <bufferGeometry>
         <bufferAttribute attach="attributes-position" args={[positions, 3]} />
       </bufferGeometry>
-      <pointsMaterial
-        color="#f2ebe0"
-        size={0.04}
-        transparent
-        opacity={0.65}
-        sizeAttenuation
-      />
+      <pointsMaterial color="#f2ebe0" size={0.035} transparent opacity={0.55} sizeAttenuation />
     </points>
   );
 }
 
 function SceneRig({ reduce }: { reduce: boolean }) {
-  const group = useRef<THREE.Group>(null);
+  const root = useRef<THREE.Group>(null);
   const target = useRef({ x: 0, y: 0 });
   const scrollY = useRef(0);
 
   useEffect(() => {
     const onMove = (e: MouseEvent) => {
       target.current = {
-        x: (e.clientX / window.innerWidth - 0.5) * 0.38,
-        y: (e.clientY / window.innerHeight - 0.5) * 0.22,
+        x: (e.clientX / window.innerWidth - 0.5) * 0.32,
+        y: (e.clientY / window.innerHeight - 0.5) * 0.18,
       };
     };
     const onScroll = () => {
@@ -478,38 +488,28 @@ function SceneRig({ reduce }: { reduce: boolean }) {
   }, []);
 
   useFrame(() => {
-    if (!group.current) return;
-    group.current.rotation.y += (target.current.x - group.current.rotation.y) * 0.05;
-    group.current.rotation.x += (target.current.y - group.current.rotation.x) * 0.05;
-    const targetPosY = scrollY.current * 0.0045;
-    group.current.position.y += (targetPosY - group.current.position.y) * 0.085;
+    if (!root.current) return;
+    root.current.rotation.y += (target.current.x - root.current.rotation.y) * 0.04;
+    root.current.rotation.x += (target.current.y - root.current.rotation.x) * 0.04;
+    // gentle rise as page scrolls — globe system stays in view longer
+    const ty = Math.min(scrollY.current * 0.0018, 2.2);
+    root.current.position.y += (ty - root.current.position.y) * 0.06;
   });
 
-  const nodes = useMemo(
-    () => (reduce ? NODES.filter((_, i) => i % 2 === 0) : NODES),
-    [reduce]
-  );
-
-  const linkPoints = useMemo(
-    () =>
-      LINKS.filter(([a, b]) => a < NODES.length && b < NODES.length).map(([a, b]) => [
-        new THREE.Vector3(...NODES[a].position),
-        new THREE.Vector3(...NODES[b].position),
-      ]),
-    []
-  );
-
   return (
-    <group ref={group}>
-      <ambientLight intensity={0.55} color="#fff8f0" />
-      <directionalLight position={[4, 7, 5]} intensity={1.55} color="#ffffff" />
-      <directionalLight position={[-5, -2, 2]} intensity={0.55} color="#f0e6d8" />
-      <pointLight position={[0, 1, 4]} intensity={0.7} color="#fffaf2" distance={12} />
-      <Particles count={reduce ? 50 : 160} />
-      {!reduce ? <NetworkLinks points={linkPoints} /> : null}
-      {nodes.map((n, i) => (
-        <FloatingNode key={`${n.kind}-${i}`} node={n} index={i} reduce={reduce} />
-      ))}
+    <group ref={root}>
+      <ambientLight intensity={0.6} color="#fff8f0" />
+      <directionalLight position={[5, 6, 4]} intensity={1.6} color="#ffffff" />
+      <directionalLight position={[-4, -3, 2]} intensity={0.5} color="#f0e6d8" />
+      <pointLight position={[0, -1.5, 3]} intensity={0.85} color="#fffaf2" distance={14} />
+
+      <Particles count={reduce ? 40 : 130} />
+      <WorldGlobe reduce={reduce} />
+      <OrbitBelt items={ORBIT_A} reduce={reduce} ringRadius={3.4} ringY={-1.35} />
+      <OrbitBelt items={ORBIT_B} reduce={reduce} ringRadius={4.3} ringY={-2.15} />
+      {!reduce ? <OrbitBelt items={ORBIT_C} reduce={reduce} ringRadius={2.55} ringY={-0.55} /> : null}
+      <NetworkSparks reduce={reduce} />
+      <AmbientDrift reduce={reduce} />
     </group>
   );
 }
@@ -533,7 +533,7 @@ export function NetworkScene({ className = "" }: { className?: string }) {
     <div className={`network-scene ${className}`} aria-hidden>
       <Canvas
         dpr={reduce ? [1, 1.25] : [1, 1.75]}
-        camera={{ position: [0, 0, 6.8], fov: 42 }}
+        camera={{ position: [0, 1.2, 8.2], fov: 40 }}
         gl={{ antialias: true, alpha: true, powerPreference: "high-performance" }}
       >
         <Suspense fallback={null}>
