@@ -51,7 +51,12 @@ export function MemberAuthForm({
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) {
-        setError(data.error || "İşlem başarısız");
+        setError(
+          data.error ||
+            (res.status >= 500
+              ? "Sunucu hatası — lütfen birkaç saniye sonra tekrar deneyin"
+              : "İşlem başarısız")
+        );
         return;
       }
 

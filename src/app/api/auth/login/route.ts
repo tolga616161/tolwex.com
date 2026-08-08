@@ -8,64 +8,72 @@ import { writeAuditLog } from "@/lib/audit";
 import { pullMembersFromGist } from "@/lib/members-durable";
 
 const schema = z.object({
-  /** username or email — smmapi style login */
   login: z.string().min(1).max(160),
   password: z.string().min(1).max(100),
 });
 
 export async function POST(req: NextRequest) {
-  await ensureDbHydrated(true);
-  await pullMembersFromGist();
+  try {
+    await ensureDbHydrated(true);
+    await pullMembersFromGist();
 
-  const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "local";
-  const rl = rateLimit(`login:${ip}`, 20, 60_000);
-  if (!rl.ok) {
-    return NextResponse.json({ error: "Çok fazla istek" }, { status: 429 });
-  }
+    const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "local";
+    const rl = rateLimit(`login:${ip}`, 20, 60_000);
+    if (!rl.ok) {
+      return NextResponse.json({ error: "Çok fazla istek" }, { status: 429 });
+    }
 
-  const json = await req.json().catch(() => null);
-  const raw = json && typeof json === "object" ? (json as Record<string, unknown>) : {};
-  const loginVal = String(raw.login || raw.email || "").trim();
-  const parsed = schema.safeParse({ login: loginVal, password: raw.password });
-  if (!parsed.success) {
-    return NextResponse.json({ error: "Geçersiz giriş" }, { status: 400 });
-  }
+    const json = await req.json().catch(() => null);
+    const raw = json && typeof json === "object" ? (json as Record<string, unknown>) : {};
+    const loginVal = String(raw.login || raw.email || "").trim();
+    const parsed = schema.safeParse({ login: loginVal, password: raw.password });
+    if (!parsed.success) {
+      return NextResponse.json({ error: "Geçersiz giriş" }, { status: 400 });
+    }
 
-  const key = parsed.data.login.toLowerCase();
-  const member = await prisma.member.findFirst({
-    where: {
-      OR: [{ email: key }, { username: key }],
-      active: true,
-    },
-  });
-  if (!member || !verifyPassword(parsed.data.password, member.passwordHash)) {
+    const key = parsed.data.login.toLowerCase();
+    const member = await prisma.member.findFirst({
+      where: {
+        OR: [{ email: key }, { username: key }],
+        active: true,
+      },
+    });
+    if (!member || !verifyPassword(parsed.data.password, member.passwordHash)) {
+      return NextResponse.json(
+        { error: "Kullanıcı adı/e-posta veya şifre hatalı" },
+        { status: 401 }
+      );
+    }
+
+    const session = await getSession();
+    session.memberId = member.id;
+    session.memberEmail = member.email;
+    await session.save();
+
+    await writeAuditLog({
+      action: "member.login",
+      actorType: "visitor",
+      actorId: member.id,
+    });
+
+    return NextResponse.json({
+      ok: true,
+      member: {
+        id: member.id,
+        email: member.email,
+        name: member.name,
+        username: member.username,
+        balance: member.balance,
+      },
+    });
+  } catch (e) {
+    const message = e instanceof Error ? e.message : "Giriş hatası";
+    console.error("login_failed", message);
     return NextResponse.json(
-      { error: "Kullanıcı adı/e-posta veya şifre hatalı" },
-      { status: 401 }
+      { error: "Giriş şu an yapılamıyor. Lütfen tekrar deneyin.", detail: message },
+      { status: 500 }
     );
   }
-
-  const session = await getSession();
-  session.memberId = member.id;
-  session.memberEmail = member.email;
-  await session.save();
-
-  await writeAuditLog({
-    action: "member.login",
-    actorType: "visitor",
-    actorId: member.id,
-  });
-
-  return NextResponse.json({
-    ok: true,
-    member: {
-      id: member.id,
-      email: member.email,
-      name: member.name,
-      username: member.username,
-      balance: member.balance,
-    },
-  });
 }
 
 export async function DELETE() {

@@ -1,12 +1,13 @@
 import { PrismaClient } from "@prisma/client";
 import fs from "fs";
 import path from "path";
-import { pullDurableDb, scheduleDurableDbPush } from "@/lib/db-sync";
+import { scheduleDurableDbPush } from "@/lib/db-sync";
 import { pullMembersFromGist } from "@/lib/members-durable";
 
 /**
  * On Vercel, filesystem is read-only except /tmp.
- * Seed → /tmp, then durable gist overlay (full DB + members.json).
+ * Copy seed once. Member durability = members.json gist (never replace DB file
+ * under an open Prisma connection — that caused register 500s).
  */
 function resolveDatabaseUrl(): string {
   const configured = process.env.DATABASE_URL || "file:./prisma/dev.db";
@@ -48,18 +49,14 @@ export const dbFilePath = dbUrl.startsWith("file:") ? dbUrl.slice("file:".length
 
 let hydratePromise: Promise<void> | null = null;
 
-/** Ensure durable data is pulled (once per cold start, or forced). */
+/** Pull durable members into local SQLite (safe — no DB file replace). */
 export function ensureDbHydrated(force = false): Promise<void> {
   if (force) hydratePromise = null;
   if (!hydratePromise) {
     hydratePromise = (async () => {
-      if (!dbFilePath) return;
       if (!process.env.DB_GIST_ID || !(process.env.DB_SYNC_TOKEN || process.env.GITHUB_TOKEN)) {
         return;
       }
-      // Full DB snapshot (orders/settings) — best effort
-      await pullDurableDb(dbFilePath);
-      // Members.json is the auth source of truth
       await pullMembersFromGist();
     })().catch(() => undefined);
   }
@@ -86,8 +83,11 @@ function createClient() {
   return base.$extends({
     query: {
       $allModels: {
-        async $allOperations({ operation, args, query }) {
-          await ensureDbHydrated();
+        async $allOperations({ model, operation, args, query }) {
+          // Avoid re-entrancy deadlocks during member gist upserts
+          if (model !== "Member" || !MUTATING.has(operation)) {
+            await ensureDbHydrated();
+          }
           const result = await query(args);
           if (MUTATING.has(operation) && dbFilePath) {
             scheduleDurableDbPush(dbFilePath);
