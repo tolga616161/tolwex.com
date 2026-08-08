@@ -1,0 +1,100 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+/// Site-wide Meta app configuration (secrets encrypted at rest)
+model MetaConfig {
+  id                   String   @id @default(cuid())
+  appId                String   @default("")
+  /// AES-GCM encrypted app secret — never expose to frontend
+  encryptedAppSecret   String   @default("")
+  redirectUri          String   @default("")
+  domain               String   @default("")
+  apiVersion           String   @default("v21.0")
+  webhookVerifyToken   String   @default("")
+  configured           Boolean  @default(false)
+  lastTestAt           DateTime?
+  lastTestOk           Boolean?
+  lastTestMessage      String?
+  lastApiRequestAt     DateTime?
+  lastApiError         String?
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+}
+
+/// Anonymous visitor session linked to OAuth connections
+model VisitorSession {
+  id        String            @id @default(cuid())
+  createdAt DateTime          @default(now())
+  updatedAt DateTime          @updatedAt
+  connection InstagramConnection?
+  checklist  SecurityChecklist?
+}
+
+/// Instagram account connection via official Meta OAuth
+model InstagramConnection {
+  id                 String         @id @default(cuid())
+  visitorSessionId   String         @unique
+  visitorSession     VisitorSession @relation(fields: [visitorSessionId], references: [id], onDelete: Cascade)
+
+  /// Meta user id (from Graph API /me)
+  metaUserId         String?
+  /// Instagram username when provided by API
+  igUsername         String?
+  /// Instagram business/creator account id when available
+  igUserId           String?
+  accountType        String?
+
+  /// AES-GCM encrypted long-lived access token — never log or send to client
+  encryptedAccessToken String?
+  tokenExpiresAt       DateTime?
+  grantedScopes        String   @default("[]")
+  tokenStatus          String   @default("none") // none | active | expired | revoked | error
+
+  connected            Boolean  @default(false)
+  lastCheckedAt        DateTime?
+  lastApiError         String?
+  lastApiErrorCode     String?
+
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+  disconnectedAt       DateTime?
+
+  @@index([metaUserId])
+}
+
+/// User self-declared security checklist (NOT from Meta API)
+model SecurityChecklist {
+  id               String         @id @default(cuid())
+  visitorSessionId String         @unique
+  visitorSession   VisitorSession @relation(fields: [visitorSessionId], references: [id], onDelete: Cascade)
+
+  twoFactorEnabled     Boolean?
+  emailSecure          Boolean?
+  phoneUpToDate        Boolean?
+  unknownDevices       Boolean?
+  suspiciousApps       Boolean?
+  strongPassword       Boolean?
+  backupCodesSafe      Boolean?
+
+  updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now())
+}
+
+model AuditLog {
+  id         String   @id @default(cuid())
+  action     String
+  actorType  String   @default("system") // system | visitor | admin
+  actorId    String?
+  /// Safe metadata only — never store tokens/secrets
+  metadata   String   @default("{}")
+  createdAt  DateTime @default(now())
+
+  @@index([action])
+  @@index([createdAt])
+}
