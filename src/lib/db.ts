@@ -47,8 +47,9 @@ export const dbFilePath = dbUrl.startsWith("file:") ? dbUrl.slice("file:".length
 
 let hydratePromise: Promise<void> | null = null;
 
-/** Ensure durable gist DB is pulled once per cold start before queries. */
-export function ensureDbHydrated(): Promise<void> {
+/** Ensure durable gist DB is pulled (once per cold start, or forced). */
+export function ensureDbHydrated(force = false): Promise<void> {
+  if (force) hydratePromise = null;
   if (!hydratePromise) {
     hydratePromise = (async () => {
       if (!dbFilePath) return;

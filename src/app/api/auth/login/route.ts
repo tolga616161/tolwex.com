@@ -14,7 +14,7 @@ const schema = z.object({
 });
 
 export async function POST(req: NextRequest) {
-  await ensureDbHydrated();
+  await ensureDbHydrated(true);
   const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "local";
   const rl = rateLimit(`login:${ip}`, 20, 60_000);
   if (!rl.ok) {
