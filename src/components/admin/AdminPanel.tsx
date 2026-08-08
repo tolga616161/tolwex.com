@@ -117,10 +117,10 @@ export function AdminPanel() {
           <p className="muted">Instagram / Meta — secret değerler burada gösterilmez.</p>
         </div>
         <div className="flex flex-wrap gap-2">
-          <Link href="/admin/products" className="btn btn-primary">
+          <Link href="/admin61/products" className="btn btn-primary">
             Ürün Yönetimi
           </Link>
-          <Link href="/admin/setup" className="btn btn-ghost">
+          <Link href="/admin61/setup" className="btn btn-ghost">
             Meta API Kurulum
           </Link>
         </div>

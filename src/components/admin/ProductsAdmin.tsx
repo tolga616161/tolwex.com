@@ -218,7 +218,7 @@ export function ProductsAdmin() {
     return (
       <div className="glass-panel rounded-2xl p-6">
         <p className="mb-3">{error}</p>
-        <Link href="/admin" className="btn btn-primary">
+        <Link href="/admin61" className="btn btn-primary">
           Admin girişine dön
         </Link>
       </div>
@@ -244,7 +244,7 @@ export function ProductsAdmin() {
           </p>
         </div>
         <div className="flex flex-wrap gap-2">
-          <Link href="/admin/setup" className="btn btn-ghost">
+          <Link href="/admin61/setup" className="btn btn-ghost">
             Meta kurulum
           </Link>
           <Link href="/urunler" className="btn btn-ghost">

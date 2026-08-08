@@ -14,7 +14,7 @@ export function ProductGrid({
     return (
       <section id="urunler" className="glass-panel rounded-2xl p-8 text-center">
         <h2 className="display text-2xl mb-2">Henüz ürün yok</h2>
-        <p className="muted text-sm">Admin panelinden ürün ekleyebilirsiniz.</p>
+        <p className="muted text-sm">Ürünler yakında eklenecek.</p>
       </section>
     );
   }

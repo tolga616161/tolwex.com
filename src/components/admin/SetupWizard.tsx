@@ -259,7 +259,7 @@ export function SetupWizard() {
               İleri
             </button>
           ) : (
-            <Link href="/admin" className="btn btn-primary">
+            <Link href="/admin61" className="btn btn-primary">
               Admin paneline dön
             </Link>
           )}

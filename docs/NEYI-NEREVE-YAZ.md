@@ -45,7 +45,8 @@ ADMIN_PASSWORD=<güçlü-şifre>
 
 ## 3) Ürün / fiyat
 
-`/admin` → `/admin/products` → Düzenle → Güncelle
+`/admin61` → `/admin61/products` → Düzenle → Güncelle  
+(Sitede menüde görünmez — sadece bu gizli adres.)
 
 ## 4) WhatsApp
 

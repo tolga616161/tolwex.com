@@ -1,9 +1,6 @@
-import { AdminPanel } from "@/components/admin/AdminPanel";
+import { notFound } from "next/navigation";
 
-export default function AdminPage() {
-  return (
-    <div className="site-shell py-10 pb-20">
-      <AdminPanel />
-    </div>
-  );
+/** Old public path — intentionally hidden */
+export default function HiddenAdminPath() {
+  notFound();
 }

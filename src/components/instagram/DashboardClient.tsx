@@ -161,10 +161,17 @@ export function DashboardClient() {
 
       {!data.metaConfigured ? (
         <div className="surface rounded-2xl p-6">
-          <p className="mb-4">Meta API henüz yapılandırılmadı. Admin kurulumunu tamamlayın.</p>
-          <Link href="/admin/setup" className="btn btn-primary">
-            Admin Meta Kurulum
-          </Link>
+          <p className="mb-4">
+            Meta API henüz yapılandırılmadı. Destek için WhatsApp’tan yazın.
+          </p>
+          <a
+            href={whatsappUrl("Meta API kurulumu için yazıyorum.")}
+            className="btn btn-primary"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            WhatsApp destek
+          </a>
         </div>
       ) : null}
 
@@ -347,9 +354,6 @@ export function DashboardClient() {
         </Link>
         <Link href="/instagram/security" className="btn btn-ghost">
           Güvenlik Merkezi
-        </Link>
-        <Link href="/admin" className="btn btn-ghost">
-          Admin
         </Link>
         <a
           href={whatsappUrl("Instagram güvenlik kontrolü hakkında yazıyorum.")}

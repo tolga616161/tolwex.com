@@ -26,7 +26,6 @@ export function SiteFooter() {
           </a>
           <Link href="/privacy">Gizlilik</Link>
           <Link href="/terms">Koşullar</Link>
-          <Link href="/admin">Admin</Link>
         </div>
       </div>
     </footer>
