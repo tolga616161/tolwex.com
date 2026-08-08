@@ -908,10 +908,11 @@ h3,
 }
 .recovery-band {
   background:
-    radial-gradient(ellipse 70% 60% at 100% 20%, rgba(228, 87, 77, 0.14), transparent 55%),
-    #090909;
+    radial-gradient(ellipse 70% 60% at 100% 20%, rgba(228, 87, 77, 0.16), transparent 55%),
+    rgba(9, 9, 12, 0.45);
   border-top: 1px solid var(--line);
   border-bottom: 1px solid var(--line);
+  backdrop-filter: blur(4px);
 }
 .recovery-visual-panel {
   display: grid;
