@@ -1,13 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
-import { prisma } from "@/lib/db";
+import { prisma, ensureDbHydrated } from "@/lib/db";
 import { hashPassword } from "@/lib/auth/password";
 import { getSession } from "@/lib/session";
 import { rateLimit } from "@/lib/rate-limit";
 import { writeAuditLog } from "@/lib/audit";
 import { generateApiKey } from "@/lib/api-key";
-import { ensureDbHydrated } from "@/lib/db";
 import { flushDurableDbPush } from "@/lib/db-sync";
+import { pullMembersFromGist, pushMembersToGist } from "@/lib/members-durable";
 
 const schema = z
   .object({
@@ -32,6 +32,8 @@ const schema = z
 
 export async function POST(req: NextRequest) {
   await ensureDbHydrated(true);
+  await pullMembersFromGist();
+
   const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "local";
   const rl = rateLimit(`reg:${ip}`, 8, 60_000);
   if (!rl.ok) {
@@ -69,6 +71,22 @@ export async function POST(req: NextRequest) {
     },
   });
 
+  const synced = await pushMembersToGist();
+  if (!synced.ok) {
+    // Roll back local create so we don't leave ghost accounts
+    await prisma.member.delete({ where: { id: member.id } }).catch(() => null);
+    return NextResponse.json(
+      {
+        error:
+          "Kayıt şu an kaydedilemedi (senkron). Lütfen 10 sn sonra tekrar deneyin.",
+        detail: synced.error,
+      },
+      { status: 503 }
+    );
+  }
+
+  await flushDurableDbPush().catch(() => undefined);
+
   const session = await getSession();
   session.memberId = member.id;
   session.memberEmail = member.email;
@@ -80,9 +98,6 @@ export async function POST(req: NextRequest) {
     actorId: member.id,
     metadata: { email: member.email, username: member.username },
   });
-
-  // Persist member to durable gist before client navigates
-  await flushDurableDbPush();
 
   return NextResponse.json({
     ok: true,

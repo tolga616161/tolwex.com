@@ -1,27 +1,20 @@
-import { MemberPanelShell } from "@/components/smm/MemberPanelShell";
+"use client";
+
+import { MemberGate } from "@/components/smm/MemberGate";
 import { ServiceCatalog } from "@/components/smm/ServiceCatalog";
-import { requireMemberPage } from "@/lib/member-page";
 
-export const metadata = { title: "Servisler" };
-export const dynamic = "force-dynamic";
-
-export default async function MemberServicesPage() {
-  const member = await requireMemberPage();
-
+export default function MemberServicesPage() {
   return (
-    <MemberPanelShell
-      username={member.username || member.name || "üye"}
-      email={member.email}
-      balance={member.balance}
-    >
-      <div className="member-page">
-        <div className="section-head mb-6">
-          <p className="section-kicker">Servisler</p>
-          <h1 className="section-title">Katalog</h1>
-          <p className="section-sub">Satış fiyatları panellerde görünen fiyatlardır.</p>
+    <MemberGate>
+      {() => (
+        <div className="sp-page">
+          <div className="sp-page-title">
+            <h1>Servisler</h1>
+            <p>Listeden seç → sipariş formuna geç. Fiyatlar /1000 adet.</p>
+          </div>
+          <ServiceCatalog memberMode />
         </div>
-        <ServiceCatalog memberMode />
-      </div>
-    </MemberPanelShell>
+      )}
+    </MemberGate>
   );
 }

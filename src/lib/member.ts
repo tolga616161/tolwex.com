@@ -1,8 +1,10 @@
 import { ensureDbHydrated, prisma } from "@/lib/db";
 import { getSession } from "@/lib/session";
+import { pullMembersFromGist, pushMembersToGist } from "@/lib/members-durable";
 
 export async function requireMember() {
-  await ensureDbHydrated();
+  await ensureDbHydrated(true);
+  await pullMembersFromGist();
   const session = await getSession();
   if (!session.memberId) return null;
   return prisma.member.findFirst({
@@ -31,5 +33,6 @@ export async function adjustBalance(
       refId,
     },
   });
+  await pushMembersToGist();
   return member;
 }

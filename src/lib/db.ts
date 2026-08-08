@@ -2,10 +2,11 @@ import { PrismaClient } from "@prisma/client";
 import fs from "fs";
 import path from "path";
 import { pullDurableDb, scheduleDurableDbPush } from "@/lib/db-sync";
+import { pullMembersFromGist } from "@/lib/members-durable";
 
 /**
  * On Vercel, filesystem is read-only except /tmp.
- * We copy seed DB to /tmp, then overlay durable gist snapshot when configured.
+ * Seed → /tmp, then durable gist overlay (full DB + members.json).
  */
 function resolveDatabaseUrl(): string {
   const configured = process.env.DATABASE_URL || "file:./prisma/dev.db";
@@ -47,7 +48,7 @@ export const dbFilePath = dbUrl.startsWith("file:") ? dbUrl.slice("file:".length
 
 let hydratePromise: Promise<void> | null = null;
 
-/** Ensure durable gist DB is pulled (once per cold start, or forced). */
+/** Ensure durable data is pulled (once per cold start, or forced). */
 export function ensureDbHydrated(force = false): Promise<void> {
   if (force) hydratePromise = null;
   if (!hydratePromise) {
@@ -56,7 +57,10 @@ export function ensureDbHydrated(force = false): Promise<void> {
       if (!process.env.DB_GIST_ID || !(process.env.DB_SYNC_TOKEN || process.env.GITHUB_TOKEN)) {
         return;
       }
+      // Full DB snapshot (orders/settings) — best effort
       await pullDurableDb(dbFilePath);
+      // Members.json is the auth source of truth
+      await pullMembersFromGist();
     })().catch(() => undefined);
   }
   return hydratePromise;

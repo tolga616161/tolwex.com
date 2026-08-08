@@ -3,11 +3,21 @@ import { MemberAuthForm } from "@/components/auth/MemberAuthForm";
 import { ServiceCatalog } from "@/components/smm/ServiceCatalog";
 import { HowItWorksSection } from "@/components/marketing/HomeSections";
 import { SocialLogos } from "@/components/marketing/SocialLogos";
+import { prisma, ensureDbHydrated } from "@/lib/db";
 
-export default function HomePage() {
+export const dynamic = "force-dynamic";
+
+export default async function HomePage() {
+  await ensureDbHydrated();
+  const [serviceCount, orderCount, ticketCount] = await Promise.all([
+    prisma.smmService.count({ where: { active: true } }).catch(() => 0),
+    prisma.smmOrder.count().catch(() => 0),
+    prisma.supportTicket.count().catch(() => 0),
+  ]);
+
   return (
     <div className="home-root">
-      <section className="hero-stage panel-hero smm-landing-hero">
+      <section className="hero-stage panel-hero smm-landing-hero smmapi-hero">
         <div className="hero-glow" aria-hidden />
         <div className="hero-grid-fx" aria-hidden />
         <div className="site-shell panel-hero-grid">
@@ -18,19 +28,30 @@ export default function HomePage() {
               <span className="title-line hero-title-accent">SMM Paneli</span>
             </h1>
             <p className="hero-sub">
-              Instagram, TikTok, YouTube ve daha fazlası için takipçi, beğeni ve izlenme.
-              Tek panelden sipariş ver, bakiyeni yönet, API ile entegre ol.
+              Instagram, TikTok, YouTube ve daha fazlası için takipçi, beğeni ve izlenme. Üye ol,
+              bakiye yükle, listeden servis seçip sipariş ver.
             </p>
             <SocialLogos className="hero-socials" />
+            <div className="smm-stats-row">
+              <div>
+                <strong>{serviceCount.toLocaleString("tr-TR")}</strong>
+                <span>Toplam servis</span>
+              </div>
+              <div>
+                <strong>{Math.max(orderCount, 1).toLocaleString("tr-TR")}</strong>
+                <span>Toplam sipariş</span>
+              </div>
+              <div>
+                <strong>{Math.max(ticketCount, 1).toLocaleString("tr-TR")}</strong>
+                <span>Destek</span>
+              </div>
+            </div>
             <div className="hero-actions">
               <Link href="/uye/kayit" className="btn btn-primary">
-                Hemen Başla
+                Üye Ol
               </Link>
               <Link href="/hizmetler" className="btn btn-ghost">
                 Servisler
-              </Link>
-              <Link href="/sss" className="btn btn-ghost">
-                SSS
               </Link>
             </div>
           </div>
@@ -40,37 +61,24 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section className="home-section section-platforms">
-        <div className="site-shell">
-          <div className="section-head">
-            <p className="section-kicker">Platformlar</p>
-            <h2 className="section-title">Tüm sosyal ağlar tek panelde</h2>
-            <p className="section-sub">
-              Popüler platformlar için hızlı teslimat — bakiyeni yükle, siparişini ver.
-            </p>
-          </div>
-          <SocialLogos className="platforms-row" />
-        </div>
-      </section>
-
       <section className="home-section section-alt" id="ozellikler">
         <div className="site-shell why-grid">
           {[
             {
-              t: "Anında teslimat",
-              d: "Siparişler smmapi.com üzerinden otomatik işleme alınır.",
+              t: "Kaliteli servisler",
+              d: "Binlerce SMM hizmeti — takipçi, beğeni, izlenme ve daha fazlası.",
             },
             {
-              t: "Banka ile bakiye",
-              d: "İş Bankası havale/EFT — ödeme bildir, admin onaylasın.",
+              t: "Havale / EFT",
+              d: "İş Bankası hesabına yatır, ödeme bildir, bakiyen tanımlansın.",
+            },
+            {
+              t: "Hızlı teslimat",
+              d: "Siparişler otomatik işleme alınır, panelden takip edilir.",
             },
             {
               t: "Reseller API",
-              d: "PerfectPanel uyumlu /api/v1 — kendi yazılımınızı bağlayın.",
-            },
-            {
-              t: "Şeffaf fiyat",
-              d: "Canlı katalog, min/max ve 1000 başına satış fiyatı.",
+              d: "PerfectPanel uyumlu /api/v1 ile kendi yazılımını bağla.",
             },
           ].map((x) => (
             <article key={x.t} className="why-card glass-panel rounded-2xl p-5">
@@ -86,7 +94,9 @@ export default function HomePage() {
           <div className="section-head">
             <p className="section-kicker">Servisler</p>
             <h2 className="section-title">Hizmet listesi</h2>
-            <p className="section-sub">Giriş yapmadan göz atın, sipariş için üye olun.</p>
+            <p className="section-sub">
+              Giriş yapmadan göz at. Sipariş için üye ol — panelde kategoriden seçersin.
+            </p>
           </div>
           <ServiceCatalog />
         </div>

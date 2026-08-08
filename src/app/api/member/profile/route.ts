@@ -57,5 +57,7 @@ export async function PATCH(req: NextRequest) {
       balance: true,
     },
   });
+  const { pushMembersToGist } = await import("@/lib/members-durable");
+  await pushMembersToGist();
   return NextResponse.json({ ok: true, member: updated });
 }
