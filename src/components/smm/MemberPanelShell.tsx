@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import type { ReactNode } from "react";
+import { TolwexLogo } from "@/components/brand/TolwexLogo";
 
 const NAV = [
   { href: "/uye", label: "Dashboard", exact: true },
@@ -41,8 +42,8 @@ export function MemberPanelShell({
     <div className="sp-shell">
       <header className="sp-topbar">
         <div className="sp-topbar-inner">
-          <Link href="/uye" className="sp-brand">
-            TOLWEX <span>Panel</span>
+          <Link href="/uye" className="sp-brand" aria-label="TOLWEX Panel">
+            <TolwexLogo size="sm" />
           </Link>
           <div className="sp-top-meta">
             {typeof balance === "number" ? (

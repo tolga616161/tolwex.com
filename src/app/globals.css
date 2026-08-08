@@ -145,6 +145,17 @@ h3,
 }
 
 /* —— LOGO —— */
+.tolwex-wordmark-img {
+  height: auto;
+  width: auto;
+  max-height: 1.35em;
+  display: block;
+  object-fit: contain;
+}
+.tolwex-mark {
+  border-radius: 0.45rem;
+  display: block;
+}
 .tolwex-logo {
   display: inline-flex;
   align-items: center;
@@ -1895,14 +1906,12 @@ body:has(.admin-saas) main { padding: 0; }
   padding: 0.85rem 0 0.35rem;
 }
 .sp-brand {
-  font-family: var(--font-display);
-  font-weight: 800;
-  letter-spacing: -0.03em;
-  font-size: 1.25rem;
+  display: inline-flex;
+  align-items: center;
+  line-height: 1;
 }
-.sp-brand span {
-  color: #7dd3fc;
-  font-weight: 600;
+.sp-brand .tolwex-logo {
+  gap: 0.55rem;
 }
 .sp-top-meta {
   display: flex;

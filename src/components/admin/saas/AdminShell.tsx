@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState, type ReactNode } from "react";
+import { TolwexLogo } from "@/components/brand/TolwexLogo";
 
 const NAV: Array<{ href: string; label: string }> = [
   { href: "/admin61", label: "Dashboard" },
@@ -64,7 +65,10 @@ export function AdminShell({ children }: { children: ReactNode }) {
     return (
       <div className="admin-saas admin-login-wrap">
         <form onSubmit={login} className="admin-login-card">
-          <p className="admin-brand">TOLWEX ADMIN</p>
+          <div className="admin-brand-logo mb-3">
+            <TolwexLogo size="md" />
+          </div>
+          <p className="admin-brand">ADMIN</p>
           <h1>Yönetim girişi</h1>
           <p className="muted">SMM panel kontrol merkezi</p>
           <label htmlFor="admin-pw">Şifre</label>
@@ -98,7 +102,7 @@ export function AdminShell({ children }: { children: ReactNode }) {
       </button>
       <aside className={`admin-sidebar ${open ? "open" : ""}`}>
         <div className="admin-sidebar-head">
-          <span className="admin-brand">TOLWEX</span>
+          <TolwexLogo size="sm" />
           <span className="admin-brand-sub">SMM ADMIN</span>
         </div>
         <nav className="admin-nav">

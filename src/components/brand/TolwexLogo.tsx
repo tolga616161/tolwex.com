@@ -1,3 +1,5 @@
+import Image from "next/image";
+
 type Props = {
   className?: string;
   showWordmark?: boolean;
@@ -5,46 +7,41 @@ type Props = {
 };
 
 const SIZES = {
-  sm: { mark: 22, text: "1rem" },
-  md: { mark: 28, text: "1.15rem" },
-  lg: { mark: 40, text: "1.6rem" },
+  sm: { mark: 28, wordH: 18 },
+  md: { mark: 34, wordH: 22 },
+  lg: { mark: 44, wordH: 28 },
 };
 
-/** Geometric mark: linked nodes forming a secure network node. */
+/** Rounded square "T" mark — site icon / brand glyph */
 export function TolwexMark({ className, size = 28 }: { className?: string; size?: number }) {
   return (
-    <svg
-      className={className}
+    <Image
+      src="/brand/tolwex-icon.png"
+      alt=""
       width={size}
       height={size}
-      viewBox="0 0 32 32"
-      fill="none"
-      aria-hidden
-    >
-      <rect x="1" y="1" width="30" height="30" rx="8" stroke="currentColor" strokeWidth="1.4" />
-      <circle cx="10" cy="11" r="2.2" fill="currentColor" />
-      <circle cx="22" cy="10" r="2.2" fill="currentColor" />
-      <circle cx="16" cy="21" r="2.4" fill="currentColor" />
-      <path
-        d="M11.8 12.2L14.4 19.2M20.2 11.6L17.6 19.1M12.2 11.1L19.8 10.4"
-        stroke="currentColor"
-        strokeWidth="1.3"
-        strokeLinecap="round"
-      />
-      <circle cx="16" cy="15.5" r="1.1" fill="currentColor" opacity="0.55" />
-    </svg>
+      className={className}
+      priority
+    />
   );
 }
 
 export function TolwexLogo({ className = "", showWordmark = true, size = "md" }: Props) {
   const s = SIZES[size];
+  const wordW = Math.round(s.wordH * 5.9);
+
   return (
     <span className={`tolwex-logo ${className}`} data-brand="TOLWEX">
       <TolwexMark size={s.mark} className="tolwex-mark" />
       {showWordmark ? (
-        <span className="tolwex-wordmark" style={{ fontSize: s.text }}>
-          TOLWEX
-        </span>
+        <Image
+          src="/brand/tolwex-wordmark.png"
+          alt="TOLWEX"
+          width={wordW}
+          height={s.wordH}
+          className="tolwex-wordmark-img"
+          priority
+        />
       ) : null}
     </span>
   );
