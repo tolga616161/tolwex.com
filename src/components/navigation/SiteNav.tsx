@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { MEGA_MENU } from "@/lib/categories";
-import { CategoryIcon } from "@/components/icons/CategoryIcons";
+import { CategoryIcon, IconWhatsApp } from "@/components/icons/CategoryIcons";
 import { CONTACT_PHONE_DISPLAY, whatsappUrl } from "@/lib/contact";
 
 const MOBILE_LINKS = [
@@ -193,8 +193,9 @@ export function SiteNav() {
           target="_blank"
           rel="noopener noreferrer"
           aria-label="WhatsApp"
+          title={CONTACT_PHONE_DISPLAY}
         >
-          WA
+          <IconWhatsApp className="nav-wa-icon" />
         </a>
       </div>
       {mobileMenu}

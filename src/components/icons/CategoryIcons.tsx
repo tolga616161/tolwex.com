@@ -74,6 +74,30 @@ export function IconDesign({ className }: Props) {
   );
 }
 
+export function IconWhatsApp({ className }: Props) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="currentColor" aria-hidden>
+      <path d="M12.04 2C6.58 2 2.15 6.4 2.15 11.83c0 1.99.58 3.83 1.59 5.4L2 22l4.93-1.61a9.9 9.9 0 0 0 5.11 1.4h.01c5.46 0 9.89-4.4 9.89-9.83S17.5 2 12.04 2zm5.76 13.98c-.24.68-1.42 1.25-1.96 1.33-.5.07-1.14.1-1.84-.12-.42-.13-.97-.32-1.67-.62-2.94-1.27-4.85-4.23-5-4.42-.14-.2-1.2-1.6-1.2-3.05 0-1.45.76-2.16 1.03-2.45.27-.29.59-.36.79-.36h.57c.18 0 .42-.07.66.5.24.58.82 2 .89 2.15.07.14.12.31.02.5-.1.2-.14.31-.28.48-.14.17-.3.38-.43.51-.14.14-.29.29-.12.56.16.27.73 1.2 1.57 1.95 1.08.96 1.99 1.26 2.27 1.4.27.14.43.12.59-.07.16-.2.68-.79.86-1.06.18-.27.36-.22.61-.13.24.09 1.54.73 1.8.86.27.14.44.2.51.31.07.12.07.68-.17 1.36z" />
+    </svg>
+  );
+}
+
+export function IconYouTube({ className }: Props) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="currentColor" aria-hidden>
+      <path d="M21.6 7.2a2.7 2.7 0 0 0-1.9-1.9C18 5 12 5 12 5s-6 0-7.7.3a2.7 2.7 0 0 0-1.9 1.9A28 28 0 0 0 2 12a28 28 0 0 0 .4 4.8 2.7 2.7 0 0 0 1.9 1.9C6 19 12 19 12 19s6 0 7.7-.3a2.7 2.7 0 0 0 1.9-1.9A28 28 0 0 0 22 12a28 28 0 0 0-.4-4.8zM10 15.5v-7l6 3.5-6 3.5z" />
+    </svg>
+  );
+}
+
+export function IconX({ className }: Props) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="currentColor" aria-hidden>
+      <path d="M17.5 3h3.1l-6.8 7.8L22 21h-6.2l-4.9-6.4L5.7 21H2.6l7.3-8.3L2 3h6.3l4.4 5.8L17.5 3zm-1.1 16.2h1.7L7.7 4.7H5.9l10.5 14.5z" />
+    </svg>
+  );
+}
+
 export function CategoryIcon({
   name,
   className,
@@ -90,6 +114,13 @@ export function CategoryIcon({
       return <IconTikTok className={className} />;
     case "google":
       return <IconGoogle className={className} />;
+    case "youtube":
+      return <IconYouTube className={className} />;
+    case "x":
+    case "twitter":
+      return <IconX className={className} />;
+    case "whatsapp":
+      return <IconWhatsApp className={className} />;
     case "seo":
       return <IconSeo className={className} />;
     case "social":
