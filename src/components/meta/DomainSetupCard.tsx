@@ -25,11 +25,11 @@ export function DomainSetupCard({ appDomains, siteUrl, redirectUri }: Props) {
   return (
     <aside className="glass-panel rounded-2xl p-4 md:p-5 text-sm leading-relaxed border border-amber-400/25">
       <p className="font-semibold mb-1" style={{ color: "#ffc76b" }}>
-        Bağlantı hatası: Meta App Domains eksik
+        Meta paneli: App Domains + Redirect URI (zorunlu)
       </p>
       <p className="muted mb-3">
-        Evet — domain/host kaydı Meta tarafında yapılmalı. Kod doğru; Facebook
-        “domain yer almıyor” diyorsa App Domains’e eklemeniz gerekir.
+        Sunucu Facebook’a yönlendiriyor. Facebook “domain / Can’t Load URL”
+        diyorsa aşağıdaki değerleri Meta App’e birebir yapıştır — kod tarafı hazır.
       </p>
 
       <div className="space-y-2 mb-4">
