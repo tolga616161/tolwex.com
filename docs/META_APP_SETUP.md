@@ -1,88 +1,87 @@
-# Meta Developer — TOLWEX kurulum rehberi
+# Meta Developer — TOLWEX (adım adım)
 
-Bu uygulama **resmi Meta OAuth** kullanır. Şifre, cookie veya 2FA yakalanmaz.
-Secret değerler yalnızca sunucu `.env` dosyasında tutulur; frontend’e gönderilmez.
+## Önce şunu bil
 
-> Node hosting gerekir (Vercel / Hostinger Node vb.). GitHub Pages üzerinde `/api/*` çalışmaz.
+| Özellik | Durum |
+|---------|--------|
+| Instagram ile Bağlan (OAuth) | Kod hazır — **Node hosting** şart |
+| Admin `/admin61` | Kod hazır — **Node hosting** şart |
+| Profilime kim baktı listesi | **Resmi API yok** — sahte liste yok |
+| Engelleyenler listesi (kişisel IG) | **Resmi API yok** — sahte liste yok |
+| Hesap adı, tip, izinler, medya sayısı | OAuth sonrası API’den gelir |
 
----
+`tolwex.com` şu an **GitHub Pages** (sadece HTML). Bu yüzden:
+- `https://tolwex.com/api/meta/oauth/start` → **404**
+- `https://tolwex.com/admin61` → **404**
 
-## 1) `.env` değerleri
-
-| Değişken | Kaynak (Meta panel) | Örnek / not |
-|----------|---------------------|-------------|
-| `META_APP_ID` | App → Settings → Basic → **App ID** | Panelden kopyala |
-| `META_APP_SECRET` | App → Settings → Basic → **App Secret** | Asla commit etme |
-| `META_REDIRECT_URI` | Sizin seçtiğiniz callback URL | `https://tolwex.com/api/meta/oauth/callback` |
-| `META_API_VERSION` | Graph API sürümü | `v21.0` |
-| `META_WEBHOOK_VERIFY_TOKEN` | Sizin ürettiğiniz rastgele token | `openssl rand -hex 24` |
-| `NEXT_PUBLIC_APP_URL` | Canlı domain | `https://tolwex.com` |
-| `SESSION_SECRET` | Sizin ürettiğiniz | min 32 karakter |
-| `TOKEN_ENCRYPTION_KEY` | Sizin ürettiğiniz | `openssl rand -hex 32` |
-
-Şablon: kök dizindeki `.env.example`
+Çözüm: Vercel veya Hostinger **Node.js**’e deploy + domain oraya bağla.
 
 ---
 
-## 2) Meta Developer paneline girilecek alanlar
+## Meta panelde dolduracakların (App ID: sende)
 
-App: [developers.facebook.com/apps](https://developers.facebook.com/apps/)
+Aç: https://developers.facebook.com/apps/
 
-### Settings → Basic
+### 1) Settings → Basic
+| Alan | Yaz |
+|------|-----|
+| App Domains | `tolwex.com` |
+| Privacy Policy URL | `https://tolwex.com/privacy` |
+| Terms of Service URL | `https://tolwex.com/terms` |
+| User data deletion | `https://tolwex.com/api/data-deletion` |
+| Website → Site URL | `https://tolwex.com/` |
 
-| Alan | Değer |
-|------|--------|
-| **App Domains** | `tolwex.com` |
-| **Privacy Policy URL** | `https://tolwex.com/privacy` |
-| **Terms of Service URL** | `https://tolwex.com/terms` |
-| **User Data Deletion** | `https://tolwex.com/api/data-deletion` (veya Data Deletion Callback) |
-| **Site URL** (Website platform) | `https://tolwex.com/` |
+### 2) Facebook Login → Settings
+| Alan | Yaz |
+|------|-----|
+| Valid OAuth Redirect URIs | `https://tolwex.com/api/meta/oauth/callback` |
+| Client OAuth Login | Yes |
+| Web OAuth Login | Yes |
 
-### Facebook Login → Settings
+### 3) Ürünler
+- **Facebook Login** ekli olsun
+- **Instagram** / Instagram Graph (Business) ekle
+- Development’ta: Roles → kendi FB hesabın + Instagram tester
 
-| Alan | Değer |
-|------|--------|
-| **Valid OAuth Redirect URIs** | `https://tolwex.com/api/meta/oauth/callback` |
-| **Client OAuth Login** | Yes |
-| **Web OAuth Login** | Yes |
+### 4) Sunucu `.env` (Node host’ta)
+```
+NEXT_PUBLIC_APP_URL=https://tolwex.com
+META_APP_ID=...panelden...
+META_APP_SECRET=...panelden...
+META_REDIRECT_URI=https://tolwex.com/api/meta/oauth/callback
+META_API_VERSION=v21.0
+META_WEBHOOK_VERIFY_TOKEN=...rastgele...
+SESSION_SECRET=...min 32 karakter...
+TOKEN_ENCRYPTION_KEY=...openssl rand -hex 32...
+ADMIN_PASSWORD=...
+DATABASE_URL=...
+```
 
-> Redirect URI, `.env` içindeki `META_REDIRECT_URI` ile **birebir aynı** olmalı.
+Secret’ı siteye / GitHub’a yazma.
 
-### Instagram / Instagram Graph (ürün ekliyse)
-
-- Instagram ürününü App’e ekleyin.
-- Gerekli izinler (App Review sürecine göre): örn. `instagram_basic`, business hesap alanları.
-- Development modunda test kullanıcılarını Roles → Roles / Instagram Testers altına ekleyin.
-
-### Webhooks (opsiyonel)
-
-| Alan | Değer |
-|------|--------|
-| **Callback URL** | `https://tolwex.com/api/meta/webhook` |
-| **Verify Token** | `.env` → `META_WEBHOOK_VERIFY_TOKEN` |
-
----
-
-## 3) Uygulama içi kurulum
-
-1. `.env.example` → `.env` kopyala, değerleri doldur.
-2. `npm run db:push && npm run db:seed`
-3. Sunucuyu başlat (`npm run dev` veya production start).
-4. `/admin61` → şifre ile giriş → **Meta API Kurulum** sihirbazı.
-5. **Connection Test** ile Graph API doğrula (sahte başarı üretilmez).
-
----
-
-## 4) Kullanıcı akışı
-
-1. Site: **Instagram ile Bağlan** → `/api/meta/oauth/start`
-2. Meta login → callback → `/api/meta/oauth/callback`
-3. Dashboard: `/instagram/dashboard` (yalnızca API’den gelen gerçek alanlar)
+### 5) Test
+1. Node site ayakta
+2. `/admin61` → şifre → Meta kurulum → Connection Test
+3. `/instagram/connect` → **Instagram Hesabımı Bağla**
+4. Meta ekranı açılır → onay → `/instagram/dashboard`
 
 ---
 
-## 5) Güvenlik kuralları
+## “Kim baktı” / “Engelleyenler” neden yok?
 
-- `META_APP_SECRET` ve access token **asla** client bundle’a konmaz.
-- Token’lar `TOKEN_ENCRYPTION_KEY` ile veritabanında şifreli saklanır.
-- Production’da HTTPS zorunlu (`NEXT_PUBLIC_APP_URL` https olmalı).
+Instagram bunları **resmi Graph API ile vermiyor**.
+Uydurma kullanıcı listesi göstermiyoruz (yasal + ban riski).
+
+Sayfada dürüst açıklama var:
+- Profil ziyaret = tahmini sinyal / “liste yok”
+- Engelleme = olası sinyal / “resmi liste değil”
+
+---
+
+## Senin sıradaki iş
+
+1. Vercel veya Hostinger Node’a projeyi al
+2. Yukarıdaki Meta alanlarını kaydet
+3. Env’leri yapıştır
+4. Domain DNS’i Node host’a çevir (Pages’ten çıkar)
+5. O zaman Bağlan + admin61 çalışır
