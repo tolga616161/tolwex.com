@@ -1,30 +1,19 @@
 export function HowItWorksSection() {
   const steps = [
-    {
-      n: "01",
-      title: "HİZMET SEÇ",
-      text: "smmapi.com’dan otomatik çekilen binlerce SMM servisten birini seç.",
-    },
-    {
-      n: "02",
-      title: "ÜYE GİRİŞİ",
-      text: "Kayıt ol / giriş yap — Instagram bağlama veya şifre istenmez.",
-    },
-    {
-      n: "03",
-      title: "SİPARİŞ VER",
-      text: "Link + adet gir; sipariş SMM API’ye otomatik düşer.",
-    },
+    { n: "01", title: "ÜYE OL / GİRİŞ", text: "Kullanıcı adı ve şifre ile panel hesabı aç." },
+    { n: "02", title: "SERVİS SEÇ", text: "smmapi.com’dan gelen kategorilerden hizmetini seç." },
+    { n: "03", title: "SİPARİŞ VER", text: "Link + adet gir; sipariş otomatik işleme alınır." },
+    { n: "04", title: "SONUÇ", text: "Siparişlerim ekranından durumu takip et." },
   ];
 
   return (
     <section id="nasil-calisir" className="home-section">
       <div className="site-shell">
         <div className="section-head">
-          <p className="section-kicker">Süreç</p>
-          <h2 className="section-title">NASIL ÇALIŞIR?</h2>
+          <p className="section-kicker">Nasıl çalışır?</p>
+          <h2 className="section-title">PANEL ADIMLARI</h2>
         </div>
-        <div className="steps-row">
+        <div className="steps-row steps-4">
           {steps.map((s, i) => (
             <div key={s.n} className="step-card">
               <span className="step-num">{s.n}</span>

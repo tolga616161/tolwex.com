@@ -6,12 +6,23 @@ import { getSession } from "@/lib/session";
 import { rateLimit } from "@/lib/rate-limit";
 import { writeAuditLog } from "@/lib/audit";
 
-const schema = z.object({
-  name: z.string().min(2).max(80),
-  email: z.string().email().max(160),
-  phone: z.string().max(40).optional(),
-  password: z.string().min(6).max(100),
-});
+const schema = z
+  .object({
+    username: z
+      .string()
+      .min(3)
+      .max(40)
+      .regex(/^[a-zA-Z0-9._-]+$/, "Kullanıcı adı yalnızca harf, rakam, . _ -"),
+    email: z.string().email().max(160),
+    name: z.string().min(2).max(80).optional(),
+    phone: z.string().max(40).optional(),
+    password: z.string().min(6).max(100),
+    passwordAgain: z.string().min(6).max(100),
+  })
+  .refine((d) => d.password === d.passwordAgain, {
+    message: "Şifreler eşleşmiyor",
+    path: ["passwordAgain"],
+  });
 
 export async function POST(req: NextRequest) {
   const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "local";
@@ -23,19 +34,28 @@ export async function POST(req: NextRequest) {
   const json = await req.json().catch(() => null);
   const parsed = schema.safeParse(json);
   if (!parsed.success) {
-    return NextResponse.json({ error: "Geçersiz form" }, { status: 400 });
+    const msg = parsed.error.issues[0]?.message || "Geçersiz form";
+    return NextResponse.json({ error: msg }, { status: 400 });
   }
 
+  const username = parsed.data.username.trim().toLowerCase();
   const email = parsed.data.email.trim().toLowerCase();
-  const exists = await prisma.member.findUnique({ where: { email } });
-  if (exists) {
-    return NextResponse.json({ error: "Bu e-posta zaten kayıtlı" }, { status: 409 });
+
+  const existsUser = await prisma.member.findFirst({
+    where: { OR: [{ email }, { username }] },
+  });
+  if (existsUser) {
+    return NextResponse.json(
+      { error: "Bu kullanıcı adı veya e-posta zaten kayıtlı" },
+      { status: 409 }
+    );
   }
 
   const member = await prisma.member.create({
     data: {
+      username,
       email,
-      name: parsed.data.name.trim(),
+      name: (parsed.data.name || username).trim(),
       phone: parsed.data.phone?.trim() || "",
       passwordHash: hashPassword(parsed.data.password),
     },
@@ -50,11 +70,16 @@ export async function POST(req: NextRequest) {
     action: "member.register",
     actorType: "visitor",
     actorId: member.id,
-    metadata: { email: member.email },
+    metadata: { email: member.email, username: member.username },
   });
 
   return NextResponse.json({
     ok: true,
-    member: { id: member.id, email: member.email, name: member.name },
+    member: {
+      id: member.id,
+      email: member.email,
+      name: member.name,
+      username: member.username,
+    },
   });
 }

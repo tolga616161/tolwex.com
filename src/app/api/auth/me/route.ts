@@ -9,7 +9,14 @@ export async function GET() {
   }
   const member = await prisma.member.findFirst({
     where: { id: session.memberId, active: true },
-    select: { id: true, email: true, name: true, phone: true, createdAt: true },
+    select: {
+      id: true,
+      email: true,
+      name: true,
+      username: true,
+      phone: true,
+      createdAt: true,
+    },
   });
   if (!member) {
     session.memberId = undefined;

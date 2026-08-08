@@ -7,7 +7,8 @@ import { rateLimit } from "@/lib/rate-limit";
 import { writeAuditLog } from "@/lib/audit";
 
 const schema = z.object({
-  email: z.string().email(),
+  /** username or email — smmapi style login */
+  login: z.string().min(1).max(160),
   password: z.string().min(1).max(100),
 });
 
@@ -19,15 +20,23 @@ export async function POST(req: NextRequest) {
   }
 
   const json = await req.json().catch(() => null);
-  const parsed = schema.safeParse(json);
+  // backward compatible: email field
+  const raw = json && typeof json === "object" ? json as Record<string, unknown> : {};
+  const loginVal = String(raw.login || raw.email || "").trim();
+  const parsed = schema.safeParse({ login: loginVal, password: raw.password });
   if (!parsed.success) {
     return NextResponse.json({ error: "Geçersiz giriş" }, { status: 400 });
   }
 
-  const email = parsed.data.email.trim().toLowerCase();
-  const member = await prisma.member.findUnique({ where: { email } });
-  if (!member || !member.active || !verifyPassword(parsed.data.password, member.passwordHash)) {
-    return NextResponse.json({ error: "E-posta veya şifre hatalı" }, { status: 401 });
+  const key = parsed.data.login.toLowerCase();
+  const member = await prisma.member.findFirst({
+    where: {
+      OR: [{ email: key }, { username: key }],
+      active: true,
+    },
+  });
+  if (!member || !verifyPassword(parsed.data.password, member.passwordHash)) {
+    return NextResponse.json({ error: "Kullanıcı adı/e-posta veya şifre hatalı" }, { status: 401 });
   }
 
   const session = await getSession();
@@ -43,7 +52,12 @@ export async function POST(req: NextRequest) {
 
   return NextResponse.json({
     ok: true,
-    member: { id: member.id, email: member.email, name: member.name },
+    member: {
+      id: member.id,
+      email: member.email,
+      name: member.name,
+      username: member.username,
+    },
   });
 }
 

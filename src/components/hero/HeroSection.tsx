@@ -1,36 +1,47 @@
 "use client";
 
 import Link from "next/link";
-import { whatsappUrl } from "@/lib/contact";
+import { MemberAuthForm } from "@/components/auth/MemberAuthForm";
 
 export function HeroSection() {
   return (
-    <section className="hero-stage">
-      <div className="hero-copy">
-        <p className="hero-kicker">TOLWEX · SMM Panel</p>
-        <h1 className="hero-title display">
-          <span className="title-line">SMM HİZMETLERİ</span>
-          <span className="title-line hero-title-accent">OTOMATİK KATALOG.</span>
-        </h1>
-        <p className="hero-sub">
-          smmapi.com servisleri otomatik listelenir. Fiyatlara %50 kâr eklenir.
-          Üye girişi ile sipariş ver — Instagram bağlama yok.
-        </p>
-        <div className="hero-actions">
-          <Link href="/#hizmetler" className="btn btn-primary">
-            Hizmetleri gör
-          </Link>
-          <Link href="/uye/giris" className="btn btn-ghost">
-            Üye Girişi
-          </Link>
-          <a
-            href={whatsappUrl("Merhaba, SMM hizmetleri hakkında yazıyorum.")}
-            className="btn btn-ghost"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            WhatsApp
-          </a>
+    <section className="hero-stage panel-hero">
+      <div className="site-shell panel-hero-grid">
+        <div className="hero-copy panel-hero-copy">
+          <p className="hero-kicker">TOLWEX · SMM Panel</p>
+          <h1 className="hero-title display">
+            <span className="title-line">EN İYİ SMM</span>
+            <span className="title-line hero-title-accent">PAZARLAMA PANELİ.</span>
+          </h1>
+          <p className="hero-sub">
+            smmapi.com servisleri otomatik senkron. Üye ol, giriş yap, sipariş ver —
+            Instagram bağlama yok.
+          </p>
+          <div className="panel-stats">
+            <div>
+              <strong>2000+</strong>
+              <span>Servis</span>
+            </div>
+            <div>
+              <strong>%50</strong>
+              <span>Kârlı fiyat</span>
+            </div>
+            <div>
+              <strong>7/24</strong>
+              <span>Otomasyon</span>
+            </div>
+          </div>
+          <div className="hero-actions">
+            <Link href="/uye/kayit" className="btn btn-ghost">
+              Üye ol
+            </Link>
+            <Link href="/hizmetler" className="btn btn-ghost">
+              Servis listesi
+            </Link>
+          </div>
+        </div>
+        <div className="panel-hero-login">
+          <MemberAuthForm mode="login" compact />
         </div>
       </div>
     </section>

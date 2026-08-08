@@ -206,9 +206,11 @@ model AdminNotification {
   @@index([read, createdAt])
 }
 
-/// Site members (customer accounts)
+/// Site members (customer accounts) — SMM panel style
 model Member {
   id           String     @id @default(cuid())
+  /// Login username (smmapi style)
+  username     String     @unique @default("")
   email        String     @unique
   passwordHash String
   name         String     @default("")
@@ -219,6 +221,7 @@ model Member {
   orders       SmmOrder[]
 
   @@index([createdAt])
+  @@index([username])
 }
 
 /// Cached SMM panel services (smmapi.com) with markup sell rate
