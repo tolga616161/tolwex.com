@@ -8,10 +8,10 @@ import { whatsappUrl } from "@/lib/contact";
 
 const NAV = [
   { label: "Ana Sayfa", href: "/" },
-  { label: "Hizmetler", href: "/hizmetler" },
-  { label: "Üye Girişi", href: "/uye/giris" },
-  { label: "Kayıt Ol", href: "/uye/kayit" },
-  { label: "Nasıl Çalışır?", href: "/#nasil-calisir" },
+  { label: "Servisler", href: "/hizmetler" },
+  { label: "Üye Ol", href: "/uye/kayit" },
+  { label: "Giriş", href: "/uye/giris" },
+  { label: "Panel", href: "/uye" },
 ];
 
 export function SiteNav() {
