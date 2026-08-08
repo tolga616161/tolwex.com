@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { StatusCard } from "@/components/instagram/StatusCard";
 import { DisconnectButton } from "@/components/instagram/DisconnectButton";
@@ -37,35 +37,72 @@ const ACCOUNT_LABELS: Record<string, string> = {
   accountType: "Hesap türü",
   account_type: "Hesap türü",
   tokenValidated: "Bağlantı doğrulandı",
+  tokenType: "Token türü",
+  mediaCount: "Medya sayısı",
   followers_count: "Takipçi",
   follows_count: "Takip",
   media_count: "Medya sayısı",
+  fieldsFromApi: "API alanları",
 };
 
 function labelKey(k: string) {
   return ACCOUNT_LABELS[k] || k;
 }
 
+function formatValue(v: unknown): string {
+  if (typeof v === "boolean") return v ? "Evet" : "Hayır";
+  if (Array.isArray(v)) return v.join(", ");
+  if (v === null || v === undefined) return "—";
+  return String(v);
+}
+
+function statusTone(status: string): "ok" | "warn" | "idle" | "active" {
+  if (status === "ok" || status === "active" || status === "granted") return "ok";
+  if (status === "warn" || status === "error" || status === "expired") return "warn";
+  return "idle";
+}
+
 export function DashboardClient() {
   const [data, setData] = useState<DashboardData | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+
+  const load = useCallback(async (isRefresh = false) => {
+    if (isRefresh) setRefreshing(true);
+    else setLoading(true);
+    setError(null);
+    try {
+      const r = await fetch("/api/meta/dashboard");
+      const json = await r.json();
+      if (!r.ok) throw new Error(json.message || "Yüklenemedi");
+      setData(json);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Yüklenemedi");
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
+  }, []);
 
   useEffect(() => {
-    fetch("/api/meta/dashboard")
-      .then(async (r) => {
-        const json = await r.json();
-        if (!r.ok) throw new Error(json.message || "Yüklenemedi");
-        setData(json);
-      })
-      .catch((e) => setError(e.message));
-  }, []);
+    load(false);
+  }, [load]);
+
+  if (loading) {
+    return <p className="muted">Hesap güvenlik kontrolü yükleniyor…</p>;
+  }
 
   if (error) {
     return (
       <div className="surface rounded-2xl p-6">
-        <p>{error}</p>
-        <div className="mt-4 flex flex-wrap gap-3">
-          <ConnectButton label="Yeniden bağlan" />
+        <h1 className="display text-3xl font-bold mb-3">Kontrol yüklenemedi</h1>
+        <p className="mb-4">{error}</p>
+        <div className="flex flex-wrap gap-3">
+          <button type="button" className="btn btn-primary" onClick={() => load(false)}>
+            Tekrar dene
+          </button>
+          <ConnectButton label="Instagram’ı Bağla" force />
           <a
             href={whatsappUrl("Dashboard yüklenemedi, destek istiyorum.")}
             className="btn btn-ghost"
@@ -79,9 +116,7 @@ export function DashboardClient() {
     );
   }
 
-  if (!data) {
-    return <p className="muted">Hesap kontrolü yükleniyor…</p>;
-  }
+  if (!data) return null;
 
   const lastCheck = data.lastCheckedAt
     ? new Date(data.lastCheckedAt).toLocaleString("tr-TR")
@@ -90,49 +125,55 @@ export function DashboardClient() {
   const connectionHealth =
     data.tokenStatus === "active"
       ? data.account && (data.account as { tokenValidated?: boolean }).tokenValidated
-        ? "Bağlantı doğrulandı"
+        ? "Bağlantı Meta tarafından doğrulandı"
         : "Bağlantı aktif"
       : data.tokenStatus === "expired"
-        ? "Bağlantı süresi dolmuş olabilir — yeniden bağlanın"
+        ? "Bağlantı süresi dolmuş — yeniden bağlanın"
         : data.tokenStatus === "none"
           ? "Henüz bağlanmadı"
           : `Bağlantı durumu: ${data.tokenStatus}`;
 
+  const grantedCount = data.permissions.filter((p) => p.status === "granted").length;
+
   return (
     <div className="space-y-8">
-      <div className="fade-up">
-        <h1 className="display text-3xl md:text-5xl font-bold mb-3">
-          Instagram Hesap Güvenliği
-        </h1>
-        <p className="muted max-w-2xl">{data.message}</p>
+      <div className="fade-up flex flex-col md:flex-row md:items-end md:justify-between gap-4">
+        <div>
+          <p className="text-xs uppercase tracking-[0.2em] mb-2" style={{ color: "var(--accent)" }}>
+            Instagram güvenlik paneli
+          </p>
+          <h1 className="display text-3xl md:text-5xl font-bold mb-3">
+            Hesap Güvenlik Kontrolü
+          </h1>
+          <p className="muted max-w-2xl">{data.message}</p>
+        </div>
+        <button
+          type="button"
+          className="btn btn-ghost"
+          disabled={refreshing || !data.connected}
+          onClick={() => load(true)}
+        >
+          {refreshing ? "Kontrol ediliyor…" : "Yeniden kontrol et"}
+        </button>
       </div>
 
-      <div className="surface rounded-2xl p-4 text-sm fade-up-delay">
-        {data.privacyNotice}
-      </div>
+      <div className="surface rounded-2xl p-4 text-sm fade-up-delay">{data.privacyNotice}</div>
 
       {!data.metaConfigured ? (
         <div className="surface rounded-2xl p-6">
-          <p className="mb-4">
-            Bağlantı henüz hazır değil. Destek: {CONTACT_PHONE_DISPLAY}
-          </p>
-          <a
-            href={whatsappUrl("Instagram bağlantısı için yazıyorum.")}
-            className="btn btn-primary"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            WhatsApp ile yaz
-          </a>
+          <p className="mb-4">Meta API henüz yapılandırılmadı. Admin kurulumunu tamamlayın.</p>
+          <Link href="/admin/setup" className="btn btn-primary">
+            Admin Meta Kurulum
+          </Link>
         </div>
       ) : null}
 
       {!data.connected ? (
-        <div className="surface rounded-2xl p-6 fade-up-delay">
-          <h2 className="display text-2xl mb-2">Hesabını bağla</h2>
-          <p className="muted text-sm mb-4">
-            Resmi Meta ekranından Instagram’ı onaylayın. Şifre istemeyiz.
-            Bağlandıktan sonra izinler ve hesap durumu burada görünür.
+        <div className="surface rounded-2xl p-6 md:p-8 fade-up-delay">
+          <h2 className="display text-2xl mb-2">1. Instagram hesabını bağla</h2>
+          <p className="muted text-sm mb-5 max-w-xl">
+            Resmi Meta ekranından onay verin. Şifre bu sitede yazılmaz. Bağlandıktan
+            sonra izinler, hesap bilgileri ve güvenlik kontrolleri burada listelenir.
           </p>
           <ConnectButton label="Instagram Hesabımı Bağla" force />
         </div>
@@ -142,25 +183,30 @@ export function DashboardClient() {
         <StatusCard
           title="Bağlantı"
           label={data.connectionCard.label}
-          status={data.connectionCard.status as "active"}
+          status={statusTone(data.connectionCard.status)}
         />
         <StatusCard
           title="Hesap erişimi"
-          label={data.apiCard.label.replace(/^API\s*/i, "").trim() || data.apiCard.label}
-          status={data.apiCard.status as "active"}
+          label={data.apiCard.label}
+          status={statusTone(data.apiCard.status)}
         />
         <StatusCard
           title="Bağlantı sağlığı"
           label={connectionHealth}
           status={
-            data.tokenStatus === "active"
-              ? "ok"
-              : data.tokenStatus === "none"
-                ? "idle"
-                : "warn"
+            data.tokenStatus === "active" ? "ok" : data.tokenStatus === "none" ? "idle" : "warn"
           }
         />
         <StatusCard title="Son kontrol" label={lastCheck} status="idle" />
+        <StatusCard
+          title="Verilen izinler"
+          label={
+            data.permissions.length
+              ? `${grantedCount} / ${data.permissions.length} izin aktif`
+              : "İzin listesi yok"
+          }
+          status={grantedCount ? "ok" : "idle"}
+        />
         <StatusCard
           title="Durum uyarısı"
           label={
@@ -175,24 +221,44 @@ export function DashboardClient() {
       <section className="surface rounded-2xl p-6 fade-up-delay-2">
         <h2 className="display text-2xl mb-2">Güvenlik özeti</h2>
         <p className="muted text-sm mb-5">
-          Uydurma skor yok. Yalnızca ölçülebilir bulgular ve platformun vermediği
-          alanlar listelenir.
+          Uydurma skor yok. Yalnızca Meta API’nin verdiği ölçülebilir bulgular ve
+          platformun sağlamadığı alanlar listelenir.
         </p>
-        <ul className="space-y-3">
+        <ul className="space-y-3 mb-6">
           {data.securitySummary.map((s) => (
             <li key={s.text} className="flex items-center gap-3">
-              <span
-                className={`status-dot ${
-                  s.status === "ok" ? "status-ok" : "status-warn"
-                }`}
-              />
+              <span className={`status-dot ${s.status === "ok" ? "status-ok" : "status-warn"}`} />
               <span>{s.text}</span>
             </li>
           ))}
         </ul>
+        {data.securityChecks?.length ? (
+          <div className="grid md:grid-cols-2 gap-3 border-t border-white/10 pt-5">
+            {data.securityChecks.map((c) => (
+              <div key={c.id} className="rounded-xl border border-white/10 p-4">
+                <div className="flex items-center gap-2 mb-1">
+                  <span
+                    className={`status-dot ${
+                      c.status === "ok"
+                        ? "status-ok"
+                        : c.status === "warn"
+                          ? "status-warn"
+                          : "status-idle"
+                    }`}
+                  />
+                  <p className="font-semibold text-sm">{c.label}</p>
+                </div>
+                <p className="muted text-sm leading-relaxed">{c.detail}</p>
+              </div>
+            ))}
+          </div>
+        ) : null}
         {data.suspiciousGuidance ? (
           <p className="mt-5 text-sm muted border-t border-white/10 pt-4">
-            İncelemeniz önerilir. {data.suspiciousGuidance}
+            İncelemeniz önerilir. {data.suspiciousGuidance}{" "}
+            <Link href="/instagram/guide" className="underline" style={{ color: "var(--accent)" }}>
+              2FA rehberi
+            </Link>
           </p>
         ) : null}
       </section>
@@ -202,25 +268,19 @@ export function DashboardClient() {
           <h2 className="display text-xl mb-4">Hesap bilgileri</h2>
           {data.account ? (
             <dl className="space-y-2 text-sm">
-              {Object.entries(data.account).map(([k, v]) =>
-                v === null || v === undefined ? null : (
-                  <div
-                    key={k}
-                    className="flex justify-between gap-4 border-b border-white/10 py-2"
-                  >
-                    <dt className="muted">{labelKey(k)}</dt>
-                    <dd className="text-right break-all">
-                      {typeof v === "boolean"
-                        ? v
-                          ? "Evet"
-                          : "Hayır"
-                        : Array.isArray(v)
-                          ? v.join(", ")
-                          : String(v)}
-                    </dd>
-                  </div>
-                )
-              )}
+              {Object.entries(data.account)
+                .filter(([k]) => k !== "fieldsFromApi")
+                .map(([k, v]) =>
+                  v === null || v === undefined ? null : (
+                    <div
+                      key={k}
+                      className="flex justify-between gap-4 border-b border-white/10 py-2"
+                    >
+                      <dt className="muted">{labelKey(k)}</dt>
+                      <dd className="text-right break-all font-medium">{formatValue(v)}</dd>
+                    </div>
+                  )
+                )}
             </dl>
           ) : (
             <p className="muted text-sm">
@@ -238,15 +298,22 @@ export function DashboardClient() {
                   key={p.permission}
                   className="flex items-center justify-between gap-3 border-b border-white/10 py-2"
                 >
-                  <span>{p.permission}</span>
-                  <span className="muted">{p.status}</span>
+                  <span className="break-all">{p.permission}</span>
+                  <span
+                    className={`text-xs uppercase tracking-wide ${
+                      p.status === "granted" ? "" : "muted"
+                    }`}
+                    style={p.status === "granted" ? { color: "var(--ok)" } : undefined}
+                  >
+                    {p.status === "granted" ? "Verildi" : p.status}
+                  </span>
                 </li>
               ))}
             </ul>
           ) : (
             <p className="muted text-sm">
-              İzin listesi henüz yok. Bağlantı sonrası Meta’nın verdiği izinler
-              burada görünür.
+              İzin listesi henüz yok. Bağlantı sonrası Meta’nın verdiği izinler burada
+              görünür.
             </p>
           )}
         </div>
@@ -254,6 +321,9 @@ export function DashboardClient() {
 
       <section className="surface rounded-2xl p-6">
         <h2 className="display text-xl mb-4">Platformun vermediği bilgiler</h2>
+        <p className="muted text-sm mb-4">
+          Bunlar Meta API’de yoktur; uydurulmaz. Resmi Instagram ayarlarından kontrol edin.
+        </p>
         <ul className="space-y-3 text-sm">
           {Object.values(data.notProvided || {}).map((msg) => (
             <li key={msg} className="flex gap-3">
@@ -277,6 +347,9 @@ export function DashboardClient() {
         </Link>
         <Link href="/instagram/security" className="btn btn-ghost">
           Güvenlik Merkezi
+        </Link>
+        <Link href="/admin" className="btn btn-ghost">
+          Admin
         </Link>
         <a
           href={whatsappUrl("Instagram güvenlik kontrolü hakkında yazıyorum.")}

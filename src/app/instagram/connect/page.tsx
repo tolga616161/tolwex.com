@@ -1,11 +1,15 @@
 import Link from "next/link";
+import { ConnectButton } from "@/components/ConnectButton";
+import { getMetaConfig } from "@/lib/meta/config";
 import { CONTACT_PHONE_DISPLAY, whatsappUrl } from "@/lib/contact";
 
 export const metadata = {
   title: "Instagram Hesabını Bağla — TOLWEX",
 };
 
-export default function InstagramConnectPage() {
+export default async function InstagramConnectPage() {
+  const config = await getMetaConfig();
+
   return (
     <div className="site-shell py-8 pb-24">
       <section className="connect-hero glass-panel rounded-3xl p-6 md:p-10 relative overflow-hidden">
@@ -26,33 +30,66 @@ export default function InstagramConnectPage() {
           </h1>
           <p className="muted leading-relaxed mb-4">
             Bu sitede Instagram şifresi, cookie, session veya 2FA kodu
-            <strong className="text-white"> istenmez</strong>. Bağlantı Meta’nın
-            resmi ekranı üzerinden yapılır.
+            <strong className="text-white"> istenmez</strong>. Bağlantı yalnızca
+            Meta’nın resmi giriş ekranından yapılır.
           </p>
           <div className="glass-panel rounded-2xl p-4 mb-6 text-sm leading-relaxed">
-            <p className="font-semibold text-white mb-1">Hızlı destek</p>
+            <p className="font-semibold text-white mb-1">Neden Facebook açılıyor?</p>
             <p className="muted">
-              Hesap güvenlik kontrolü ve bağlantı için WhatsApp’tan yazın —
-              ekibimiz süreci sizinle birlikte tamamlar.
+              Instagram Business/Creator bağlantısı Meta kimlik doğrulaması üzerinden
+              çalışır. Bu normal ve resmi akıştır — şifrenizi bizim sitemize yazmazsınız.
             </p>
           </div>
-          <div className="flex flex-col gap-3">
-            <a
-              href={whatsappUrl("Merhaba, Instagram hesabımı güvenli bağlamak istiyorum.")}
-              className="btn btn-primary"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              WhatsApp ile Başla — {CONTACT_PHONE_DISPLAY}
-            </a>
-            <Link href="/instagram/security" className="btn btn-ghost">
-              Güvenlik Merkezi
-            </Link>
-            <Link href="/urunler/instagram-hesap-guvenlik-kontrolu" className="btn btn-ghost">
-              Güvenlik ürününü incele
-            </Link>
-          </div>
+
+          {!config.configured ? (
+            <p className="muted text-sm mb-4">
+              Bağlantı şu an hazırlanıyor. Destek için WhatsApp:{" "}
+              <a
+                href={whatsappUrl("Instagram bağlantısı için yazıyorum.")}
+                className="underline"
+                style={{ color: "var(--accent)" }}
+              >
+                {CONTACT_PHONE_DISPLAY}
+              </a>
+            </p>
+          ) : (
+            <div className="flex flex-col gap-3">
+              <ConnectButton label="Instagram Hesabımı Bağla" force />
+              <Link href="/instagram/dashboard" className="btn btn-ghost">
+                Kontrol ekranına git
+              </Link>
+            </div>
+          )}
         </div>
+      </section>
+
+      <section className="mt-8 grid md:grid-cols-3 gap-4">
+        {[
+          {
+            t: "1. Bağla",
+            d: "Meta’nın resmi ekranından Instagram’ı onaylayın.",
+            href: "#",
+          },
+          {
+            t: "2. Kontrol et",
+            d: "Bağlantı, izinler ve hesap durumunu dashboard’da görün.",
+            href: "/instagram/dashboard",
+          },
+          {
+            t: "3. Güçlendir",
+            d: "2FA ve cihaz kontrolü için güvenlik merkezini kullanın.",
+            href: "/instagram/security",
+          },
+        ].map((x) => (
+          <Link
+            key={x.t}
+            href={x.href === "#" ? "/instagram/connect" : x.href}
+            className="glass-panel rounded-2xl p-5 block"
+          >
+            <h3 className="display text-xl mb-2">{x.t}</h3>
+            <p className="muted text-sm">{x.d}</p>
+          </Link>
+        ))}
       </section>
     </div>
   );

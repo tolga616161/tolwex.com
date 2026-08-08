@@ -4,9 +4,13 @@ import { CategoryExplorer } from "@/components/categories/CategoryExplorer";
 import { DigitalAtmosphere } from "@/components/fx/DigitalAtmosphere";
 import { ProductGrid } from "@/components/products/ProductGrid";
 import { getFeaturedProducts } from "@/lib/products/data";
+import { getMetaConfig } from "@/lib/meta/config";
 import { CONTACT_PHONE_DISPLAY, whatsappUrl } from "@/lib/contact";
 
-export default function HomePage() {
+export const dynamic = "force-dynamic";
+
+export default async function HomePage() {
+  const config = await getMetaConfig();
   const featuredProducts = getFeaturedProducts();
 
   return (
@@ -14,7 +18,7 @@ export default function HomePage() {
       <div className="page-atmosphere" aria-hidden>
         <DigitalAtmosphere variant="page" />
       </div>
-      <HeroSection configured />
+      <HeroSection configured={config.configured} />
 
       <ProductGrid
         title="Öne çıkan ürünler"
@@ -64,6 +68,9 @@ export default function HomePage() {
         <div className="mt-5 flex flex-wrap gap-3">
           <Link href="/instagram/connect" className="btn btn-primary">
             Instagram Hesabını Güvenli Şekilde Bağla
+          </Link>
+          <Link href="/instagram/dashboard" className="btn btn-ghost">
+            Hesap Güvenlik Testi
           </Link>
           <a
             href={whatsappUrl("Merhaba, ürünler hakkında bilgi almak istiyorum.")}
