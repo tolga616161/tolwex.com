@@ -23,13 +23,16 @@ export async function PATCH(req: NextRequest) {
     return NextResponse.json({ error: "Geçersiz talep verisi" }, { status: 400 });
   }
 
-  const lead = await prisma.orderLead.update({
-    where: { id: parsed.data.id },
-    data: { status: parsed.data.status },
-    include: { product: { select: { name: true, slug: true } } },
-  });
-
-  return NextResponse.json({ ok: true, lead });
+  try {
+    const lead = await prisma.orderLead.update({
+      where: { id: parsed.data.id },
+      data: { status: parsed.data.status },
+      include: { product: { select: { name: true, slug: true } } },
+    });
+    return NextResponse.json({ ok: true, lead });
+  } catch {
+    return NextResponse.json({ error: "Talep bulunamadı" }, { status: 404 });
+  }
 }
 
 export async function DELETE(req: NextRequest) {
@@ -38,6 +41,10 @@ export async function DELETE(req: NextRequest) {
   }
   const id = req.nextUrl.searchParams.get("id");
   if (!id) return NextResponse.json({ error: "id gerekli" }, { status: 400 });
-  await prisma.orderLead.delete({ where: { id } });
-  return NextResponse.json({ ok: true });
+  try {
+    await prisma.orderLead.delete({ where: { id } });
+    return NextResponse.json({ ok: true });
+  } catch {
+    return NextResponse.json({ error: "Talep bulunamadı" }, { status: 404 });
+  }
 }
