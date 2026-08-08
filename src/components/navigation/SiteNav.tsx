@@ -9,9 +9,9 @@ import { whatsappUrl } from "@/lib/contact";
 const NAV = [
   { label: "Ana Sayfa", href: "/" },
   { label: "Hizmetler", href: "/hizmetler" },
-  { label: "Eski Hesap", href: "/urunler/eski-tarihli-hesaplar" },
-  { label: "Kapanan Hesap", href: "/urunler/kapanan-hesap-aktif-etme" },
   { label: "Üye Girişi", href: "/uye/giris" },
+  { label: "Kayıt Ol", href: "/uye/kayit" },
+  { label: "Nasıl Çalışır?", href: "/#nasil-calisir" },
 ];
 
 export function SiteNav() {
@@ -37,7 +37,7 @@ export function SiteNav() {
     };
   }, [mobileOpen]);
 
-  const wa = whatsappUrl("Merhaba, TOLWEX hesap hizmetleri hakkında yazıyorum.");
+  const wa = whatsappUrl("Merhaba, TOLWEX SMM hakkında yazıyorum.");
 
   const mobileMenu =
     mounted &&

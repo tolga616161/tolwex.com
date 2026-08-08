@@ -4,8 +4,7 @@ import { TolwexLogo } from "@/components/brand/TolwexLogo";
 const LINKS = [
   { label: "Hizmetler", href: "/hizmetler" },
   { label: "Üye Girişi", href: "/uye/giris" },
-  { label: "Eski Hesap", href: "/urunler/eski-tarihli-hesaplar" },
-  { label: "Kapanan Hesap", href: "/urunler/kapanan-hesap-aktif-etme" },
+  { label: "Kayıt Ol", href: "/uye/kayit" },
   { label: "Gizlilik", href: "/privacy" },
   { label: "Kullanım Koşulları", href: "/terms" },
 ];
@@ -16,7 +15,7 @@ export function SiteFooter() {
       <div className="site-shell footer-inner">
         <div className="footer-brand">
           <TolwexLogo size="md" />
-          <p className="footer-tag">Meta eski · projeli · kapanan hesap hizmetleri</p>
+          <p className="footer-tag">SMM hizmetleri · smmapi.com otomasyon</p>
         </div>
         <nav className="footer-links" aria-label="Footer">
           {LINKS.map((l) => (

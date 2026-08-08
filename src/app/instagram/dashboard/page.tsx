@@ -1,9 +1,5 @@
-import { DashboardClient } from "@/components/instagram/DashboardClient";
+import { redirect } from "next/navigation";
 
-export default function InstagramDashboardPage() {
-  return (
-    <div className="site-shell py-10 pb-20">
-      <DashboardClient />
-    </div>
-  );
+export default function Page() {
+  redirect("/uye");
 }

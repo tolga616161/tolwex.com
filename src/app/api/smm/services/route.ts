@@ -1,14 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
-import { ensureSmmCatalogSeeded } from "@/lib/smm/sync";
+import { ensureSmmCatalogFresh } from "@/lib/smm/sync";
 
 export const dynamic = "force-dynamic";
+export const maxDuration = 60;
 
 export async function GET(req: NextRequest) {
   try {
-    await ensureSmmCatalogSeeded();
+    await ensureSmmCatalogFresh();
   } catch {
-    // catalog may stay empty if key missing
+    // catalog may stay empty if key missing / network error
   }
 
   const sp = req.nextUrl.searchParams;

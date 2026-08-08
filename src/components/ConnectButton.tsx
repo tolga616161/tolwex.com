@@ -1,20 +1,22 @@
 "use client";
 
-type Props = {
-  label?: string;
-  className?: string;
-  force?: boolean;
-};
+import Link from "next/link";
 
+/** Public Instagram OAuth removed — button routes to SMM member flow. */
 export function ConnectButton({
-  label = "Instagram Hesabımı Kontrol Et",
-  className = "",
-  force = true,
-}: Props) {
-  const href = force ? "/api/meta/oauth/start?force=1" : "/api/meta/oauth/start";
+  label = "Hizmetlere git",
+}: {
+  label?: string;
+  force?: boolean;
+}) {
   return (
-    <a href={href} className={`btn btn-primary pulse-ring ${className}`}>
-      {label}
-    </a>
+    <Link href="/hizmetler" className="btn btn-primary">
+      {label === "Instagram Hesabımı Bağla" ||
+      label === "Instagram’ı Bağla" ||
+      label === "Instagram Hesabını Bağla" ||
+      label === "Yeniden Bağlan"
+        ? "SMM Hizmetler"
+        : label}
+    </Link>
   );
 }

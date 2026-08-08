@@ -63,8 +63,8 @@ export default function SecurityCenterPage() {
           >
             WhatsApp Destek · {CONTACT_PHONE_DISPLAY}
           </a>
-          <Link href="/analiz/profilime-kim-bakti" className="btn btn-ghost">
-            Profilime Kim Baktı?
+          <Link href="/hizmetler" className="btn btn-ghost">
+            SMM Hizmetler
           </Link>
         </div>
       </section>

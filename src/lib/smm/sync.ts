@@ -1,6 +1,8 @@
 import { prisma } from "@/lib/db";
 import { applyMarkup, fetchSmmServices, smmConfig } from "@/lib/smm/client";
 
+let syncing: Promise<Awaited<ReturnType<typeof syncSmmServices>>> | null = null;
+
 export async function syncSmmServices() {
   const { markupPercent } = smmConfig();
   const raw = await fetchSmmServices();
@@ -8,7 +10,7 @@ export async function syncSmmServices() {
   const seen = new Set<number>();
 
   let upserted = 0;
-  const batchSize = 40;
+  const batchSize = 50;
   for (let i = 0; i < raw.length; i += batchSize) {
     const chunk = raw.slice(i, i + batchSize);
     await Promise.all(
@@ -55,7 +57,6 @@ export async function syncSmmServices() {
     );
   }
 
-  // Deactivate missing services
   const existing = await prisma.smmService.findMany({
     select: { id: true, providerServiceId: true },
   });
@@ -85,10 +86,26 @@ export async function syncSmmServices() {
   };
 }
 
-export async function ensureSmmCatalogSeeded() {
+/** Single-flight sync — empty catalog or older than 6 hours. */
+export async function ensureSmmCatalogFresh(maxAgeMs = 6 * 60 * 60 * 1000) {
   const count = await prisma.smmService.count({ where: { active: true } });
-  if (count > 0) return { seeded: false, count };
-  if (!smmConfig().key) return { seeded: false, count: 0 };
-  const result = await syncSmmServices();
-  return { seeded: true, count: result.upserted, result };
+  const last = await prisma.smmService.findFirst({
+    orderBy: { syncedAt: "desc" },
+    select: { syncedAt: true },
+  });
+  const age = last ? Date.now() - last.syncedAt.getTime() : Number.POSITIVE_INFINITY;
+  const needs = count === 0 || age > maxAgeMs;
+  if (!needs) return { synced: false, count, ageMs: age };
+
+  if (!smmConfig().key) {
+    return { synced: false, count, ageMs: age, error: "SMM_API_KEY yok" };
+  }
+
+  if (!syncing) {
+    syncing = syncSmmServices().finally(() => {
+      syncing = null;
+    });
+  }
+  const result = await syncing;
+  return { synced: true, count: result.upserted, result };
 }

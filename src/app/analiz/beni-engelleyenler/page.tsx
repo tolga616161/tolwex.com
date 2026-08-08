@@ -1,11 +1,5 @@
-import { AnalysisPublicView } from "@/components/analysis/AnalysisPublicView";
-
-export const metadata = { title: "Beni Engelleyenler — TOLWEX" };
+import { redirect } from "next/navigation";
 
 export default function Page() {
-  return (
-    <>
-      <AnalysisPublicView type="blocking" accent="block" />
-    </>
-  );
+  redirect("/hizmetler");
 }

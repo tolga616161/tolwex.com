@@ -1,6 +1,6 @@
 {
   "framework": "nextjs",
-  "buildCommand": "export DATABASE_URL=\"file:$(pwd)/prisma/data.db\" && prisma generate && prisma db push && npx tsx prisma/seed.ts && next build",
+  "buildCommand": "export DATABASE_URL=\"file:$(pwd)/prisma/data.db\" && prisma generate && prisma db push && npx tsx prisma/seed.ts && npx tsx scripts/sync-smm.ts && next build",
   "installCommand": "npm ci",
   "regions": ["fra1"]
 }
