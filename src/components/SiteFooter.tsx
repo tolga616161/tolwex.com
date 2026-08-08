@@ -29,7 +29,7 @@ export function SiteFooter() {
       <div className="site-shell footer-inner">
         <div className="footer-brand">
           <TolwexLogo size="md" />
-          <p className="footer-tag">Profesyonel SMM Reseller Panel</p>
+          <p className="footer-tag">Profesyonel SMM Paneli</p>
         </div>
         <nav className="footer-links" aria-label="Footer">
           {LINKS.map((l) => (

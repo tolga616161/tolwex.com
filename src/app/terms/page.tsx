@@ -1,4 +1,4 @@
-export const metadata = { title: "Kullanım Şartları — TOLWEX" };
+export const metadata = { title: "Kullanım Şartları" };
 
 export default function TermsPage() {
   return (

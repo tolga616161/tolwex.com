@@ -2,7 +2,10 @@ import { AdminShell } from "@/components/admin/saas/AdminShell";
 import type { ReactNode } from "react";
 
 export const metadata = {
-  title: "TOLWEX Admin",
+  title: {
+    default: "Admin | TOLWEX",
+    template: "%s | TOLWEX Admin",
+  },
   robots: { index: false, follow: false },
 };
 

@@ -56,7 +56,7 @@ export function MemberAuthForm({
         {mode === "login" ? "Panele giriş yap" : "Hesap oluştur"}
       </h1>
       <p className="muted text-sm mb-5">
-        smmapi.com servisleri · otomatik sipariş · %50 kârlı fiyat
+        TOLWEX SMM paneli · otomatik sipariş · güvenli üye hesabı
       </p>
 
       {mode === "register" ? (

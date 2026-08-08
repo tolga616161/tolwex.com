@@ -2,7 +2,7 @@ import { MemberPanelShell } from "@/components/smm/MemberPanelShell";
 import { ServiceCatalog } from "@/components/smm/ServiceCatalog";
 import { requireMemberPage } from "@/lib/member-page";
 
-export const metadata = { title: "Servisler — TOLWEX" };
+export const metadata = { title: "Servisler" };
 export const dynamic = "force-dynamic";
 
 export default async function MemberServicesPage() {

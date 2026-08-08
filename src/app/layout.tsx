@@ -19,9 +19,12 @@ const body = IBM_Plex_Sans({
 });
 
 export const metadata: Metadata = {
-  title: "TOLWEX — Profesyonel SMM Panel",
+  title: {
+    default: "TOLWEX | SMM Panel",
+    template: "%s | TOLWEX",
+  },
   description:
-    "TOLWEX SMM paneli: üye hesabı, bakiye, binlerce servis ve otomatik sipariş.",
+    "TOLWEX profesyonel SMM paneli. Takipçi, beğeni, izlenme ve daha fazlası — üye hesabı, bakiye ve otomatik sipariş.",
   icons: {
     icon: [
       { url: "/favicon.svg", type: "image/svg+xml" },

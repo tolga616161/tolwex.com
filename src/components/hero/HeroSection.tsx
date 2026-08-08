@@ -10,8 +10,8 @@ export function HeroSection() {
         <div className="hero-copy panel-hero-copy">
           <p className="hero-kicker">TOLWEX</p>
           <h1 className="hero-title display">
-            <span className="title-line">PROFESYONEL</span>
-            <span className="title-line hero-title-accent">SMM PANEL.</span>
+            <span className="title-line">Profesyonel</span>
+            <span className="title-line hero-title-accent">SMM Paneli</span>
           </h1>
           <p className="hero-sub">
             Binlerce servis, üye paneli, bakiye ve otomatik sipariş — tek yerden yönetin.

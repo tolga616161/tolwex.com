@@ -2,7 +2,7 @@ import { MemberPanelShell } from "@/components/smm/MemberPanelShell";
 import { NewOrderForm } from "@/components/smm/NewOrderForm";
 import { requireMemberPage } from "@/lib/member-page";
 
-export const metadata = { title: "Yeni Sipariş — TOLWEX" };
+export const metadata = { title: "Yeni Sipariş" };
 export const dynamic = "force-dynamic";
 
 export default async function NewOrderPage() {

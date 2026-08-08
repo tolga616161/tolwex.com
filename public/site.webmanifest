@@ -1,7 +1,7 @@
 {
   "name": "TOLWEX SMM Panel",
   "short_name": "TOLWEX",
-  "description": "Profesyonel SMM reseller paneli",
+  "description": "Profesyonel SMM paneli",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#000000",

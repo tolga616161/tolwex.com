@@ -3,7 +3,7 @@ import { prisma } from "@/lib/db";
 import { MemberPanelShell } from "@/components/smm/MemberPanelShell";
 import { requireMemberPage } from "@/lib/member-page";
 
-export const metadata = { title: "Dashboard — TOLWEX" };
+export const metadata = { title: "Dashboard" };
 export const dynamic = "force-dynamic";
 
 export default async function MemberDashboardPage() {

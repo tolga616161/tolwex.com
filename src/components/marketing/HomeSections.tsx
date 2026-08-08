@@ -11,7 +11,7 @@ export function HowItWorksSection() {
       <div className="site-shell">
         <div className="section-head">
           <p className="section-kicker">Nasıl çalışır?</p>
-          <h2 className="section-title">PANEL ADIMLARI</h2>
+          <h2 className="section-title">Nasıl çalışır?</h2>
         </div>
         <div className="steps-row steps-4">
           {steps.map((s, i) => (

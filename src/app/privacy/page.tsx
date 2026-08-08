@@ -1,4 +1,4 @@
-export const metadata = { title: "Gizlilik — TOLWEX" };
+export const metadata = { title: "Gizlilik" };
 
 export default function PrivacyPage() {
   return (

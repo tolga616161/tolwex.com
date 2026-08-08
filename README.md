@@ -1,6 +1,6 @@
-# TOLWEX — Profesyonel SMM Panel
+# TOLWEX | SMM Panel
 
-SmartPanel tarzı üye paneli: istatistikler, tekli/toplu sipariş, drip-feed, bakiye, kupon, destek, SSS ve PerfectPanel uyumlu kullanıcı API’si.
+Üye paneli: istatistikler, tekli/toplu sipariş, drip-feed, bakiye, kupon, destek, SSS ve PerfectPanel uyumlu kullanıcı API’si.
 
 Referans mimari: [smm-panel-free](https://github.com/evansnguyen0104/smm-panel-free) (özellikler Next.js’e taşındı).
 

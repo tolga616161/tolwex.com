@@ -11,12 +11,12 @@ export default function HomePage() {
           <div className="hero-copy panel-hero-copy">
             <p className="hero-kicker">TOLWEX</p>
             <h1 className="hero-title display">
-              <span className="title-line">#1 SMM RESELLER</span>
-              <span className="title-line hero-title-accent">PANELİ.</span>
+              <span className="title-line">Profesyonel</span>
+              <span className="title-line hero-title-accent">SMM Paneli</span>
             </h1>
             <p className="hero-sub">
-              Instagram, TikTok, YouTube, Facebook ve daha fazlası — takipçi, beğeni,
-              izlenme. Tek panelden otomatik sipariş, bakiye ve API.
+              Instagram, TikTok, YouTube ve daha fazlası için takipçi, beğeni ve izlenme.
+              Tek panelden sipariş ver, bakiyeni yönet, API ile entegre ol.
             </p>
             <div className="hero-actions">
               <Link href="/uye/kayit" className="btn btn-primary">
@@ -68,7 +68,7 @@ export default function HomePage() {
         <div className="site-shell">
           <div className="section-head">
             <p className="section-kicker">Servisler</p>
-            <h2 className="section-title">HİZMET LİSTESİ</h2>
+            <h2 className="section-title">Hizmet listesi</h2>
             <p className="section-sub">Giriş yapmadan göz atın, sipariş için üye olun.</p>
           </div>
           <ServiceCatalog />

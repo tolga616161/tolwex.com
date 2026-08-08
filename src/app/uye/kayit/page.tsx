@@ -1,6 +1,6 @@
 import { MemberAuthForm } from "@/components/auth/MemberAuthForm";
 
-export const metadata = { title: "Üye Ol — TOLWEX SMM Panel" };
+export const metadata = { title: "Üye Ol" };
 
 export default function MemberRegisterPage() {
   return (
