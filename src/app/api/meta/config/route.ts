@@ -15,8 +15,13 @@ export async function GET() {
     return NextResponse.json({ error: "Yetkisiz" }, { status: 401 });
   }
   const status = await getMetaPublicStatus();
-  // Never return app secret or raw tokens
-  return NextResponse.json(status);
+  const { getMetaConfig } = await import("@/lib/meta/config");
+  const config = await getMetaConfig();
+  // App Secret asla dönülmez. Webhook verify token yalnızca admin’e gösterilir (Meta Console’a yapıştırmak için).
+  return NextResponse.json({
+    ...status,
+    webhookVerifyToken: config.webhookVerifyToken || null,
+  });
 }
 
 const bodySchema = z.object({

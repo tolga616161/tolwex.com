@@ -11,7 +11,11 @@
    - **Terms of Service URL** → `{APP_URL}/terms`
    - **Data Deletion Request URL** → `{APP_URL}/api/data-deletion`
 4. Gerekli izinleri App Review sürecine göre talep edin (`instagram_basic`, `pages_show_list`, vb.).
-5. Admin panelinden **Meta API Bağlantısını Test Et** ile doğrulayın.
-6. Development mode’da yalnızca rol eklenmiş test kullanıcıları OAuth tamamlayabilir.
+5. **Webhook / Verify Token** istenirse:
+   - Callback URL: `{APP_URL}/api/meta/webhook`
+   - Verify Token: `.env` içindeki `META_WEBHOOK_VERIFY_TOKEN` (Admin panelinde de görünür)
+6. Admin panelinden **Meta API Bağlantısını Test Et** ile doğrulayın.
+7. Development mode’da yalnızca rol eklenmiş test kullanıcıları OAuth tamamlayabilir.
+8. Kullanıcı OAuth sonrası access token sunucuda `debug_token` ile doğrulanır.
 
 Credential yoksa uygulama çalışır; Meta özellikleri “yapılandırılmamış” kalır.

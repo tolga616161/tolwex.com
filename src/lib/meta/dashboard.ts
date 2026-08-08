@@ -3,6 +3,7 @@ import { decryptSecret } from "@/lib/crypto/tokens";
 import { getMetaConfig } from "@/lib/meta/config";
 import {
   API_NOT_PROVIDED,
+  debugAccessToken,
   fetchInstagramAccount,
   fetchMe,
   fetchPermissions,
@@ -120,12 +121,17 @@ export async function buildConnectionDashboard(visitorId: string, refresh = true
 
   if (refresh) {
     try {
+      const debug = await debugAccessToken(accessToken);
+      if (!debug.isValid) {
+        throw new MetaIntegrationError("invalid_token");
+      }
+
       const me = await fetchMe(accessToken);
       permissions = await fetchPermissions(accessToken);
       const ig = await fetchInstagramAccount(accessToken);
 
       account = {
-        metaUserId: me.id || connection.metaUserId,
+        metaUserId: me.id || debug.userId || connection.metaUserId,
         name: me.name || null,
         username: ig.profile?.username || connection.igUsername || null,
         igUserId: ig.profile?.id || connection.igUserId || null,
@@ -133,12 +139,14 @@ export async function buildConnectionDashboard(visitorId: string, refresh = true
         mediaCount:
           typeof ig.profile?.media_count === "number" ? ig.profile.media_count : null,
         fieldsFromApi: ig.available,
+        tokenValidated: true,
+        tokenType: debug.type || null,
       };
 
       await prisma.instagramConnection.update({
         where: { id: connection.id },
         data: {
-          metaUserId: me.id || connection.metaUserId,
+          metaUserId: me.id || debug.userId || connection.metaUserId,
           igUsername: ig.profile?.username || connection.igUsername,
           igUserId: ig.profile?.id || connection.igUserId,
           accountType: ig.profile?.account_type || connection.accountType,

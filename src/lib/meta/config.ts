@@ -96,6 +96,7 @@ export async function getMetaPublicStatus() {
     domain: config.domain || null,
     apiVersion: config.apiVersion,
     webhookConfigured: Boolean(config.webhookVerifyToken),
+    webhookCallbackUrl: `${process.env.NEXT_PUBLIC_APP_URL || ""}/api/meta/webhook`,
     lastTestAt: row?.lastTestAt?.toISOString() ?? null,
     lastTestOk: row?.lastTestOk ?? null,
     lastTestMessage: row?.lastTestMessage ?? null,

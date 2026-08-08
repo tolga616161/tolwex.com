@@ -96,7 +96,9 @@ export function DashboardClient() {
           title="Token Durumu"
           label={
             data.tokenStatus === "active"
-              ? "Token durumu: aktif"
+              ? data.account && (data.account as { tokenValidated?: boolean }).tokenValidated
+                ? "Token Meta tarafından doğrulandı"
+                : "Token durumu: aktif"
               : data.tokenStatus === "expired"
                 ? "Token süresi dolmuş olabilir"
                 : data.tokenStatus === "none"

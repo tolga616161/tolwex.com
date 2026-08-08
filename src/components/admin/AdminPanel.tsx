@@ -12,6 +12,8 @@ type Status = {
   domain: string | null;
   apiVersion: string;
   webhookConfigured: boolean;
+  webhookCallbackUrl?: string | null;
+  webhookVerifyToken?: string | null;
   lastTestAt: string | null;
   lastTestOk: boolean | null;
   lastTestMessage: string | null;
@@ -35,7 +37,10 @@ export function AdminPanel() {
 
   async function load() {
     const [s, p] = await Promise.all([
-      fetch("/api/meta/status").then((r) => r.json()),
+      fetch("/api/meta/config").then(async (r) => {
+        if (!r.ok) return fetch("/api/meta/status").then((x) => x.json());
+        return r.json();
+      }),
       fetch("/api/admin/production-checklist").then(async (r) => {
         if (!r.ok) return { checks: [] };
         return r.json();
@@ -172,6 +177,29 @@ export function AdminPanel() {
           />
         </div>
       ) : null}
+
+      <section className="surface rounded-2xl p-6 space-y-3">
+        <h2 className="display text-2xl mb-1">Webhook Token Doğrulama</h2>
+        <p className="muted text-sm">
+          Meta Developer Console → Webhooks bölümünde “Verify Token” istenirse aşağıdaki
+          değeri kullanın. Callback URL’yi de aynı yere yapıştırın.
+        </p>
+        <div className="text-sm space-y-2">
+          <p>
+            <span className="muted">Callback URL: </span>
+            <code className="break-all">
+              {status?.webhookCallbackUrl ||
+                `${typeof window !== "undefined" ? window.location.origin : ""}/api/meta/webhook`}
+            </code>
+          </p>
+          <p>
+            <span className="muted">Verify Token: </span>
+            <code className="break-all">
+              {status?.webhookVerifyToken || "Yapılandırılmadı — META_WEBHOOK_VERIFY_TOKEN"}
+            </code>
+          </p>
+        </div>
+      </section>
 
       <section className="surface rounded-2xl p-6">
         <h2 className="display text-2xl mb-3">Connection Test</h2>

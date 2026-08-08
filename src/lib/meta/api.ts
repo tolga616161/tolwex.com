@@ -71,6 +71,59 @@ export async function fetchPermissions(accessToken: string): Promise<PermissionR
   return data.data || [];
 }
 
+export type DebugTokenInfo = {
+  isValid: boolean;
+  appId?: string;
+  userId?: string;
+  scopes: string[];
+  expiresAt: number | null;
+  type?: string;
+};
+
+/**
+ * Validate a user access token via Meta debug_token (server-side only).
+ * Never returns the token itself.
+ */
+export async function debugAccessToken(inputToken: string): Promise<DebugTokenInfo> {
+  const config = await getMetaConfig();
+  if (!config.configured) {
+    throw new MetaIntegrationError("not_configured");
+  }
+
+  const appToken = `${config.appId}|${config.appSecret}`;
+  const url = new URL(`https://graph.facebook.com/${config.apiVersion}/debug_token`);
+  url.searchParams.set("input_token", inputToken);
+  url.searchParams.set("access_token", appToken);
+
+  let res: Response;
+  try {
+    res = await fetch(url.toString(), { cache: "no-store" });
+  } catch {
+    throw new MetaIntegrationError("network");
+  }
+
+  const payload = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    const kind = classifyGraphError(payload, res.status);
+    throw new MetaIntegrationError(kind);
+  }
+
+  const data = (payload as { data?: Record<string, unknown> }).data || {};
+  const isValid = Boolean(data.is_valid);
+  if (!isValid) {
+    throw new MetaIntegrationError("invalid_token", "debug_token_invalid");
+  }
+
+  return {
+    isValid,
+    appId: typeof data.app_id === "string" ? data.app_id : undefined,
+    userId: typeof data.user_id === "string" ? data.user_id : undefined,
+    scopes: Array.isArray(data.scopes) ? (data.scopes as string[]) : [],
+    expiresAt: typeof data.expires_at === "number" ? data.expires_at : null,
+    type: typeof data.type === "string" ? data.type : undefined,
+  };
+}
+
 /**
  * Attempt to resolve Instagram account data that the Graph API can actually return
  * for the granted token/scopes. Returns only fields present in the response.

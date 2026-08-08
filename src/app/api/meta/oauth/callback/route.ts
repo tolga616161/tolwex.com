@@ -4,7 +4,12 @@ import { exchangeCodeForToken, exchangeLongLivedToken, safeEqual } from "@/lib/m
 import { encryptSecret } from "@/lib/crypto/tokens";
 import { prisma } from "@/lib/db";
 import { writeAuditLog } from "@/lib/audit";
-import { fetchInstagramAccount, fetchMe, fetchPermissions } from "@/lib/meta/api";
+import {
+  debugAccessToken,
+  fetchInstagramAccount,
+  fetchMe,
+  fetchPermissions,
+} from "@/lib/meta/api";
 import { MetaIntegrationError } from "@/lib/meta/errors";
 
 function appUrl(path: string) {
@@ -52,29 +57,37 @@ export async function GET(req: NextRequest) {
     const shortLived = await exchangeCodeForToken(code);
     const longLived = await exchangeLongLivedToken(shortLived.accessToken);
 
+    // Official Meta debug_token validation — reject invalid tokens
+    const debug = await debugAccessToken(longLived.accessToken);
+
     // Token stays server-side only — encrypted before persistence
     const encryptedAccessToken = encryptSecret(longLived.accessToken);
-    const tokenExpiresAt = longLived.expiresIn
-      ? new Date(Date.now() + longLived.expiresIn * 1000)
-      : null;
+    const tokenExpiresAt =
+      longLived.expiresIn != null
+        ? new Date(Date.now() + longLived.expiresIn * 1000)
+        : debug.expiresAt
+          ? new Date(debug.expiresAt * 1000)
+          : null;
 
-    let metaUserId: string | null = null;
+    let metaUserId: string | null = debug.userId || null;
     let igUsername: string | null = null;
     let igUserId: string | null = null;
     let accountType: string | null = null;
-    let grantedScopes = "[]";
+    let grantedScopes = JSON.stringify(
+      debug.scopes.map((permission) => ({ permission, status: "granted" }))
+    );
 
     try {
       const me = await fetchMe(longLived.accessToken);
-      metaUserId = me.id || null;
+      metaUserId = me.id || metaUserId;
       const permissions = await fetchPermissions(longLived.accessToken);
-      grantedScopes = JSON.stringify(permissions);
+      if (permissions.length) grantedScopes = JSON.stringify(permissions);
       const ig = await fetchInstagramAccount(longLived.accessToken);
       igUsername = ig.profile?.username || null;
       igUserId = ig.profile?.id || null;
       accountType = ig.profile?.account_type || null;
     } catch {
-      // Connection still saved; dashboard will surface API error gracefully
+      // Connection still saved after debug_token OK; dashboard surfaces API gaps
     }
 
     await prisma.instagramConnection.upsert({
