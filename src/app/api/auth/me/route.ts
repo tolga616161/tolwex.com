@@ -1,8 +1,9 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/db";
+import { ensureDbHydrated, prisma } from "@/lib/db";
 import { getSession } from "@/lib/session";
 
 export async function GET() {
+  await ensureDbHydrated();
   const session = await getSession();
   if (!session.memberId) {
     return NextResponse.json({ member: null });

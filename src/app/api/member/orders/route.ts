@@ -5,9 +5,21 @@ import { requireMember } from "@/lib/member";
 import { placeMemberOrder } from "@/lib/smm/place-order";
 import { rateLimit } from "@/lib/rate-limit";
 
+function normalizeLink(raw: string): string {
+  const t = raw.trim();
+  if (!t) return t;
+  if (/^https?:\/\//i.test(t)) return t;
+  return `https://${t}`;
+}
+
 const schema = z.object({
   serviceId: z.string().min(1),
-  link: z.string().url().max(500),
+  link: z
+    .string()
+    .min(3)
+    .max(500)
+    .transform(normalizeLink)
+    .refine((v) => /^https?:\/\//i.test(v), "Geçersiz link"),
   quantity: z.number().int().positive(),
   comments: z.string().max(5000).optional(),
   dripfeedRuns: z.number().int().min(1).max(1000).optional(),

@@ -5,6 +5,7 @@ import { verifyPassword } from "@/lib/auth/password";
 import { getSession } from "@/lib/session";
 import { rateLimit } from "@/lib/rate-limit";
 import { writeAuditLog } from "@/lib/audit";
+import { ensureDbHydrated } from "@/lib/db";
 
 const schema = z.object({
   /** username or email — smmapi style login */
@@ -13,6 +14,7 @@ const schema = z.object({
 });
 
 export async function POST(req: NextRequest) {
+  await ensureDbHydrated();
   const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "local";
   const rl = rateLimit(`login:${ip}`, 20, 60_000);
   if (!rl.ok) {

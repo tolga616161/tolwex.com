@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
 
 export function MemberAuthForm({
@@ -11,7 +10,6 @@ export function MemberAuthForm({
   mode: "login" | "register";
   compact?: boolean;
 }) {
-  const router = useRouter();
   const [username, setUsername] = useState("");
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -26,24 +24,53 @@ export function MemberAuthForm({
     e.preventDefault();
     setBusy(true);
     setError(null);
-    const url = mode === "login" ? "/api/auth/login" : "/api/auth/register";
-    const body =
-      mode === "login"
-        ? { login, password }
-        : { username, email, name: name || username, phone, password, passwordAgain };
-    const res = await fetch(url, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(body),
-    });
-    const data = await res.json().catch(() => ({}));
-    setBusy(false);
-    if (!res.ok) {
-      setError(data.error || "İşlem başarısız");
-      return;
+    try {
+      if (mode === "register" && password !== passwordAgain) {
+        setError("Şifreler eşleşmiyor");
+        return;
+      }
+
+      const url = mode === "login" ? "/api/auth/login" : "/api/auth/register";
+      const body =
+        mode === "login"
+          ? { login, password }
+          : {
+              username,
+              email,
+              name: name.trim() || username,
+              phone,
+              password,
+              passwordAgain,
+            };
+
+      const res = await fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "same-origin",
+        body: JSON.stringify(body),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        setError(data.error || "İşlem başarısız");
+        return;
+      }
+
+      // Confirm session cookie before entering panel
+      const me = await fetch("/api/auth/me", { credentials: "same-origin" }).then((r) =>
+        r.ok ? r.json() : null
+      );
+      if (!me?.member) {
+        setError("Oturum açılamadı — sayfayı yenileyip tekrar deneyin");
+        return;
+      }
+
+      // Full navigation so SSR panel sees the cookie reliably
+      window.location.href = "/uye";
+    } catch {
+      setError("Ağ hatası — tekrar deneyin");
+    } finally {
+      setBusy(false);
     }
-    router.push("/uye");
-    router.refresh();
   }
 
   return (
@@ -56,7 +83,7 @@ export function MemberAuthForm({
         {mode === "login" ? "Panele giriş yap" : "Hesap oluştur"}
       </h1>
       <p className="muted text-sm mb-5">
-        TOLWEX SMM paneli · otomatik sipariş · güvenli üye hesabı
+        TOLWEX SMM paneli · kategoriden servis seç · sipariş ver
       </p>
 
       {mode === "register" ? (

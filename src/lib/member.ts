@@ -1,7 +1,8 @@
-import { prisma } from "@/lib/db";
+import { ensureDbHydrated, prisma } from "@/lib/db";
 import { getSession } from "@/lib/session";
 
 export async function requireMember() {
+  await ensureDbHydrated();
   const session = await getSession();
   if (!session.memberId) return null;
   return prisma.member.findFirst({

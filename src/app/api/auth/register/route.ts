@@ -6,6 +6,8 @@ import { getSession } from "@/lib/session";
 import { rateLimit } from "@/lib/rate-limit";
 import { writeAuditLog } from "@/lib/audit";
 import { generateApiKey } from "@/lib/api-key";
+import { ensureDbHydrated } from "@/lib/db";
+import { flushDurableDbPush } from "@/lib/db-sync";
 
 const schema = z
   .object({
@@ -15,7 +17,10 @@ const schema = z
       .max(40)
       .regex(/^[a-zA-Z0-9._-]+$/, "Kullanıcı adı yalnızca harf, rakam, . _ -"),
     email: z.string().email().max(160),
-    name: z.string().min(2).max(80).optional(),
+    name: z
+      .union([z.string().min(2).max(80), z.literal("")])
+      .optional()
+      .transform((v) => (v && v.trim() ? v.trim() : undefined)),
     phone: z.string().max(40).optional(),
     password: z.string().min(6).max(100),
     passwordAgain: z.string().min(6).max(100),
@@ -26,6 +31,7 @@ const schema = z
   });
 
 export async function POST(req: NextRequest) {
+  await ensureDbHydrated();
   const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "local";
   const rl = rateLimit(`reg:${ip}`, 8, 60_000);
   if (!rl.ok) {
@@ -74,6 +80,9 @@ export async function POST(req: NextRequest) {
     actorId: member.id,
     metadata: { email: member.email, username: member.username },
   });
+
+  // Persist member to durable gist before client navigates
+  await flushDurableDbPush();
 
   return NextResponse.json({
     ok: true,

@@ -1,28 +1,30 @@
 import { PrismaClient } from "@prisma/client";
 import fs from "fs";
 import path from "path";
+import { pullDurableDb, scheduleDurableDbPush } from "@/lib/db-sync";
 
 /**
- * On Vercel, the filesystem is read-only except /tmp.
- * Build creates prisma/data.db; we copy it to /tmp for writable Prisma access.
+ * On Vercel, filesystem is read-only except /tmp.
+ * We copy seed DB to /tmp, then overlay durable gist snapshot when configured.
  */
-function resolveDatabaseUrl(): void {
-  if (process.env.PRISMA_DB_READY === "1") return;
+function resolveDatabaseUrl(): string {
+  const configured = process.env.DATABASE_URL || "file:./prisma/dev.db";
+  const isFile =
+    configured.startsWith("file:") ||
+    configured.startsWith("sqlite:") ||
+    (!configured.includes("://") && configured.includes(".db"));
 
-  const configured = process.env.DATABASE_URL || "";
-  const wantsTmp =
-    configured.includes("/tmp/") ||
-    process.env.VERCEL === "1" ||
-    process.env.VERCEL_ENV != null;
-
-  if (!wantsTmp) {
-    process.env.PRISMA_DB_READY = "1";
-    return;
+  const onVercel = process.env.VERCEL === "1" || process.env.VERCEL_ENV != null;
+  if (!onVercel || !isFile) {
+    return configured.startsWith("file:") || configured.includes("://")
+      ? configured
+      : `file:${configured}`;
   }
 
   const target = "/tmp/tolwex.db";
   const sourceCandidates = [
     path.join(process.cwd(), "prisma", "data.db"),
+    path.join(process.cwd(), "prisma", "runtime.db"),
     path.join(__dirname, "..", "..", "prisma", "data.db"),
     path.join(process.cwd(), "data.db"),
   ];
@@ -30,28 +32,69 @@ function resolveDatabaseUrl(): void {
   try {
     if (!fs.existsSync(target)) {
       const source = sourceCandidates.find((p) => fs.existsSync(p));
-      if (source) {
-        fs.copyFileSync(source, target);
-      }
+      if (source) fs.copyFileSync(source, target);
     }
-    process.env.DATABASE_URL = `file:${target}`;
   } catch {
-    // Fall through — Prisma will surface the error
-    process.env.DATABASE_URL = configured || `file:${target}`;
+    // Prisma will surface missing DB errors
   }
 
-  process.env.PRISMA_DB_READY = "1";
+  process.env.DATABASE_URL = `file:${target}`;
+  return `file:${target}`;
 }
 
-resolveDatabaseUrl();
+const dbUrl = resolveDatabaseUrl();
+export const dbFilePath = dbUrl.startsWith("file:") ? dbUrl.slice("file:".length) : "";
+
+let hydratePromise: Promise<void> | null = null;
+
+/** Ensure durable gist DB is pulled once per cold start before queries. */
+export function ensureDbHydrated(): Promise<void> {
+  if (!hydratePromise) {
+    hydratePromise = (async () => {
+      if (!dbFilePath) return;
+      if (!process.env.DB_GIST_ID || !(process.env.DB_SYNC_TOKEN || process.env.GITHUB_TOKEN)) {
+        return;
+      }
+      await pullDurableDb(dbFilePath);
+    })().catch(() => undefined);
+  }
+  return hydratePromise;
+}
+
+const MUTATING = new Set([
+  "create",
+  "update",
+  "upsert",
+  "delete",
+  "createMany",
+  "updateMany",
+  "deleteMany",
+]);
 
 const globalForPrisma = globalThis as unknown as { prisma?: PrismaClient };
 
-export const prisma =
-  globalForPrisma.prisma ??
-  new PrismaClient({
+function createClient() {
+  const base = new PrismaClient({
     log: process.env.NODE_ENV === "development" ? ["error", "warn"] : ["error"],
   });
+
+  return base.$extends({
+    query: {
+      $allModels: {
+        async $allOperations({ operation, args, query }) {
+          await ensureDbHydrated();
+          const result = await query(args);
+          if (MUTATING.has(operation) && dbFilePath) {
+            scheduleDurableDbPush(dbFilePath);
+          }
+          return result;
+        },
+      },
+    },
+  }) as unknown as PrismaClient;
+}
+
+export const prisma = globalForPrisma.prisma ?? createClient();
 
 if (process.env.NODE_ENV !== "production") {
   globalForPrisma.prisma = prisma;

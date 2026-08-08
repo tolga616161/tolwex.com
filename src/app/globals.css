@@ -2204,6 +2204,29 @@ body:has(.admin-saas) main { padding: 0; }
 .mb-4 { margin-bottom: 1rem; }
 .mt-8 { margin-top: 2rem; }
 
+.sp-order-layout {
+  display: grid;
+  gap: 1rem;
+}
+@media (min-width: 1100px) {
+  .sp-order-layout {
+    grid-template-columns: minmax(320px, 420px) 1fr;
+    align-items: start;
+  }
+}
+.sp-service-pick tbody tr {
+  cursor: pointer;
+}
+.sp-service-pick tbody tr:hover {
+  background: rgba(255, 255, 255, 0.04);
+}
+.sp-service-pick tbody tr.is-selected {
+  background: rgba(225, 48, 108, 0.16);
+}
+.sp-service-pick tbody tr.is-selected td {
+  color: #fff;
+}
+
 /* —— ANNOUNCEMENT + SOCIAL LOGOS + BANK —— */
 .announce-banner {
   position: sticky;

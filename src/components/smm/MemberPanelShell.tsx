@@ -1,16 +1,16 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import type { ReactNode } from "react";
 import { TolwexLogo } from "@/components/brand/TolwexLogo";
 
 const NAV = [
-  { href: "/uye", label: "Dashboard", exact: true },
-  { href: "/uye/yeni-siparis", label: "Yeni Sipariş" },
+  { href: "/uye", label: "Yeni Sipariş", exact: true },
   { href: "/uye/siparisler", label: "Siparişlerim" },
   { href: "/uye/servisler", label: "Servisler" },
   { href: "/uye/bakiye", label: "Bakiye Yükle" },
+  { href: "/uye/istatistik", label: "İstatistik" },
   { href: "/uye/islemler", label: "İşlem Geçmişi" },
   { href: "/uye/destek", label: "Destek" },
   { href: "/uye/sss", label: "SSS" },
@@ -30,12 +30,10 @@ export function MemberPanelShell({
   balance?: number;
 }) {
   const pathname = usePathname();
-  const router = useRouter();
 
   async function logout() {
-    await fetch("/api/auth/login", { method: "DELETE" });
-    router.push("/uye/giris");
-    router.refresh();
+    await fetch("/api/auth/login", { method: "DELETE", credentials: "same-origin" });
+    window.location.href = "/uye/giris";
   }
 
   return (

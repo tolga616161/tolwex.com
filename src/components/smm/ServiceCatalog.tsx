@@ -97,9 +97,14 @@ export function ServiceCatalog({ memberMode = false }: { memberMode?: boolean })
               <span>/ 1000</span>
             </p>
             {memberMode ? (
-              <button type="button" className="btn btn-primary" onClick={() => setSelected(item)}>
-                Sipariş ver
-              </button>
+              <div className="flex flex-wrap gap-2">
+                <Link href={`/uye?service=${item.id}`} className="btn btn-primary">
+                  Seç / Sipariş
+                </Link>
+                <button type="button" className="btn btn-ghost" onClick={() => setSelected(item)}>
+                  Hızlı
+                </button>
+              </div>
             ) : (
               <Link href="/uye/giris" className="btn btn-ghost">
                 Üye girişi ile al

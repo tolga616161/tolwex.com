@@ -10,6 +10,7 @@ export type AppSession = {
 
 function isHttpsApp(): boolean {
   if (process.env.NODE_ENV !== "production") return false;
+  if (process.env.VERCEL === "1" || process.env.VERCEL_ENV) return true;
   const url = process.env.NEXT_PUBLIC_APP_URL || "";
   return url.startsWith("https://");
 }

@@ -17,7 +17,7 @@ export async function GET(req: NextRequest) {
   const q = (sp.get("q") || "").trim();
   const category = (sp.get("category") || "").trim();
   const page = Math.max(1, Number(sp.get("page") || 1));
-  const pageSize = Math.min(100, Math.max(10, Number(sp.get("pageSize") || 40)));
+  const pageSize = Math.min(500, Math.max(10, Number(sp.get("pageSize") || 40)));
 
   const where = {
     active: true,

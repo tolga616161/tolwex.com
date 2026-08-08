@@ -1,8 +1,9 @@
 import { redirect } from "next/navigation";
 import { getSession } from "@/lib/session";
-import { prisma } from "@/lib/db";
+import { ensureDbHydrated, prisma } from "@/lib/db";
 
 export async function requireMemberPage() {
+  await ensureDbHydrated();
   const session = await getSession();
   if (!session.memberId) redirect("/uye/giris");
 

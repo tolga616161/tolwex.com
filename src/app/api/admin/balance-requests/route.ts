@@ -1,11 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
-import { prisma } from "@/lib/db";
+import { ensureDbHydrated, prisma } from "@/lib/db";
 import { requireAdminApi } from "@/lib/admin/auth";
 import { adjustBalance } from "@/lib/member";
+import { flushDurableDbPush } from "@/lib/db-sync";
 
 export const dynamic = "force-dynamic";
 
 export async function GET() {
+  await ensureDbHydrated();
   const gate = await requireAdminApi();
   if (!gate.ok) return gate.response;
 
@@ -19,6 +21,7 @@ export async function GET() {
 }
 
 export async function PATCH(request: NextRequest) {
+  await ensureDbHydrated();
   const gate = await requireAdminApi();
   if (!gate.ok) return gate.response;
 
@@ -58,5 +61,6 @@ export async function PATCH(request: NextRequest) {
     },
   });
 
+  await flushDurableDbPush();
   return NextResponse.json({ ok: true, item: updated });
 }
