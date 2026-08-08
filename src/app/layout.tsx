@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Syne, DM_Sans } from "next/font/google";
 import "./globals.css";
-import { SiteHeader } from "@/components/SiteHeader";
+import { SiteNav } from "@/components/navigation/SiteNav";
 import { SiteFooter } from "@/components/SiteFooter";
 
 const syne = Syne({
@@ -17,16 +17,16 @@ const dmSans = DM_Sans({
 });
 
 export const metadata: Metadata = {
-  title: "SecureLink — Instagram Hesap Kontrolü",
+  title: "SecureLink — Dijital Medya & Instagram Hesap Kontrolü",
   description:
-    "Resmi Meta/Instagram OAuth ile Instagram hesabınızı güvenli şekilde bağlayın. Şifre, cookie veya session istenmez.",
+    "Resmi Meta/Instagram OAuth ile güvenli hesap bağlantısı. Premium dijital medya platformu.",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="tr" className={`${syne.variable} ${dmSans.variable} h-full`}>
       <body className="min-h-full flex flex-col antialiased">
-        <SiteHeader />
+        <SiteNav />
         <main className="flex-1">{children}</main>
         <SiteFooter />
       </body>

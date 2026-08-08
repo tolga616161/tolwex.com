@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
-import { ensureVisitorSession, getSession } from "@/lib/session";
-import { exchangeCodeForToken, exchangeLongLivedToken, safeEqual } from "@/lib/meta/oauth";
+import { appBaseUrl, getSessionForResponse } from "@/lib/session";
+import { exchangeCodeForToken, exchangeLongLivedToken } from "@/lib/meta/oauth";
+import { consumeOAuthState } from "@/lib/meta/oauth-state";
 import { encryptSecret } from "@/lib/crypto/tokens";
 import { prisma } from "@/lib/db";
 import { writeAuditLog } from "@/lib/audit";
@@ -12,8 +13,10 @@ import {
 } from "@/lib/meta/api";
 import { MetaIntegrationError } from "@/lib/meta/errors";
 
-function appUrl(path: string) {
-  return new URL(path, process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000");
+function errorRedirect(req: NextRequest, code: string) {
+  const url = new URL("/auth/error", appBaseUrl(req));
+  url.searchParams.set("code", code);
+  return NextResponse.redirect(url);
 }
 
 export async function GET(req: NextRequest) {
@@ -29,38 +32,45 @@ export async function GET(req: NextRequest) {
       actorType: "visitor",
       metadata: { reason: errorReason || error || "denied" },
     });
-    return NextResponse.redirect(appUrl("/?error=oauth_denied"));
+    return errorRedirect(req, "oauth_denied");
   }
 
   try {
-    const session = await getSession();
-    if (
-      !state ||
-      !session.oauthState ||
-      !session.oauthStateExpiresAt ||
-      Date.now() > session.oauthStateExpiresAt ||
-      !safeEqual(state, session.oauthState)
-    ) {
-      throw new MetaIntegrationError("csrf");
+    // Prepare response early for cookie binding
+    const draft = NextResponse.redirect(new URL("/instagram/dashboard", appBaseUrl(req)));
+    const session = await getSessionForResponse(req, draft);
+
+    const consumed = await consumeOAuthState({
+      state,
+      sessionState: session.oauthState,
+      sessionExpiresAt: session.oauthStateExpiresAt,
+      visitorId: session.visitorId,
+    });
+
+    if (!consumed.ok) {
+      throw new MetaIntegrationError(consumed.reason === "expired" ? "csrf" : "csrf");
     }
 
-    // One-time use state
+    let visitorId = consumed.visitorId;
+    if (!visitorId) {
+      const visitor = await prisma.visitorSession.create({ data: {} });
+      visitorId = visitor.id;
+    }
+
+    // Clear one-time cookie state so reconnects are never blocked
     session.oauthState = undefined;
     session.oauthStateExpiresAt = undefined;
+    session.visitorId = visitorId;
     await session.save();
 
     if (!code) {
       throw new MetaIntegrationError("oauth_denied");
     }
 
-    const { visitorId } = await ensureVisitorSession();
     const shortLived = await exchangeCodeForToken(code);
     const longLived = await exchangeLongLivedToken(shortLived.accessToken);
-
-    // Official Meta debug_token validation — reject invalid tokens
     const debug = await debugAccessToken(longLived.accessToken);
 
-    // Token stays server-side only — encrypted before persistence
     const encryptedAccessToken = encryptSecret(longLived.accessToken);
     const tokenExpiresAt =
       longLived.expiresIn != null
@@ -87,7 +97,7 @@ export async function GET(req: NextRequest) {
       igUserId = ig.profile?.id || null;
       accountType = ig.profile?.account_type || null;
     } catch {
-      // Connection still saved after debug_token OK; dashboard surfaces API gaps
+      // Token already validated via debug_token
     }
 
     await prisma.instagramConnection.upsert({
@@ -132,7 +142,18 @@ export async function GET(req: NextRequest) {
       },
     });
 
-    return NextResponse.redirect(appUrl("/instagram/dashboard"));
+    const res = NextResponse.redirect(new URL("/instagram/dashboard", appBaseUrl(req)));
+    const setCookie = draft.headers.getSetCookie?.() || [];
+    for (const c of setCookie) {
+      res.headers.append("Set-Cookie", c);
+    }
+    const session2 = await getSessionForResponse(req, res);
+    session2.visitorId = visitorId;
+    session2.oauthState = undefined;
+    session2.oauthStateExpiresAt = undefined;
+    await session2.save();
+    res.headers.set("Cache-Control", "no-store");
+    return res;
   } catch (e) {
     const kind = e instanceof MetaIntegrationError ? e.kind : "unknown";
     await writeAuditLog({
@@ -140,6 +161,6 @@ export async function GET(req: NextRequest) {
       actorType: "system",
       metadata: { kind },
     });
-    return NextResponse.redirect(appUrl(`/?error=${encodeURIComponent(kind)}`));
+    return errorRedirect(req, kind);
   }
 }

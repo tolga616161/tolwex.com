@@ -211,7 +211,10 @@ export function DashboardClient() {
       <SecurityChecklist />
 
       <div className="flex flex-wrap gap-3">
-        {!data.connected ? <ConnectButton label="Instagram Hesabını Bağla" /> : null}
+        <ConnectButton
+          label={data.connected ? "Yeniden Bağlan" : "Instagram Hesabını Bağla"}
+          force
+        />
         {data.connected ? <DisconnectButton /> : null}
         <Link href="/instagram/guide" className="btn btn-ghost">
           2FA Güvenlik Rehberi

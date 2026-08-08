@@ -20,7 +20,10 @@ export function safeEqual(a: string, b: string): boolean {
   return timingSafeEqual(ba, bb);
 }
 
-export async function buildAuthorizeUrl(state: string): Promise<string> {
+export async function buildAuthorizeUrl(
+  state: string,
+  opts?: { rerequest?: boolean }
+): Promise<string> {
   const config = await getMetaConfig();
   if (!config.configured) {
     throw new MetaIntegrationError("not_configured");
@@ -32,6 +35,10 @@ export async function buildAuthorizeUrl(state: string): Promise<string> {
   url.searchParams.set("state", state);
   url.searchParams.set("scope", DEFAULT_SCOPES);
   url.searchParams.set("response_type", "code");
+  // Helps second/third connect attempts show a usable Meta screen again
+  if (opts?.rerequest !== false) {
+    url.searchParams.set("auth_type", "rerequest");
+  }
   return url.toString();
 }
 
@@ -94,7 +101,6 @@ export async function exchangeLongLivedToken(shortLived: string): Promise<TokenE
 
   const data = await res.json().catch(() => ({}));
   if (!res.ok || !data.access_token) {
-    // Fall back to short-lived token if long-lived exchange fails
     return { accessToken: shortLived, expiresIn: null };
   }
 

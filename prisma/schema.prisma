@@ -86,6 +86,19 @@ model SecurityChecklist {
   createdAt DateTime @default(now())
 }
 
+/// One-time OAuth state — survives cookie edge cases on re-connect
+model OAuthState {
+  id        String   @id @default(cuid())
+  state     String   @unique
+  visitorId String
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime @default(now())
+
+  @@index([visitorId])
+  @@index([expiresAt])
+}
+
 model AuditLog {
   id         String   @id @default(cuid())
   action     String
