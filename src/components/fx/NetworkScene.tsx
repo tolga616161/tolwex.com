@@ -5,7 +5,7 @@ import { Line } from "@react-three/drei";
 import { Suspense, useEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
 
-type Kind = "ig" | "fb" | "yt" | "tt" | "wa" | "node" | "lock" | "shield";
+type Kind = "ig" | "fb";
 
 type Body = {
   kind: Kind;
@@ -16,26 +16,17 @@ type Body = {
   spin: number;
 };
 
-const BRAND: Record<Kind, string> = {
-  ig: "#E1306C",
-  fb: "#1877F2",
-  yt: "#FF0000",
-  tt: "#69C9D0",
-  wa: "#25D366",
-  node: "#FFFFFF",
-  lock: "#E8E0D4",
-  shield: "#A8B4C4",
-};
+const BRAND = { ig: "#E1306C", fb: "#1877F2" } as const;
 
-function BrandMat({ kind, intensity = 0.55 }: { kind: Kind; intensity?: number }) {
+function BrandMat({ kind, intensity = 0.7 }: { kind: Kind; intensity?: number }) {
   const color = BRAND[kind];
   return (
     <meshStandardMaterial
       color={color}
       emissive={color}
       emissiveIntensity={intensity}
-      metalness={0.75}
-      roughness={0.2}
+      metalness={0.78}
+      roughness={0.18}
     />
   );
 }
@@ -43,145 +34,86 @@ function BrandMat({ kind, intensity = 0.55 }: { kind: Kind; intensity?: number }
 function DarkMat() {
   return (
     <meshStandardMaterial
-      color="#111"
-      metalness={0.5}
-      roughness={0.35}
-      emissive="#222"
-      emissiveIntensity={0.1}
+      color="#0c0c0c"
+      metalness={0.55}
+      roughness={0.3}
+      emissive="#1a1a1a"
+      emissiveIntensity={0.15}
     />
   );
 }
 
 function IconMesh({ kind, scale }: { kind: Kind; scale: number }) {
   const s = scale;
-  switch (kind) {
-    case "ig":
-      return (
-        <group scale={s}>
-          <mesh>
-            <boxGeometry args={[0.72, 0.72, 0.2]} />
-            <BrandMat kind="ig" intensity={0.85} />
-          </mesh>
-          <mesh position={[0, 0, 0.12]}>
-            <torusGeometry args={[0.18, 0.055, 12, 32]} />
-            <DarkMat />
-          </mesh>
-          <mesh position={[0.22, 0.22, 0.12]}>
-            <sphereGeometry args={[0.055, 12, 12]} />
-            <DarkMat />
-          </mesh>
-        </group>
-      );
-    case "fb":
-      return (
-        <group scale={s}>
-          <mesh>
-            <boxGeometry args={[0.62, 0.7, 0.2]} />
-            <BrandMat kind="fb" intensity={0.8} />
-          </mesh>
-          <mesh position={[0.02, -0.02, 0.13]}>
-            <boxGeometry args={[0.11, 0.38, 0.04]} />
-            <meshStandardMaterial color="#fff" />
-          </mesh>
-          <mesh position={[0.12, 0.1, 0.13]}>
-            <boxGeometry args={[0.18, 0.09, 0.04]} />
-            <meshStandardMaterial color="#fff" />
-          </mesh>
-        </group>
-      );
-    case "yt":
-      return (
-        <group scale={s}>
-          <mesh>
-            <boxGeometry args={[0.9, 0.56, 0.16]} />
-            <BrandMat kind="yt" intensity={0.55} />
-          </mesh>
-          <mesh position={[0.04, 0, 0.11]} rotation={[0, 0, -Math.PI / 2]}>
-            <coneGeometry args={[0.13, 0.22, 3]} />
-            <meshStandardMaterial color="#fff" />
-          </mesh>
-        </group>
-      );
-    case "tt":
-      return (
-        <group scale={s} rotation={[0.15, 0.4, 0.1]}>
-          <mesh>
-            <capsuleGeometry args={[0.11, 0.42, 8, 14]} />
-            <BrandMat kind="tt" intensity={0.5} />
-          </mesh>
-          <mesh position={[0.15, 0.22, 0]} rotation={[0, 0, -0.55]}>
-            <capsuleGeometry args={[0.07, 0.22, 8, 12]} />
-            <meshStandardMaterial color="#EE1D52" emissive="#EE1D52" emissiveIntensity={0.4} />
-          </mesh>
-        </group>
-      );
-    case "wa":
-      return (
-        <group scale={s}>
-          <mesh>
-            <sphereGeometry args={[0.34, 22, 22]} />
-            <BrandMat kind="wa" intensity={0.45} />
-          </mesh>
-        </group>
-      );
-    case "lock":
-      return (
-        <group scale={s}>
-          <mesh position={[0, -0.08, 0]}>
-            <boxGeometry args={[0.42, 0.32, 0.18]} />
-            <BrandMat kind="lock" intensity={0.35} />
-          </mesh>
-          <mesh position={[0, 0.16, 0]}>
-            <torusGeometry args={[0.14, 0.04, 10, 20]} />
-            <BrandMat kind="lock" intensity={0.3} />
-          </mesh>
-        </group>
-      );
-    case "shield":
-      return (
-        <group scale={s}>
-          <mesh>
-            <octahedronGeometry args={[0.36, 0]} />
-            <BrandMat kind="shield" intensity={0.4} />
-          </mesh>
-        </group>
-      );
-    default:
-      return (
-        <mesh scale={s}>
-          <icosahedronGeometry args={[0.16, 0]} />
-          <BrandMat kind="node" intensity={0.7} />
+  if (kind === "ig") {
+    return (
+      <group scale={s}>
+        <mesh>
+          <boxGeometry args={[0.72, 0.72, 0.2]} />
+          <BrandMat kind="ig" intensity={0.95} />
         </mesh>
-      );
+        <mesh position={[0, 0, 0.12]}>
+          <torusGeometry args={[0.18, 0.055, 12, 32]} />
+          <DarkMat />
+        </mesh>
+        <mesh position={[0.22, 0.22, 0.12]}>
+          <sphereGeometry args={[0.055, 12, 12]} />
+          <DarkMat />
+        </mesh>
+      </group>
+    );
   }
+  return (
+    <group scale={s}>
+      <mesh>
+        <boxGeometry args={[0.62, 0.7, 0.2]} />
+        <BrandMat kind="fb" intensity={0.9} />
+      </mesh>
+      <mesh position={[0.02, -0.02, 0.13]}>
+        <boxGeometry args={[0.11, 0.38, 0.04]} />
+        <meshStandardMaterial color="#fff" />
+      </mesh>
+      <mesh position={[0.12, 0.1, 0.13]}>
+        <boxGeometry args={[0.18, 0.09, 0.04]} />
+        <meshStandardMaterial color="#fff" />
+      </mesh>
+    </group>
+  );
 }
 
-function CyberGlobe({ reduce }: { reduce: boolean }) {
-  const group = useRef<THREE.Group>(null);
+/** Big cyber world + orbiting IG/FB satellites + debris fragments */
+function WorldCore({ reduce }: { reduce: boolean }) {
+  const world = useRef<THREE.Group>(null);
+  const ringA = useRef<THREE.Group>(null);
+  const ringB = useRef<THREE.Group>(null);
+  const ringC = useRef<THREE.Group>(null);
+  const debris = useRef<THREE.Group>(null);
+
   const meridians = useMemo(() => {
     const lines: THREE.Vector3[][] = [];
-    const segs = reduce ? 6 : 10;
+    const segs = reduce ? 7 : 12;
+    const R = 2.55;
     for (let i = 0; i < segs; i++) {
       const a = (i / segs) * Math.PI;
       const pts: THREE.Vector3[] = [];
-      for (let j = 0; j <= 48; j++) {
-        const t = (j / 48) * Math.PI * 2;
+      for (let j = 0; j <= 56; j++) {
+        const t = (j / 56) * Math.PI * 2;
         pts.push(
           new THREE.Vector3(
-            Math.sin(t) * Math.cos(a) * 2.35,
-            Math.cos(t) * 2.35,
-            Math.sin(t) * Math.sin(a) * 2.35
+            Math.sin(t) * Math.cos(a) * R,
+            Math.cos(t) * R,
+            Math.sin(t) * Math.sin(a) * R
           )
         );
       }
       lines.push(pts);
     }
-    for (let i = 1; i < (reduce ? 4 : 6); i++) {
-      const y = -2.1 + (i / 5) * 4.2;
-      const r = Math.sqrt(Math.max(0.05, 2.35 ** 2 - y * y));
+    for (let i = 1; i < (reduce ? 5 : 7); i++) {
+      const y = -2.3 + (i / 6) * 4.6;
+      const r = Math.sqrt(Math.max(0.08, R * R - y * y));
       const pts: THREE.Vector3[] = [];
-      for (let j = 0; j <= 48; j++) {
-        const t = (j / 48) * Math.PI * 2;
+      for (let j = 0; j <= 56; j++) {
+        const t = (j / 56) * Math.PI * 2;
         pts.push(new THREE.Vector3(Math.cos(t) * r, y, Math.sin(t) * r));
       }
       lines.push(pts);
@@ -189,127 +121,238 @@ function CyberGlobe({ reduce }: { reduce: boolean }) {
     return lines;
   }, [reduce]);
 
-  useFrame((_, dt) => {
-    if (!group.current) return;
-    group.current.rotation.y += dt * 0.08;
-    group.current.rotation.x = Math.sin(performance.now() * 0.0002) * 0.12;
+  const satellites = useMemo(() => {
+    const n = reduce ? 10 : 22;
+    return Array.from({ length: n }, (_, i) => ({
+      kind: (i % 2 === 0 ? "ig" : "fb") as Kind,
+      radius: 3.35 + (i % 5) * 0.42,
+      speed: 0.22 + (i % 7) * 0.05,
+      tilt: (i % 4) * 0.35,
+      phase: (i / n) * Math.PI * 2,
+      scale: 0.55 + (i % 4) * 0.12,
+      elev: ((i % 5) - 2) * 0.35,
+    }));
+  }, [reduce]);
+
+  const shards = useMemo(() => {
+    const n = reduce ? 14 : 36;
+    return Array.from({ length: n }, (_, i) => ({
+      kind: (i % 2 === 0 ? "ig" : "fb") as Kind,
+      radius: 2.7 + (i % 6) * 0.55,
+      speed: 0.35 + (i % 8) * 0.08,
+      phase: Math.random() * Math.PI * 2,
+      tilt: Math.random() * Math.PI,
+      size: 0.08 + (i % 5) * 0.04,
+      spin: 0.8 + Math.random() * 1.6,
+    }));
+  }, [reduce]);
+
+  const satRefs = useRef<THREE.Group[]>([]);
+  const shardRefs = useRef<THREE.Mesh[]>([]);
+
+  useFrame(({ clock }, dt) => {
+    const t = clock.getElapsedTime();
+    if (world.current) {
+      world.current.rotation.y += dt * 0.12;
+      world.current.rotation.x = Math.sin(t * 0.15) * 0.14;
+    }
+    if (ringA.current) ringA.current.rotation.z = t * 0.35;
+    if (ringB.current) ringB.current.rotation.x = t * 0.22;
+    if (ringC.current) {
+      ringC.current.rotation.y = -t * 0.28;
+      ringC.current.rotation.z = t * 0.1;
+    }
+    if (debris.current) debris.current.rotation.y = t * 0.18;
+
+    satellites.forEach((s, i) => {
+      const g = satRefs.current[i];
+      if (!g) return;
+      const a = s.phase + t * s.speed;
+      g.position.set(
+        Math.cos(a) * s.radius,
+        s.elev + Math.sin(a * 1.3) * 0.35,
+        Math.sin(a) * s.radius
+      );
+      g.rotation.y = a + Math.PI / 2;
+      g.rotation.x = s.tilt * 0.4;
+      g.rotation.z = Math.sin(t + i) * 0.2;
+    });
+
+    shards.forEach((s, i) => {
+      const m = shardRefs.current[i];
+      if (!m) return;
+      const a = s.phase + t * s.speed;
+      const wobble = Math.sin(t * 1.4 + i) * 0.25;
+      m.position.set(
+        Math.cos(a) * (s.radius + wobble),
+        Math.sin(a * 0.7 + s.tilt) * 1.4,
+        Math.sin(a) * (s.radius + wobble)
+      );
+      m.rotation.x += dt * s.spin;
+      m.rotation.y += dt * s.spin * 0.7;
+    });
   });
 
   return (
-    <group ref={group} position={[2.2, -0.2, -4.2]} scale={1.15}>
-      <mesh>
-        <sphereGeometry args={[2.32, 32, 32]} />
-        <meshStandardMaterial
-          color="#0a1420"
-          emissive="#12304a"
-          emissiveIntensity={0.35}
-          metalness={0.85}
-          roughness={0.35}
-          transparent
-          opacity={0.35}
-          wireframe={false}
-        />
-      </mesh>
-      <mesh>
-        <sphereGeometry args={[2.38, reduce ? 16 : 28, reduce ? 16 : 28]} />
-        <meshBasicMaterial color="#4fc3f7" wireframe transparent opacity={0.22} />
-      </mesh>
-      {meridians.map((pts, i) => (
-        <Line
-          key={i}
-          points={pts}
-          color={i % 2 === 0 ? "#E1306C" : "#1877F2"}
-          lineWidth={1}
-          transparent
-          opacity={0.35}
-        />
+    <group position={[1.1, 0.15, -3.6]} scale={reduce ? 0.92 : 1.08}>
+      <group ref={world}>
+        <mesh>
+          <sphereGeometry args={[2.5, 48, 48]} />
+          <meshStandardMaterial
+            color="#071018"
+            emissive="#0d2a44"
+            emissiveIntensity={0.55}
+            metalness={0.9}
+            roughness={0.28}
+            transparent
+            opacity={0.55}
+          />
+        </mesh>
+        <mesh>
+          <sphereGeometry args={[2.58, reduce ? 18 : 36, reduce ? 18 : 36]} />
+          <meshBasicMaterial color="#5ec8ff" wireframe transparent opacity={0.28} />
+        </mesh>
+        <mesh>
+          <sphereGeometry args={[2.72, 24, 24]} />
+          <meshBasicMaterial color="#E1306C" wireframe transparent opacity={0.08} />
+        </mesh>
+        {meridians.map((pts, i) => (
+          <Line
+            key={i}
+            points={pts}
+            color={i % 2 === 0 ? "#E1306C" : "#1877F2"}
+            lineWidth={1}
+            transparent
+            opacity={0.42}
+          />
+        ))}
+        {Array.from({ length: reduce ? 16 : 28 }).map((_, i) => {
+          const a = (i / 28) * Math.PI * 2;
+          const b = ((i * 5) % 28) / 28 * Math.PI;
+          return (
+            <mesh
+              key={`city-${i}`}
+              position={[
+                Math.sin(b) * Math.cos(a) * 2.56,
+                Math.cos(b) * 2.56,
+                Math.sin(b) * Math.sin(a) * 2.56,
+              ]}
+            >
+              <sphereGeometry args={[0.04, 8, 8]} />
+              <meshStandardMaterial
+                color={i % 2 ? "#1877F2" : "#E1306C"}
+                emissive={i % 2 ? "#1877F2" : "#E1306C"}
+                emissiveIntensity={1.6}
+              />
+            </mesh>
+          );
+        })}
+        <pointLight intensity={1.2} distance={8} color="#4fc3f7" />
+      </group>
+
+      {/* orbital rings */}
+      <group ref={ringA}>
+        <mesh rotation={[Math.PI / 2.4, 0.2, 0]}>
+          <torusGeometry args={[3.4, 0.018, 8, 96]} />
+          <meshBasicMaterial color="#E1306C" transparent opacity={0.35} />
+        </mesh>
+      </group>
+      <group ref={ringB}>
+        <mesh rotation={[0.9, 0.4, 0.2]}>
+          <torusGeometry args={[3.95, 0.014, 8, 96]} />
+          <meshBasicMaterial color="#1877F2" transparent opacity={0.3} />
+        </mesh>
+      </group>
+      <group ref={ringC}>
+        <mesh rotation={[1.4, -0.3, 0.5]}>
+          <torusGeometry args={[4.55, 0.012, 8, 100]} />
+          <meshBasicMaterial color="#ffffff" transparent opacity={0.12} />
+        </mesh>
+      </group>
+
+      {/* logos orbiting the world */}
+      {satellites.map((s, i) => (
+        <group
+          key={`sat-${i}`}
+          ref={(el) => {
+            if (el) satRefs.current[i] = el;
+          }}
+        >
+          <IconMesh kind={s.kind} scale={s.scale} />
+          <pointLight intensity={0.45} distance={2.2} color={BRAND[s.kind]} />
+        </group>
       ))}
-      {!reduce
-        ? Array.from({ length: 18 }).map((_, i) => {
-            const a = (i / 18) * Math.PI * 2;
-            const b = ((i * 3) % 18) / 18 * Math.PI;
-            return (
-              <mesh
-                key={`n-${i}`}
-                position={[
-                  Math.sin(b) * Math.cos(a) * 2.4,
-                  Math.cos(b) * 2.4,
-                  Math.sin(b) * Math.sin(a) * 2.4,
-                ]}
-              >
-                <sphereGeometry args={[0.035, 8, 8]} />
-                <meshStandardMaterial
-                  color={i % 2 ? "#1877F2" : "#E1306C"}
-                  emissive={i % 2 ? "#1877F2" : "#E1306C"}
-                  emissiveIntensity={1.4}
-                />
-              </mesh>
-            );
-          })
-        : null}
+
+      {/* crystal / fragment pieces spinning from the world */}
+      <group ref={debris}>
+        {shards.map((s, i) => (
+          <mesh
+            key={`shard-${i}`}
+            ref={(el) => {
+              if (el) shardRefs.current[i] = el;
+            }}
+          >
+            {i % 3 === 0 ? (
+              <octahedronGeometry args={[s.size, 0]} />
+            ) : i % 3 === 1 ? (
+              <tetrahedronGeometry args={[s.size * 1.1, 0]} />
+            ) : (
+              <icosahedronGeometry args={[s.size * 0.9, 0]} />
+            )}
+            <meshStandardMaterial
+              color={BRAND[s.kind]}
+              emissive={BRAND[s.kind]}
+              emissiveIntensity={0.85}
+              metalness={0.8}
+              roughness={0.2}
+              transparent
+              opacity={0.85}
+            />
+          </mesh>
+        ))}
+      </group>
     </group>
   );
 }
 
-/** Instagram + Facebook logos orbit and merge at center */
+/** Extra IG ↔ FB merge pair in foreground */
 function MetaMerge({ reduce }: { reduce: boolean }) {
   const root = useRef<THREE.Group>(null);
   const ig = useRef<THREE.Group>(null);
   const fb = useRef<THREE.Group>(null);
-  const bridge = useRef<THREE.Mesh>(null);
 
   useFrame(({ clock }) => {
     const t = clock.getElapsedTime();
-    const pulse = (Math.sin(t * 1.2) + 1) / 2;
-    const dist = THREE.MathUtils.lerp(1.35, 0.55, pulse);
+    const pulse = (Math.sin(t * 1.15) + 1) / 2;
+    const dist = THREE.MathUtils.lerp(1.2, 0.48, pulse);
     if (ig.current) {
-      ig.current.position.set(-dist, Math.sin(t * 0.9) * 0.15, 0);
-      ig.current.rotation.y = t * 0.6;
-      ig.current.scale.setScalar(1.05 + pulse * 0.12);
+      ig.current.position.set(-dist, Math.sin(t * 0.9) * 0.12, 0);
+      ig.current.rotation.y = t * 0.7;
     }
     if (fb.current) {
-      fb.current.position.set(dist, Math.cos(t * 0.9) * 0.15, 0);
-      fb.current.rotation.y = -t * 0.55;
-      fb.current.scale.setScalar(1.05 + pulse * 0.12);
-    }
-    if (bridge.current) {
-      bridge.current.scale.set(dist * 1.6, 1, 1);
-      const mat = bridge.current.material as THREE.MeshStandardMaterial;
-      mat.emissiveIntensity = 0.4 + pulse * 1.2;
-      mat.opacity = 0.25 + pulse * 0.45;
+      fb.current.position.set(dist, Math.cos(t * 0.9) * 0.12, 0);
+      fb.current.rotation.y = -t * 0.65;
     }
     if (root.current) {
-      root.current.position.y = Math.sin(t * 0.4) * 0.15 + 0.4;
-      root.current.rotation.z = Math.sin(t * 0.25) * 0.05;
+      root.current.position.y = 0.85 + Math.sin(t * 0.35) * 0.12;
+      root.current.rotation.z = Math.sin(t * 0.2) * 0.04;
     }
   });
 
   return (
-    <group ref={root} position={[-1.6, 0.6, -1.2]}>
+    <group ref={root} position={[-2.4, 0.5, -0.6]}>
       <group ref={ig}>
-        <IconMesh kind="ig" scale={reduce ? 1.1 : 1.35} />
-        <pointLight intensity={0.9} distance={3.2} color="#E1306C" />
+        <IconMesh kind="ig" scale={reduce ? 1.05 : 1.25} />
+        <pointLight intensity={1} distance={3} color="#E1306C" />
       </group>
       <group ref={fb}>
-        <IconMesh kind="fb" scale={reduce ? 1.05 : 1.3} />
-        <pointLight intensity={0.9} distance={3.2} color="#1877F2" />
+        <IconMesh kind="fb" scale={reduce ? 1 : 1.2} />
+        <pointLight intensity={1} distance={3} color="#1877F2" />
       </group>
-      <mesh ref={bridge} rotation={[0, 0, 0]}>
-        <boxGeometry args={[1, 0.04, 0.04]} />
-        <meshStandardMaterial
-          color="#ffffff"
-          emissive="#9ecbff"
-          emissiveIntensity={0.8}
-          transparent
-          opacity={0.4}
-        />
+      <mesh>
+        <torusGeometry args={[1.4, 0.012, 8, 64]} />
+        <meshBasicMaterial color="#fff" transparent opacity={0.14} />
       </mesh>
-      {!reduce ? (
-        <mesh>
-          <torusGeometry args={[1.55, 0.015, 8, 64]} />
-          <meshBasicMaterial color="#ffffff" transparent opacity={0.12} />
-        </mesh>
-      ) : null}
     </group>
   );
 }
@@ -320,10 +363,10 @@ function RisingAsh({ count }: { count: number }) {
   const positions = useMemo(() => {
     const arr = new Float32Array(count * 3);
     for (let i = 0; i < count; i++) {
-      arr[i * 3] = (Math.random() - 0.5) * 16;
-      arr[i * 3 + 1] = -6 + Math.random() * 12;
-      arr[i * 3 + 2] = -1 - Math.random() * 10;
-      speeds.current[i] = 0.35 + Math.random() * 0.9;
+      arr[i * 3] = (Math.random() - 0.5) * 18;
+      arr[i * 3 + 1] = -7 + Math.random() * 14;
+      arr[i * 3 + 2] = -1 - Math.random() * 11;
+      speeds.current[i] = 0.4 + Math.random() * 1.1;
     }
     return arr;
   }, [count]);
@@ -334,9 +377,9 @@ function RisingAsh({ count }: { count: number }) {
     const arr = attr.array as Float32Array;
     for (let i = 0; i < count; i++) {
       arr[i * 3 + 1] += speeds.current[i] * dt;
-      if (arr[i * 3 + 1] > 6.5) {
-        arr[i * 3 + 1] = -6.5;
-        arr[i * 3] = (Math.random() - 0.5) * 16;
+      if (arr[i * 3 + 1] > 7) {
+        arr[i * 3 + 1] = -7;
+        arr[i * 3] = (Math.random() - 0.5) * 18;
       }
     }
     attr.needsUpdate = true;
@@ -347,7 +390,7 @@ function RisingAsh({ count }: { count: number }) {
       <bufferGeometry>
         <bufferAttribute attach="attributes-position" args={[positions, 3]} />
       </bufferGeometry>
-      <pointsMaterial color="#b8d4ff" size={0.035} transparent opacity={0.55} sizeAttenuation />
+      <pointsMaterial color="#b8d4ff" size={0.032} transparent opacity={0.5} sizeAttenuation />
     </points>
   );
 }
@@ -356,14 +399,14 @@ function CyberGridFloor() {
   const ref = useRef<THREE.Group>(null);
   useFrame((_, dt) => {
     if (!ref.current) return;
-    ref.current.position.z += dt * 0.45;
+    ref.current.position.z += dt * 0.5;
     if (ref.current.position.z > 1.2) ref.current.position.z = 0;
   });
   const lines = useMemo(() => {
     const out: THREE.Vector3[][] = [];
-    for (let i = -8; i <= 8; i++) {
-      out.push([new THREE.Vector3(i * 0.7, -3.4, -8), new THREE.Vector3(i * 0.7, -3.4, 2)]);
-      out.push([new THREE.Vector3(-6, -3.4, i * 0.7 - 3), new THREE.Vector3(6, -3.4, i * 0.7 - 3)]);
+    for (let i = -9; i <= 9; i++) {
+      out.push([new THREE.Vector3(i * 0.7, -3.55, -9), new THREE.Vector3(i * 0.7, -3.55, 2.5)]);
+      out.push([new THREE.Vector3(-7, -3.55, i * 0.7 - 3), new THREE.Vector3(7, -3.55, i * 0.7 - 3)]);
     }
     return out;
   }, []);
@@ -376,7 +419,7 @@ function CyberGridFloor() {
           points={pts}
           color={i % 3 === 0 ? "#E1306C" : "#1877F2"}
           transparent
-          opacity={0.14}
+          opacity={0.12}
           lineWidth={1}
         />
       ))}
@@ -385,46 +428,25 @@ function CyberGridFloor() {
 }
 
 function seedBodies(reduce: boolean): Body[] {
-  const kinds: Kind[] = reduce
-    ? ["ig", "fb", "ig", "fb", "wa", "ig", "fb", "node"]
-    : [
-        "ig",
-        "fb",
-        "ig",
-        "fb",
-        "ig",
-        "fb",
-        "ig",
-        "fb",
-        "yt",
-        "tt",
-        "wa",
-        "lock",
-        "shield",
-        "ig",
-        "fb",
-        "node",
-        "ig",
-        "fb",
-      ];
-
-  return kinds.map((kind, i) => {
-    const baseScale = kind === "ig" || kind === "fb" ? 0.95 + (i % 3) * 0.12 : 0.65 + (i % 3) * 0.1;
+  const n = reduce ? 16 : 34;
+  return Array.from({ length: n }, (_, i) => {
+    const kind: Kind = i % 2 === 0 ? "ig" : "fb";
+    const baseScale = 0.72 + (i % 5) * 0.14;
     return {
       kind,
       pos: new THREE.Vector3(
-        (Math.random() - 0.5) * 12,
-        -6.5 + Math.random() * 2,
-        -1.5 - Math.random() * 6
+        (Math.random() - 0.5) * 14,
+        -7 + Math.random() * 3,
+        -1.2 - Math.random() * 7
       ),
       vel: new THREE.Vector3(
-        (Math.random() - 0.5) * 0.35,
-        0.55 + Math.random() * 0.85,
-        (Math.random() - 0.5) * 0.15
+        (Math.random() - 0.5) * 0.45,
+        0.65 + Math.random() * 1.05,
+        (Math.random() - 0.5) * 0.2
       ),
       scale: baseScale,
       baseScale,
-      spin: (Math.random() - 0.5) * 1.4,
+      spin: (Math.random() - 0.5) * 1.8,
     };
   });
 }
@@ -442,13 +464,13 @@ function RisingBrands({ reduce }: { reduce: boolean }) {
     for (let i = 0; i < bodies.current.length; i++) {
       const b = bodies.current[i];
       b.pos.addScaledVector(b.vel, clamped);
-      b.scale = b.baseScale * (0.9 + 0.1 * Math.sin(performance.now() * 0.001 + i));
-      if (b.pos.y > 6.8) {
-        b.pos.y = -6.8;
-        b.pos.x = (Math.random() - 0.5) * 12;
-        b.pos.z = -1.5 - Math.random() * 6;
+      b.scale = b.baseScale * (0.88 + 0.12 * Math.sin(performance.now() * 0.001 + i));
+      if (b.pos.y > 7.2) {
+        b.pos.y = -7.2;
+        b.pos.x = (Math.random() - 0.5) * 14;
+        b.pos.z = -1.2 - Math.random() * 7;
       }
-      if (Math.abs(b.pos.x) > 7.5) b.vel.x *= -1;
+      if (Math.abs(b.pos.x) > 8) b.vel.x *= -1;
     }
 
     for (let i = 0; i < bodies.current.length; i++) {
@@ -459,19 +481,15 @@ function RisingBrands({ reduce }: { reduce: boolean }) {
         const dy = a.pos.y - b.pos.y;
         const dz = a.pos.z - b.pos.z;
         const dist = Math.sqrt(dx * dx + dy * dy + dz * dz);
-        const min = 0.75 * ((a.scale + b.scale) * 0.55);
+        const min = 0.7 * ((a.scale + b.scale) * 0.55);
         if (dist > 0.001 && dist < min) {
           const nx = dx / dist;
           const ny = dy / dist;
-          const push = (min - dist) * 0.45;
+          const push = (min - dist) * 0.4;
           a.pos.x += nx * push;
           a.pos.y += ny * push;
           b.pos.x -= nx * push;
           b.pos.y -= ny * push;
-          if (a.kind === "ig" && b.kind === "fb") {
-            a.vel.x += nx * 0.15;
-            b.vel.x -= nx * 0.15;
-          }
         }
       }
     }
@@ -482,7 +500,7 @@ function RisingBrands({ reduce }: { reduce: boolean }) {
       m.position.copy(b.pos);
       m.scale.setScalar(b.scale);
       m.rotation.y += clamped * b.spin;
-      m.rotation.x += clamped * 0.15;
+      m.rotation.x += clamped * 0.18;
     });
   });
 
@@ -496,9 +514,9 @@ function RisingBrands({ reduce }: { reduce: boolean }) {
           }}
         >
           <IconMesh kind={b.kind} scale={1} />
-          {(b.kind === "ig" || b.kind === "fb") && (
-            <pointLight intensity={0.35} distance={2.6} color={BRAND[b.kind]} />
-          )}
+          {i % 3 === 0 ? (
+            <pointLight intensity={0.3} distance={2.2} color={BRAND[b.kind]} />
+          ) : null}
         </group>
       ))}
     </group>
@@ -507,13 +525,13 @@ function RisingBrands({ reduce }: { reduce: boolean }) {
 
 function NetworkLinks({ reduce }: { reduce: boolean }) {
   const points = useMemo(() => {
-    const n = reduce ? 4 : 8;
+    const n = reduce ? 5 : 10;
     const arr: THREE.Vector3[][] = [];
     for (let i = 0; i < n; i++) {
       const a = (i / n) * Math.PI * 2;
       arr.push([
-        new THREE.Vector3(Math.cos(a) * 1.1, Math.sin(a) * 0.7 - 0.4, -1.8),
-        new THREE.Vector3(Math.cos(a + 1.1) * 3.8, Math.sin(a + 0.5) * 2.4 + 0.6, -5),
+        new THREE.Vector3(Math.cos(a) * 1.2, Math.sin(a) * 0.8 - 0.2, -1.5),
+        new THREE.Vector3(Math.cos(a + 1.1) * 4.2, Math.sin(a + 0.5) * 2.6 + 0.4, -5.2),
       ]);
     }
     return arr;
@@ -525,7 +543,7 @@ function NetworkLinks({ reduce }: { reduce: boolean }) {
     dots.current.forEach((m, i) => {
       if (!m) return;
       const pair = points[i % points.length];
-      const p = (t * 0.18 + i * 0.1) % 1;
+      const p = (t * 0.2 + i * 0.09) % 1;
       m.position.lerpVectors(pair[0], pair[1], p);
     });
   });
@@ -539,7 +557,7 @@ function NetworkLinks({ reduce }: { reduce: boolean }) {
           color={i % 2 ? "#1877F2" : "#E1306C"}
           lineWidth={1}
           transparent
-          opacity={0.28}
+          opacity={0.26}
         />
       ))}
       {points.map((_, i) => (
@@ -549,7 +567,7 @@ function NetworkLinks({ reduce }: { reduce: boolean }) {
             if (el) dots.current[i] = el;
           }}
         >
-          <sphereGeometry args={[0.035, 10, 10]} />
+          <sphereGeometry args={[0.032, 10, 10]} />
           <meshStandardMaterial color="#fff" emissive="#9ecbff" emissiveIntensity={1.3} />
         </mesh>
       ))}
@@ -565,7 +583,7 @@ function SceneRig({ reduce }: { reduce: boolean }) {
   useEffect(() => {
     const onMove = (e: MouseEvent) => {
       target.current = {
-        x: (e.clientX / window.innerWidth - 0.5) * 0.28,
+        x: (e.clientX / window.innerWidth - 0.5) * 0.3,
         y: (e.clientY / window.innerHeight - 0.5) * 0.16,
       };
     };
@@ -584,23 +602,22 @@ function SceneRig({ reduce }: { reduce: boolean }) {
     if (!root.current) return;
     root.current.rotation.y += (target.current.x - root.current.rotation.y) * 0.035;
     root.current.rotation.x += (target.current.y - root.current.rotation.x) * 0.035;
-    // scroll lifts the whole cyber field upward
     const ty = Math.min(scroll.current * 0.0014, 3.2);
     root.current.position.y += (ty - root.current.position.y) * 0.045;
   });
 
   return (
     <group ref={root}>
-      <fog attach="fog" args={["#000008", 10, 24]} />
-      <ambientLight intensity={0.35} color="#cfe0ff" />
-      <directionalLight position={[5, 7, 4]} intensity={1.1} color="#ffffff" />
-      <directionalLight position={[-4, 2, 2]} intensity={0.45} color="#E1306C" />
-      <directionalLight position={[3, -1, 3]} intensity={0.35} color="#1877F2" />
-      <pointLight position={[0, -2, 2]} intensity={0.55} color="#6ec6ff" distance={14} />
+      <fog attach="fog" args={["#000008", 9, 26]} />
+      <ambientLight intensity={0.38} color="#cfe0ff" />
+      <directionalLight position={[5, 7, 4]} intensity={1.15} color="#ffffff" />
+      <directionalLight position={[-5, 2, 2]} intensity={0.55} color="#E1306C" />
+      <directionalLight position={[4, -1, 3]} intensity={0.45} color="#1877F2" />
+      <pointLight position={[0, -1.5, 2]} intensity={0.65} color="#6ec6ff" distance={16} />
       <CyberGridFloor />
-      <CyberGlobe reduce={reduce} />
+      <WorldCore reduce={reduce} />
       <MetaMerge reduce={reduce} />
-      <RisingAsh count={reduce ? 50 : 160} />
+      <RisingAsh count={reduce ? 60 : 190} />
       <NetworkLinks reduce={reduce} />
       <RisingBrands reduce={reduce} />
     </group>
@@ -625,8 +642,8 @@ export function NetworkScene({ className = "" }: { className?: string }) {
   return (
     <div className={`network-scene ${className}`} aria-hidden>
       <Canvas
-        dpr={reduce ? [1, 1.15] : [1, 1.65]}
-        camera={{ position: [0, 0.4, 9.2], fov: 42 }}
+        dpr={reduce ? [1, 1.15] : [1, 1.7]}
+        camera={{ position: [0, 0.35, 9.4], fov: 42 }}
         gl={{ antialias: true, alpha: true, powerPreference: "high-performance" }}
       >
         <Suspense fallback={null}>
