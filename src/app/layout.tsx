@@ -3,6 +3,7 @@ import { Space_Grotesk, Manrope } from "next/font/google";
 import "./globals.css";
 import { SiteNav } from "@/components/navigation/SiteNav";
 import { SiteFooter } from "@/components/SiteFooter";
+import { WhatsAppFab } from "@/components/contact/WhatsAppFab";
 
 const display = Space_Grotesk({
   variable: "--font-display-face",
@@ -45,6 +46,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         <SiteNav />
         <main className="flex-1">{children}</main>
         <SiteFooter />
+        <WhatsAppFab />
       </body>
     </html>
   );

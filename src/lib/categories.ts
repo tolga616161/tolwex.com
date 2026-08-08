@@ -32,14 +32,26 @@ export const CATEGORIES: CategoryItem[] = [
   {
     id: "instagram",
     name: "Instagram",
-    short: "Hesap güvenliği & OAuth",
-    description: "Resmi Meta OAuth ile hesabınızı bağlayın, izinleri ve API durumunu kontrol edin.",
+    short: "Hesap güvenliği",
+    description: "Resmi Meta bağlantısı ile hesabınızı bağlayın; izin ve güvenlik durumunu kontrol edin.",
     filter: ["social", "digital"],
     accent: "#f58529",
     accent2: "#dd2a7b",
     href: "/instagram/connect",
-    meta: "OAuth · Güvenlik",
+    meta: "Bağlantı · Güvenlik",
     icon: "instagram",
+  },
+  {
+    id: "itibar",
+    name: "İtibar",
+    short: "Haber silme & fake hesap",
+    description: "Olumsuz haber kaldırma ve sahte hesap kapatma paketleri.",
+    filter: ["digital", "social"],
+    accent: "#e4574d",
+    accent2: "#e9a319",
+    href: "/urunler/haber-silme",
+    meta: "Silme · Bildirim",
+    icon: "seo",
   },
   {
     id: "facebook",
@@ -129,22 +141,47 @@ export const CATEGORIES: CategoryItem[] = [
 
 export const MEGA_MENU = [
   {
-    title: "Ürün Kataloğu",
+    title: "İtibar & Güvenlik",
     items: [
       {
-        label: "Tüm Ürünler",
-        href: "/urunler",
-        desc: "Mağaza vitrini",
+        label: "Haber Silme",
+        href: "/urunler/haber-silme",
+        desc: "₺4.500 · İçerik kaldırma",
+      },
+      {
+        label: "Fake Hesap Kapatma",
+        href: "/urunler/fake-hesap-kapatma",
+        desc: "₺2.990 · Sahte hesap",
       },
       {
         label: "Instagram Güvenlik",
         href: "/urunler/instagram-hesap-guvenlik-kontrolu",
-        desc: "₺499 · OAuth kontrol",
+        desc: "₺499 · Hesap kontrol",
       },
+      {
+        label: "Hesabını Bağla",
+        href: "/instagram/connect",
+        desc: "Resmi Meta bağlantısı",
+      },
+    ],
+  },
+  {
+    title: "Sosyal & Reklam",
+    items: [
       {
         label: "Instagram Yönetim",
         href: "/urunler/instagram-yonetim-paketi",
         desc: "₺4.990 · Aylık paket",
+      },
+      {
+        label: "Meta Ads",
+        href: "/urunler/meta-ads-baslangic",
+        desc: "₺3.490 · FB + IG",
+      },
+      {
+        label: "TikTok İçerik",
+        href: "/urunler/tiktok-icerik-paketi",
+        desc: "₺2.990 · Senaryo paketi",
       },
       {
         label: "Kurumsal Sosyal",
@@ -154,12 +191,17 @@ export const MEGA_MENU = [
     ],
   },
   {
-    title: "Reklam Ürünleri",
+    title: "Dijital",
     items: [
       {
-        label: "Meta Ads",
-        href: "/urunler/meta-ads-baslangic",
-        desc: "₺3.490 · FB + IG",
+        label: "Tüm Ürünler",
+        href: "/urunler",
+        desc: "Mağaza vitrini",
+      },
+      {
+        label: "SEO Denetim",
+        href: "/urunler/seo-baslangic-denetimi",
+        desc: "₺2.490 · Teknik rapor",
       },
       {
         label: "Google Ads",
@@ -167,34 +209,9 @@ export const MEGA_MENU = [
         desc: "₺3.990 · Arama ağı",
       },
       {
-        label: "TikTok İçerik",
-        href: "/urunler/tiktok-icerik-paketi",
-        desc: "₺2.990 · Senaryo paketi",
-      },
-    ],
-  },
-  {
-    title: "Dijital",
-    items: [
-      {
-        label: "SEO Denetim",
-        href: "/urunler/seo-baslangic-denetimi",
-        desc: "₺2.490 · Teknik rapor",
-      },
-      {
         label: "Landing Tasarım",
         href: "/urunler/web-tasarim-landing",
         desc: "₺7.500 · Premium UI",
-      },
-      {
-        label: "Instagram Bağla",
-        href: "/instagram/connect",
-        desc: "Resmi Meta OAuth",
-      },
-      {
-        label: "Güvenlik Merkezi",
-        href: "/instagram/security",
-        desc: "Checklist + rehber",
       },
     ],
   },

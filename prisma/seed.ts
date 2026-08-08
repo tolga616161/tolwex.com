@@ -131,6 +131,48 @@ const PRODUCTS = [
     featured: true,
     sortOrder: 8,
   },
+  {
+    slug: "haber-silme",
+    name: "Haber / İçerik Silme",
+    shortDesc: "İnternetteki olumsuz haber ve içerik kaldırma desteği",
+    description:
+      "Google, haber siteleri ve sosyal medyada yer alan istenmeyen içerikler için yasal/platform süreçlerine uygun kaldırma talebi yönetimi. Ön inceleme sonrası net aksiyon planı sunulur.",
+    price: 4500,
+    category: "itibar",
+    badge: "İtibar",
+    icon: "seo",
+    accent: "#e4574d",
+    accent2: "#e9a319",
+    features: [
+      "Ön inceleme & URL analizi",
+      "Platform / site başvuru süreci",
+      "Durum takibi",
+      "WhatsApp destek hattı",
+    ],
+    featured: true,
+    sortOrder: 0,
+  },
+  {
+    slug: "fake-hesap-kapatma",
+    name: "Fake Hesap Kapatma",
+    shortDesc: "Sahte / taklit Instagram-Facebook hesap bildirimi",
+    description:
+      "Adınıza veya markanıza açılmış sahte hesaplar için resmi platform bildirim süreci. Kanıt toplama, şikayet metni ve takip dahildir. Sonuç platform kararına bağlıdır.",
+    price: 2990,
+    category: "itibar",
+    badge: "Hızlı",
+    icon: "instagram",
+    accent: "#dd2a7b",
+    accent2: "#f58529",
+    features: [
+      "Sahte hesap tespiti",
+      "Resmi bildirim dosyası",
+      "Kanıt listesi",
+      "Süreç takibi",
+    ],
+    featured: true,
+    sortOrder: 1,
+  },
 ];
 
 async function main() {

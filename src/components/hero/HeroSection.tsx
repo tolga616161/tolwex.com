@@ -22,22 +22,22 @@ export function HeroSection({
           <span className="title-line hero-title-accent">Link</span>
         </h1>
         <p className="hero-sub fade-up-delay-2">
-          Instagram hesabınızı resmi Meta OAuth ile bağlayın. Şifre veya session
-          istemeyiz — yalnızca Meta’nın kendi giriş ekranı.
+          Haber silme, fake hesap kapatma ve Instagram güvenlik kontrolü.
+          Hesap bağlarken şifre istemeyiz — yalnızca Meta’nın resmi ekranı.
         </p>
         <div className="hero-actions fade-up-delay-2">
+          <Link href="/urunler" className="btn btn-primary">
+            Ürünleri Gör
+          </Link>
           {configured ? (
-            <Link href="/instagram/connect" className="btn btn-primary">
-              Instagram Hesabımı Kontrol Et
+            <Link href="/instagram/connect" className="btn btn-ghost">
+              Instagram’ı Bağla
             </Link>
           ) : (
-            <Link href="/admin/setup" className="btn btn-ghost">
-              Meta entegrasyonu henüz yapılandırılmadı
+            <Link href="/urunler/haber-silme" className="btn btn-ghost">
+              Haber Silme
             </Link>
           )}
-          <a href="#categories" className="btn btn-ghost">
-            Hizmetleri keşfet
-          </a>
         </div>
       </div>
     </section>

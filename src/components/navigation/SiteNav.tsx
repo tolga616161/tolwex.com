@@ -4,15 +4,15 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { MEGA_MENU } from "@/lib/categories";
 import { CategoryIcon } from "@/components/icons/CategoryIcons";
+import { CONTACT_PHONE_DISPLAY, whatsappUrl } from "@/lib/contact";
 
 const MOBILE_LINKS = [
   { label: "Ürün Kataloğu", href: "/urunler", icon: "ads" },
-  { label: "Instagram Ürün", href: "/urunler/instagram-yonetim-paketi", icon: "instagram" },
+  { label: "Haber Silme", href: "/urunler/haber-silme", icon: "seo" },
+  { label: "Fake Hesap Kapatma", href: "/urunler/fake-hesap-kapatma", icon: "instagram" },
+  { label: "Instagram Güvenlik", href: "/urunler/instagram-hesap-guvenlik-kontrolu", icon: "instagram" },
   { label: "Meta Ads", href: "/urunler/meta-ads-baslangic", icon: "facebook" },
   { label: "TikTok Paket", href: "/urunler/tiktok-icerik-paketi", icon: "tiktok" },
-  { label: "Google Ads", href: "/urunler/google-ads-arama", icon: "google" },
-  { label: "SEO", href: "/urunler/seo-baslangic-denetimi", icon: "seo" },
-  { label: "Web Tasarım", href: "/urunler/web-tasarim-landing", icon: "design" },
   { label: "Hesap Bağla", href: "/instagram/connect", icon: "social" },
 ];
 
@@ -79,9 +79,15 @@ export function SiteNav() {
           <Link href="/instagram/connect" className="nav-link">
             Bağla
           </Link>
-          <Link href="/admin" className="nav-link">
-            Admin
-          </Link>
+          <a
+            href={whatsappUrl()}
+            className="nav-link"
+            target="_blank"
+            rel="noopener noreferrer"
+            title={CONTACT_PHONE_DISPLAY}
+          >
+            WhatsApp
+          </a>
           <Link href="/urunler" className="btn btn-primary nav-cta">
             Mağaza
           </Link>
@@ -132,13 +138,15 @@ export function SiteNav() {
             >
               Ürün Kataloğunu Aç
             </Link>
-            <Link
-              href="/admin"
+            <a
+              href={whatsappUrl()}
               className="btn btn-ghost"
+              target="_blank"
+              rel="noopener noreferrer"
               onClick={() => setMobileOpen(false)}
             >
-              Admin Paneli
-            </Link>
+              WhatsApp {CONTACT_PHONE_DISPLAY}
+            </a>
           </div>
         </div>
       </div>

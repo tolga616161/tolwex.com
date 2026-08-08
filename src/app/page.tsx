@@ -2,12 +2,11 @@ import Link from "next/link";
 import { HeroSection } from "@/components/hero/HeroSection";
 import { CategoryExplorer } from "@/components/categories/CategoryExplorer";
 import { DigitalAtmosphere } from "@/components/fx/DigitalAtmosphere";
-import { DomainSetupCard } from "@/components/meta/DomainSetupCard";
 import { ProductGrid } from "@/components/products/ProductGrid";
 import { getMetaConfig } from "@/lib/meta/config";
-import { getMetaDomainHints } from "@/lib/meta/public-urls";
 import { prisma } from "@/lib/db";
 import { redirect } from "next/navigation";
+import { CONTACT_PHONE_DISPLAY, whatsappUrl } from "@/lib/contact";
 
 export default async function HomePage({
   searchParams,
@@ -16,7 +15,6 @@ export default async function HomePage({
 }) {
   const params = await searchParams;
   const config = await getMetaConfig();
-  const domains = getMetaDomainHints();
   const featuredProducts = await prisma.product.findMany({
     where: { active: true, featured: true },
     orderBy: [{ sortOrder: "asc" }],
@@ -42,7 +40,7 @@ export default async function HomePage({
 
       <ProductGrid
         title="Öne çıkan ürünler"
-        subtitle="Satışa hazır paketler — boş vitrin yok."
+        subtitle="Haber silme, fake hesap kapatma, Instagram güvenlik ve daha fazlası."
         products={featuredProducts.map((p) => ({
           slug: p.slug,
           name: p.name,
@@ -56,27 +54,21 @@ export default async function HomePage({
         }))}
       />
 
-      <DomainSetupCard
-        appDomains={domains.appDomains}
-        siteUrl={domains.siteUrl}
-        redirectUri={domains.oauthRedirectUri}
-      />
-
       <CategoryExplorer />
 
       <section className="grid md:grid-cols-3 gap-4">
         {[
           {
-            title: "Resmi OAuth",
-            text: "Giriş ve izinler yalnızca Meta’nın kendi ekranında gerçekleşir.",
+            title: "Resmi bağlantı",
+            text: "Instagram girişi yalnızca Meta’nın kendi ekranında gerçekleşir. Şifre istemeyiz.",
           },
           {
             title: "Şeffaf sonuçlar",
-            text: "API’nin vermediği bilgiler tahmin edilmez; açıkça belirtilir.",
+            text: "Ölçülebilen bilgiler gösterilir; uydurma güvenlik skoru yoktur.",
           },
           {
-            title: "Güvenli token",
-            text: "Access token şifreli saklanır, frontend’e gönderilmez.",
+            title: "Hızlı destek",
+            text: `WhatsApp: ${CONTACT_PHONE_DISPLAY} — ürün ve sipariş için yazın.`,
           },
         ].map((item) => (
           <div key={item.title} className="glass-panel rounded-2xl p-6">
@@ -95,12 +87,17 @@ export default async function HomePage({
           <Link href="/instagram/connect" className="btn btn-primary">
             Instagram Hesabını Güvenli Şekilde Bağla
           </Link>
-          <Link href="/instagram/security" className="btn btn-ghost">
-            Güvenlik Merkezi
-          </Link>
           <Link href="/instagram/dashboard" className="btn btn-ghost">
             Hesap Güvenlik Testi
           </Link>
+          <a
+            href={whatsappUrl("Merhaba, ürünler hakkında bilgi almak istiyorum.")}
+            className="btn btn-ghost"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            WhatsApp {CONTACT_PHONE_DISPLAY}
+          </a>
         </div>
       </section>
     </div>
