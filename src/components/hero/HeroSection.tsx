@@ -18,8 +18,8 @@ export function HeroSection({
       <div className="hero-copy">
         <p className="hero-kicker fade-up">Dijital Medya Platformu</p>
         <h1 className="hero-title display fade-up-delay">
-          <span className="title-line">Secure</span>
-          <span className="title-line hero-title-accent">Link</span>
+          <span className="title-line">TOL</span>
+          <span className="title-line hero-title-accent">WEX</span>
         </h1>
         <p className="hero-sub fade-up-delay-2">
           Haber silme, fake hesap kapatma ve Instagram güvenlik kontrolü.

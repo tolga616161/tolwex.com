@@ -18,13 +18,13 @@ const body = Manrope({
 });
 
 export const metadata: Metadata = {
-  title: "SecureLink — Dijital Medya & Instagram Hesap Kontrolü",
+  title: "TOLWEX — Dijital Medya & Instagram Hesap Kontrolü",
   description:
-    "Resmi Meta/Instagram OAuth ile güvenli hesap bağlantısı. Premium dijital medya platformu.",
+    "Haber silme, fake hesap kapatma ve resmi Meta/Instagram OAuth ile hesap güvenliği. tolwex.com",
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
-    title: "SecureLink",
+    title: "TOLWEX",
   },
   formatDetection: {
     telephone: false,

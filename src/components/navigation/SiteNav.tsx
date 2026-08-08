@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import { MEGA_MENU } from "@/lib/categories";
 import { CategoryIcon } from "@/components/icons/CategoryIcons";
 import { CONTACT_PHONE_DISPLAY, whatsappUrl } from "@/lib/contact";
@@ -19,6 +20,11 @@ const MOBILE_LINKS = [
 export function SiteNav() {
   const [megaOpen, setMegaOpen] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     document.body.style.overflow = mobileOpen ? "hidden" : "";
@@ -27,11 +33,99 @@ export function SiteNav() {
     };
   }, [mobileOpen]);
 
+  useEffect(() => {
+    if (!mobileOpen) return;
+    function onKey(e: KeyboardEvent) {
+      if (e.key === "Escape") setMobileOpen(false);
+    }
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [mobileOpen]);
+
+  const mobileMenu =
+    mounted &&
+    createPortal(
+      <div
+        className={`mobile-sheet ${mobileOpen ? "is-open" : ""}`}
+        aria-hidden={!mobileOpen}
+        id="mobile-menu"
+      >
+        <div className="mobile-sheet-inner">
+          <div className="flex items-center justify-between mb-8">
+            <Link
+              href="/"
+              className="brand display"
+              onClick={() => setMobileOpen(false)}
+            >
+              TOL<span>WEX</span>
+            </Link>
+            <button
+              type="button"
+              className="mobile-close"
+              onClick={() => setMobileOpen(false)}
+            >
+              Kapat
+            </button>
+          </div>
+          <p className="text-xs uppercase tracking-[0.2em] muted mb-4">Ürün menüsü</p>
+          <div className="mobile-cats">
+            {MOBILE_LINKS.map((l) => (
+              <a
+                key={l.label}
+                href={l.href}
+                className="mobile-cat"
+                onClick={() => setMobileOpen(false)}
+              >
+                <CategoryIcon name={l.icon} className="size-6" />
+                <span>{l.label}</span>
+              </a>
+            ))}
+          </div>
+          <div className="mt-8 grid gap-3">
+            <Link
+              href="/urunler"
+              className="btn btn-primary"
+              onClick={() => setMobileOpen(false)}
+            >
+              Ürün Kataloğunu Aç
+            </Link>
+            <a
+              href={whatsappUrl()}
+              className="btn btn-ghost"
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={() => setMobileOpen(false)}
+            >
+              WhatsApp {CONTACT_PHONE_DISPLAY}
+            </a>
+          </div>
+        </div>
+      </div>,
+      document.body
+    );
+
   return (
     <header className="site-nav">
       <div className="site-shell nav-inner">
+        <button
+          type="button"
+          className={`hamburger ${mobileOpen ? "is-open" : ""}`}
+          aria-label={mobileOpen ? "Menüyü kapat" : "Menüyü aç"}
+          aria-expanded={mobileOpen}
+          aria-controls="mobile-menu"
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            setMobileOpen((v) => !v);
+          }}
+        >
+          <span />
+          <span />
+          <span />
+        </button>
+
         <Link href="/" className="brand display">
-          Secure<span>Link</span>
+          TOL<span>WEX</span>
         </Link>
 
         <nav className="nav-desktop">
@@ -93,63 +187,17 @@ export function SiteNav() {
           </Link>
         </nav>
 
-        <button
-          type="button"
-          className="hamburger"
-          aria-label="Menüyü aç"
-          aria-expanded={mobileOpen}
-          onClick={() => setMobileOpen(true)}
+        <a
+          href={whatsappUrl()}
+          className="nav-mobile-wa"
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="WhatsApp"
         >
-          <span />
-          <span />
-          <span />
-        </button>
+          WA
+        </a>
       </div>
-
-      <div className={`mobile-sheet ${mobileOpen ? "is-open" : ""}`}>
-        <div className="mobile-sheet-inner">
-          <div className="flex items-center justify-between mb-8">
-            <Link href="/" className="brand display" onClick={() => setMobileOpen(false)}>
-              Secure<span>Link</span>
-            </Link>
-            <button type="button" className="mobile-close" onClick={() => setMobileOpen(false)}>
-              Kapat
-            </button>
-          </div>
-          <p className="text-xs uppercase tracking-[0.2em] muted mb-4">Ürün menüsü</p>
-          <div className="mobile-cats">
-            {MOBILE_LINKS.map((l) => (
-              <a
-                key={l.label}
-                href={l.href}
-                className="mobile-cat"
-                onClick={() => setMobileOpen(false)}
-              >
-                <CategoryIcon name={l.icon} className="size-6" />
-                <span>{l.label}</span>
-              </a>
-            ))}
-          </div>
-          <div className="mt-8 grid gap-3">
-            <Link
-              href="/urunler"
-              className="btn btn-primary"
-              onClick={() => setMobileOpen(false)}
-            >
-              Ürün Kataloğunu Aç
-            </Link>
-            <a
-              href={whatsappUrl()}
-              className="btn btn-ghost"
-              target="_blank"
-              rel="noopener noreferrer"
-              onClick={() => setMobileOpen(false)}
-            >
-              WhatsApp {CONTACT_PHONE_DISPLAY}
-            </a>
-          </div>
-        </div>
-      </div>
+      {mobileMenu}
     </header>
   );
 }

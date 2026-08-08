@@ -1,51 +1,22 @@
-# Meta Developer App Kurulum Rehberi
+# Meta App Kurulum — TOLWEX
 
-Telefondaki şu hata:
-
-> Bu bağlantının domaini uygulamanın domainlerinde yer almıyor
-
-neredeyse her zaman **App Domains / Site URL** eksikliğinden gelir.
-
-## Tolwex (App ID: 1023808800487900) — şu anki URL’ler
-
-Kaynak: `NEXT_PUBLIC_APP_URL`
+App ID: `1023808800487900`  
+Domain: **tolwex.com**
 
 | Alan | Değer |
 |------|--------|
-| App Domains | `bucks-travesti-calcium-bell.trycloudflare.com` **ve** `trycloudflare.com` |
-| Site URL | `https://bucks-travesti-calcium-bell.trycloudflare.com/` |
-| Valid OAuth Redirect URIs | `https://bucks-travesti-calcium-bell.trycloudflare.com/api/meta/oauth/callback` |
-| Privacy Policy URL | `https://bucks-travesti-calcium-bell.trycloudflare.com/privacy` |
-| Terms URL | `https://bucks-travesti-calcium-bell.trycloudflare.com/terms` |
-| Data Deletion | `https://bucks-travesti-calcium-bell.trycloudflare.com/api/data-deletion` |
-| Webhook Callback | `https://bucks-travesti-calcium-bell.trycloudflare.com/api/meta/webhook` |
-
-## Adım adım
+| App Domains | `tolwex.com` |
+| Site URL | `https://tolwex.com/` |
+| OAuth Redirect | `https://tolwex.com/api/meta/oauth/callback` |
+| Privacy | `https://tolwex.com/privacy` |
+| Terms | `https://tolwex.com/terms` |
+| Data Deletion | `https://tolwex.com/api/data-deletion` |
+| Webhook | `https://tolwex.com/api/meta/webhook` |
 
 1. https://developers.facebook.com/apps/1023808800487900/settings/basic/
-2. **App Domains** → yukarıdaki iki domain’i ekleyin → Save
-3. Altta **Website** platformu yoksa Add Platform → Website → Site URL yapıştırın
-4. **Facebook Login → Settings**
-   - Valid OAuth Redirect URIs → callback URL
-   - “Login with the JavaScript SDK” gerekmez
-5. **Roles → Roles** → kendi Facebook hesabınızı Admin/Developer/Tester ekleyin  
-   (Development mode’da yalnızca roller bağlanabilir)
-6. 1–2 dakika bekleyin, mobilde tekrar deneyin
+2. App Domains + Site URL kaydet
+3. Facebook Login → Valid OAuth Redirect URIs
+4. Roles → kendi hesabını ekle
+5. 1–2 dk bekle, telefonda tekrar dene
 
-## Neden Facebook açılıyor?
-
-Instagram hesap bağlantısı resmi Meta Graph / Facebook Login OAuth üzerinden yapılır.
-Bu beklenen davranıştır. Kullanıcı şifresini sitemize yazmaz.
-
-## Not
-
-`*.trycloudflare.com` tünelleri geçicidir. URL değişirse App Domains + Redirect URI’yi yeniden güncelleyin.
-Production’da sabit domain (HTTPS) kullanın.
-
-## Ortam değişkenleri
-
-- `META_APP_ID`
-- `META_APP_SECRET`
-- `META_REDIRECT_URI` (callback ile birebir aynı olmalı)
-- `META_API_VERSION`
-- `META_WEBHOOK_VERIFY_TOKEN`
+Instagram bağlantısı Meta (Facebook) giriş ekranı üzerinden çalışır — bu normaldir.

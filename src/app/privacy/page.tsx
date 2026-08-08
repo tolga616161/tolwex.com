@@ -4,7 +4,7 @@ export default function PrivacyPage() {
       <h1 className="display text-4xl font-bold mb-6">Gizlilik Politikası</h1>
       <div className="space-y-5 muted leading-relaxed">
         <p>
-          SecureLink, Instagram hesap bağlantısını yalnızca resmi Meta/Instagram
+          TOLWEX, Instagram hesap bağlantısını yalnızca resmi Meta/Instagram
           OAuth akışı üzerinden gerçekleştirir.
         </p>
         <h2 className="display text-2xl text-white">Meta / Instagram bağlantısı</h2>

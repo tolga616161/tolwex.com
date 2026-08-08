@@ -189,12 +189,17 @@ h3,
   align-items: center;
   justify-content: space-between;
   min-height: 72px;
-  gap: 1rem;
+  gap: 0.75rem;
+  position: relative;
+  z-index: 2;
 }
 
 .brand {
-  font-size: 1.25rem;
+  font-size: 1.35rem;
   font-weight: 800;
+  letter-spacing: 0.04em;
+  flex: 1;
+  text-align: center;
 }
 .brand span {
   color: var(--accent);
@@ -204,6 +209,23 @@ h3,
   display: none;
   align-items: center;
   gap: 0.35rem;
+  flex: 1;
+  justify-content: flex-end;
+}
+
+.nav-mobile-wa {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 44px;
+  min-height: 44px;
+  border-radius: 0.7rem;
+  border: 1px solid rgba(31, 170, 97, 0.45);
+  background: rgba(18, 140, 74, 0.2);
+  color: #9dffc3;
+  font-size: 0.78rem;
+  font-weight: 800;
+  text-decoration: none;
 }
 
 .nav-link {
@@ -294,42 +316,65 @@ h3,
 .hamburger {
   display: inline-flex;
   flex-direction: column;
+  justify-content: center;
+  align-items: center;
   gap: 5px;
-  background: transparent;
+  flex-shrink: 0;
+  width: 48px;
+  height: 48px;
+  background: rgba(255, 255, 255, 0.06);
   border: 1px solid var(--line);
   border-radius: 0.7rem;
-  padding: 0.7rem 0.75rem;
+  padding: 0;
   cursor: pointer;
+  position: relative;
+  z-index: 80;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
 }
 .hamburger span {
   display: block;
   width: 18px;
   height: 2px;
   background: #fff;
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+.hamburger.is-open span:nth-child(1) {
+  transform: translateY(7px) rotate(45deg);
+}
+.hamburger.is-open span:nth-child(2) {
+  opacity: 0;
+}
+.hamburger.is-open span:nth-child(3) {
+  transform: translateY(-7px) rotate(-45deg);
 }
 
 .mobile-sheet {
   position: fixed;
   inset: 0;
-  z-index: 60;
+  z-index: 90;
   background: rgba(3, 10, 16, 0.72);
   backdrop-filter: blur(10px);
   opacity: 0;
+  visibility: hidden;
   pointer-events: none;
-  transition: opacity 0.25s ease;
+  transition: opacity 0.25s ease, visibility 0.25s ease;
 }
 .mobile-sheet.is-open {
   opacity: 1;
+  visibility: visible;
   pointer-events: auto;
 }
 .mobile-sheet-inner {
   position: absolute;
   inset: 0;
   padding: 1.25rem 1.25rem 2rem;
+  padding-top: max(1.25rem, env(safe-area-inset-top));
   background:
     radial-gradient(600px 300px at 20% 0%, rgba(46, 196, 182, 0.18), transparent 50%),
     linear-gradient(180deg, #07151e, #050d14);
   overflow: auto;
+  -webkit-overflow-scrolling: touch;
   transform: translateY(12px);
   transition: transform 0.25s ease;
 }
@@ -369,8 +414,13 @@ h3,
   .nav-desktop {
     display: flex;
   }
-  .hamburger {
+  .hamburger,
+  .nav-mobile-wa {
     display: none;
+  }
+  .brand {
+    flex: 0 0 auto;
+    text-align: left;
   }
 }
 
@@ -1120,7 +1170,7 @@ input:focus {
   position: fixed;
   right: 1rem;
   bottom: 1rem;
-  z-index: 60;
+  z-index: 70;
   display: inline-flex;
   align-items: center;
   gap: 0.45rem;

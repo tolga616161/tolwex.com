@@ -4,7 +4,7 @@ import { getMetaConfig } from "@/lib/meta/config";
 import { CONTACT_PHONE_DISPLAY, whatsappUrl } from "@/lib/contact";
 
 export const metadata = {
-  title: "Instagram Hesabını Bağla — SecureLink",
+  title: "Instagram Hesabını Bağla — TOLWEX",
 };
 
 export default async function InstagramConnectPage() {

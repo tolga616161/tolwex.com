@@ -5,7 +5,7 @@ import { CONTACT_PHONE_DISPLAY, whatsappUrl } from "@/lib/contact";
 export function WhatsAppFab() {
   return (
     <a
-      href={whatsappUrl("Merhaba, SecureLink ürünleri hakkında bilgi almak istiyorum.")}
+      href={whatsappUrl("Merhaba, TOLWEX ürünleri hakkında bilgi almak istiyorum.")}
       className="wa-fab"
       target="_blank"
       rel="noopener noreferrer"

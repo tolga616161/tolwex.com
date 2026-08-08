@@ -7,7 +7,7 @@ export function SiteFooter() {
       <div className="flex flex-col md:flex-row gap-4 md:items-center md:justify-between">
         <div>
           <p>
-            Secure<span style={{ color: "var(--accent)" }}>Link</span> — Dijital
+            TOL<span style={{ color: "var(--accent)" }}>WEX</span> — Dijital
             itibar & Instagram güvenlik
           </p>
           <p className="mt-2">
