@@ -1,5 +1,5 @@
 {
-  "name": "meta-instagram-oauth",
+  "name": "tolwex",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -10,7 +10,8 @@
     "db:migrate": "prisma migrate dev",
     "db:push": "prisma db push",
     "db:seed": "npx tsx prisma/seed.ts",
-    "postinstall": "prisma generate"
+    "postinstall": "prisma generate",
+    "start:prod": "npx prisma db push && npx prisma db seed && next start -H 0.0.0.0 -p ${PORT:-3000}"
   },
   "prisma": {
     "seed": "npx tsx prisma/seed.ts"
