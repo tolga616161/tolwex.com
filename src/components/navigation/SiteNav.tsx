@@ -6,6 +6,7 @@ import { MEGA_MENU } from "@/lib/categories";
 import { CategoryIcon } from "@/components/icons/CategoryIcons";
 
 const MOBILE_LINKS = [
+  { label: "Ürünler", href: "/urunler", icon: "ads" },
   { label: "Instagram", href: "/instagram/connect", icon: "instagram" },
   { label: "Facebook", href: "/instagram/connect", icon: "facebook" },
   { label: "TikTok", href: "/#categories", icon: "tiktok" },
@@ -13,7 +14,6 @@ const MOBILE_LINKS = [
   { label: "SEO", href: "/#categories", icon: "seo" },
   { label: "Web Tasarım", href: "/#categories", icon: "design" },
   { label: "Sosyal Medya", href: "/instagram/security", icon: "social" },
-  { label: "Güvenlik Testi", href: "/instagram/dashboard", icon: "social" },
 ];
 
 export function SiteNav() {
@@ -69,17 +69,17 @@ export function SiteNav() {
               </div>
             </div>
           </div>
+          <Link href="/urunler" className="nav-link">
+            Ürünler
+          </Link>
           <Link href="/instagram/security" className="nav-link">
             Güvenlik
           </Link>
-          <Link href="/instagram/guide" className="nav-link">
-            2FA Rehberi
+          <Link href="/admin/products" className="nav-link">
+            Admin Ürün
           </Link>
-          <Link href="/instagram/dashboard" className="nav-link">
-            Kontrol
-          </Link>
-          <Link href="/instagram/connect" className="btn btn-primary nav-cta">
-            Hesabı Bağla
+          <Link href="/urunler" className="btn btn-primary nav-cta">
+            Mağaza
           </Link>
         </nav>
 

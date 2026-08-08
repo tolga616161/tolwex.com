@@ -9,6 +9,7 @@ export function SiteFooter() {
           Instagram bağlantısı
         </p>
         <div className="flex flex-wrap gap-4">
+          <Link href="/urunler">Ürünler</Link>
           <Link href="/#categories">Hizmetler</Link>
           <Link href="/privacy">Gizlilik</Link>
           <Link href="/terms">Koşullar</Link>

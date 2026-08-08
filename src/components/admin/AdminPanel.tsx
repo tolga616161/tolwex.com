@@ -117,9 +117,14 @@ export function AdminPanel() {
           <h1 className="display text-4xl font-bold mb-2">META INTEGRATION</h1>
           <p className="muted">Instagram / Meta — secret değerler burada gösterilmez.</p>
         </div>
-        <Link href="/admin/setup" className="btn btn-primary">
-          Meta API Kurulum
-        </Link>
+        <div className="flex flex-wrap gap-2">
+          <Link href="/admin/products" className="btn btn-primary">
+            Ürün Yönetimi
+          </Link>
+          <Link href="/admin/setup" className="btn btn-ghost">
+            Meta API Kurulum
+          </Link>
+        </div>
       </div>
 
       {status ? (

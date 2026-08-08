@@ -111,3 +111,45 @@ model AuditLog {
   @@index([action])
   @@index([createdAt])
 }
+
+/// Sellable digital products / packages
+model Product {
+  id          String   @id @default(cuid())
+  slug        String   @unique
+  name        String
+  shortDesc   String   @default("")
+  description String   @default("")
+  price       Int
+  currency    String   @default("TRY")
+  category    String   @default("dijital")
+  badge       String   @default("")
+  icon        String   @default("social")
+  accent      String   @default("#2ec4b6")
+  accent2     String   @default("#7c5cff")
+  features    String   @default("[]") // JSON string array
+  featured    Boolean  @default(false)
+  active      Boolean  @default(true)
+  sortOrder   Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  leads       OrderLead[]
+
+  @@index([active, featured])
+  @@index([category])
+}
+
+/// Simple order / interest leads (no card payment yet)
+model OrderLead {
+  id        String   @id @default(cuid())
+  productId String?
+  product   Product? @relation(fields: [productId], references: [id], onDelete: SetNull)
+  name      String
+  phone     String   @default("")
+  email     String   @default("")
+  note      String   @default("")
+  status    String   @default("new") // new | contacted | closed
+  createdAt DateTime @default(now())
+
+  @@index([status])
+  @@index([createdAt])
+}

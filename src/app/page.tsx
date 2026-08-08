@@ -3,8 +3,10 @@ import { HeroSection } from "@/components/hero/HeroSection";
 import { CategoryExplorer } from "@/components/categories/CategoryExplorer";
 import { DigitalAtmosphere } from "@/components/fx/DigitalAtmosphere";
 import { DomainSetupCard } from "@/components/meta/DomainSetupCard";
+import { ProductGrid } from "@/components/products/ProductGrid";
 import { getMetaConfig } from "@/lib/meta/config";
 import { getMetaDomainHints } from "@/lib/meta/public-urls";
+import { prisma } from "@/lib/db";
 import { redirect } from "next/navigation";
 
 export default async function HomePage({
@@ -15,6 +17,11 @@ export default async function HomePage({
   const params = await searchParams;
   const config = await getMetaConfig();
   const domains = getMetaDomainHints();
+  const featuredProducts = await prisma.product.findMany({
+    where: { active: true, featured: true },
+    orderBy: [{ sortOrder: "asc" }],
+    take: 8,
+  });
 
   // Legacy ?error= links → premium error screen
   if (params.error) {
@@ -32,6 +39,22 @@ export default async function HomePage({
         <DigitalAtmosphere variant="page" />
       </div>
       <HeroSection configured={config.configured} />
+
+      <ProductGrid
+        title="Öne çıkan ürünler"
+        subtitle="Satışa hazır paketler — boş vitrin yok."
+        products={featuredProducts.map((p) => ({
+          slug: p.slug,
+          name: p.name,
+          shortDesc: p.shortDesc,
+          price: p.price,
+          currency: p.currency,
+          badge: p.badge,
+          icon: p.icon,
+          accent: p.accent,
+          accent2: p.accent2,
+        }))}
+      />
 
       <DomainSetupCard
         appDomains={domains.appDomains}
