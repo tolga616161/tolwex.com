@@ -8,6 +8,10 @@ type Settings = {
   support_email: string;
   min_deposit: string;
   announcement: string;
+  announcement_enabled: string;
+  bank_name: string;
+  bank_iban: string;
+  bank_holder: string;
 };
 
 export default function AdminSettingsPage() {
@@ -39,34 +43,79 @@ export default function AdminSettingsPage() {
       <div className="admin-page-head">
         <div>
           <h2>Ayarlar</h2>
-          <p className="muted">Panel genel ayarları</p>
+          <p className="muted">Duyuru, banka hesabı ve panel genel ayarları</p>
         </div>
       </div>
-      <form onSubmit={save} className="admin-panel grid gap-3 max-w-lg">
-        {(
-          [
-            ["site_name", "Site adı"],
-            ["support_whatsapp", "WhatsApp"],
-            ["support_email", "Destek e-posta"],
-            ["min_deposit", "Min. bakiye"],
-          ] as const
-        ).map(([key, label]) => (
-          <label key={key} className="grid gap-1">
-            <span className="muted text-xs">{label}</span>
+      <form onSubmit={save} className="admin-panel grid gap-4 max-w-xl">
+        <div className="grid gap-3">
+          <h3 className="text-sm font-semibold">Genel</h3>
+          {(
+            [
+              ["site_name", "Site adı"],
+              ["support_whatsapp", "WhatsApp"],
+              ["support_email", "Destek e-posta"],
+              ["min_deposit", "Min. bakiye (₺)"],
+            ] as const
+          ).map(([key, label]) => (
+            <label key={key} className="grid gap-1">
+              <span className="muted text-xs">{label}</span>
+              <input
+                value={settings[key]}
+                onChange={(e) => setSettings({ ...settings, [key]: e.target.value })}
+              />
+            </label>
+          ))}
+        </div>
+
+        <div className="grid gap-3">
+          <h3 className="text-sm font-semibold">Üst duyuru bandı</h3>
+          <label className="flex items-center gap-2 text-sm">
             <input
-              value={settings[key]}
-              onChange={(e) => setSettings({ ...settings, [key]: e.target.value })}
+              type="checkbox"
+              checked={settings.announcement_enabled === "1"}
+              onChange={(e) =>
+                setSettings({
+                  ...settings,
+                  announcement_enabled: e.target.checked ? "1" : "0",
+                })
+              }
+            />
+            Duyuruyu göster
+          </label>
+          <label className="grid gap-1">
+            <span className="muted text-xs">Duyuru yazısı</span>
+            <textarea
+              rows={3}
+              value={settings.announcement}
+              onChange={(e) => setSettings({ ...settings, announcement: e.target.value })}
+              placeholder="Örn: Hafta sonu %10 ekstra bakiye kampanyası!"
             />
           </label>
-        ))}
-        <label className="grid gap-1">
-          <span className="muted text-xs">Duyuru</span>
-          <textarea
-            rows={3}
-            value={settings.announcement}
-            onChange={(e) => setSettings({ ...settings, announcement: e.target.value })}
-          />
-        </label>
+        </div>
+
+        <div className="grid gap-3">
+          <h3 className="text-sm font-semibold">Banka / ödeme hesabı</h3>
+          <p className="muted text-xs">
+            Üyeler bakiye yüklerken bu bilgileri görür. Havale sonrası Ödeme Bildirimleri
+            ekranından onaylayın.
+          </p>
+          {(
+            [
+              ["bank_name", "Banka"],
+              ["bank_iban", "IBAN"],
+              ["bank_holder", "Alıcı adı"],
+            ] as const
+          ).map(([key, label]) => (
+            <label key={key} className="grid gap-1">
+              <span className="muted text-xs">{label}</span>
+              <input
+                value={settings[key]}
+                onChange={(e) => setSettings({ ...settings, [key]: e.target.value })}
+              />
+            </label>
+          ))}
+        </div>
+
         <p className="muted text-sm">
           Admin şifresi <code>ADMIN_PASSWORD</code> ortam değişkeni ile yönetilir.
         </p>

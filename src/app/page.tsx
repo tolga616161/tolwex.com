@@ -2,11 +2,14 @@ import Link from "next/link";
 import { MemberAuthForm } from "@/components/auth/MemberAuthForm";
 import { ServiceCatalog } from "@/components/smm/ServiceCatalog";
 import { HowItWorksSection } from "@/components/marketing/HomeSections";
+import { SocialLogos } from "@/components/marketing/SocialLogos";
 
 export default function HomePage() {
   return (
     <div className="home-root">
       <section className="hero-stage panel-hero smm-landing-hero">
+        <div className="hero-glow" aria-hidden />
+        <div className="hero-grid-fx" aria-hidden />
         <div className="site-shell panel-hero-grid">
           <div className="hero-copy panel-hero-copy">
             <p className="hero-kicker">TOLWEX</p>
@@ -18,6 +21,7 @@ export default function HomePage() {
               Instagram, TikTok, YouTube ve daha fazlası için takipçi, beğeni ve izlenme.
               Tek panelden sipariş ver, bakiyeni yönet, API ile entegre ol.
             </p>
+            <SocialLogos className="hero-socials" />
             <div className="hero-actions">
               <Link href="/uye/kayit" className="btn btn-primary">
                 Hemen Başla
@@ -36,6 +40,19 @@ export default function HomePage() {
         </div>
       </section>
 
+      <section className="home-section section-platforms">
+        <div className="site-shell">
+          <div className="section-head">
+            <p className="section-kicker">Platformlar</p>
+            <h2 className="section-title">Tüm sosyal ağlar tek panelde</h2>
+            <p className="section-sub">
+              Popüler platformlar için hızlı teslimat — bakiyeni yükle, siparişini ver.
+            </p>
+          </div>
+          <SocialLogos className="platforms-row" />
+        </div>
+      </section>
+
       <section className="home-section section-alt" id="ozellikler">
         <div className="site-shell why-grid">
           {[
@@ -44,12 +61,12 @@ export default function HomePage() {
               d: "Siparişler smmapi.com üzerinden otomatik işleme alınır.",
             },
             {
-              t: "Reseller API",
-              d: "PerfectPanel uyumlu /api/v1 — kendi yazılımınızı bağlayın.",
+              t: "Banka ile bakiye",
+              d: "İş Bankası havale/EFT — ödeme bildir, admin onaylasın.",
             },
             {
-              t: "Toplu sipariş",
-              d: "Tekli veya mass order: service|adet|link formatı.",
+              t: "Reseller API",
+              d: "PerfectPanel uyumlu /api/v1 — kendi yazılımınızı bağlayın.",
             },
             {
               t: "Şeffaf fiyat",

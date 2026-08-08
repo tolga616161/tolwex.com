@@ -56,12 +56,16 @@ export default function AdminDashboardPage() {
               <Link href="/admin61/api">Aç</Link>
             </li>
             <li>
-              <span>Bakiye talepleri</span>
+              <span>Ödeme bildirimleri</span>
               <Link href="/admin61/balance-requests">Aç</Link>
             </li>
             <li>
-              <span>Siparişler</span>
+              <span>Sipariş onaylama</span>
               <Link href="/admin61/orders">Aç</Link>
+            </li>
+            <li>
+              <span>Duyuru & banka ayarları</span>
+              <Link href="/admin61/settings">Aç</Link>
             </li>
           </ul>
         </div>

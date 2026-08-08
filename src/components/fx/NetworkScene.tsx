@@ -5,7 +5,7 @@ import { Line } from "@react-three/drei";
 import { Suspense, useEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
 
-type Kind = "ig" | "fb";
+type Kind = "ig" | "fb" | "yt";
 
 type Body = {
   kind: Kind;
@@ -16,7 +16,7 @@ type Body = {
   spin: number;
 };
 
-const BRAND = { ig: "#E1306C", fb: "#1877F2" } as const;
+const BRAND = { ig: "#E1306C", fb: "#1877F2", yt: "#FF0033" } as const;
 
 function BrandMat({ kind, intensity = 0.7 }: { kind: Kind; intensity?: number }) {
   const color = BRAND[kind];
@@ -59,6 +59,20 @@ function IconMesh({ kind, scale }: { kind: Kind; scale: number }) {
         <mesh position={[0.22, 0.22, 0.12]}>
           <sphereGeometry args={[0.055, 12, 12]} />
           <DarkMat />
+        </mesh>
+      </group>
+    );
+  }
+  if (kind === "yt") {
+    return (
+      <group scale={s}>
+        <mesh>
+          <boxGeometry args={[0.82, 0.58, 0.18]} />
+          <BrandMat kind="yt" intensity={1.05} />
+        </mesh>
+        <mesh position={[0.04, 0, 0.12]} rotation={[0, 0, -Math.PI / 2]}>
+          <coneGeometry args={[0.14, 0.22, 3]} />
+          <meshStandardMaterial color="#fff" />
         </mesh>
       </group>
     );
@@ -122,9 +136,10 @@ function WorldCore({ reduce }: { reduce: boolean }) {
   }, [reduce]);
 
   const satellites = useMemo(() => {
-    const n = reduce ? 10 : 22;
+    const n = reduce ? 12 : 26;
+    const kinds: Kind[] = ["ig", "fb", "yt"];
     return Array.from({ length: n }, (_, i) => ({
-      kind: (i % 2 === 0 ? "ig" : "fb") as Kind,
+      kind: kinds[i % kinds.length],
       radius: 3.35 + (i % 5) * 0.42,
       speed: 0.22 + (i % 7) * 0.05,
       tilt: (i % 4) * 0.35,
@@ -136,8 +151,9 @@ function WorldCore({ reduce }: { reduce: boolean }) {
 
   const shards = useMemo(() => {
     const n = reduce ? 14 : 36;
+    const kinds: Kind[] = ["ig", "fb", "yt"];
     return Array.from({ length: n }, (_, i) => ({
-      kind: (i % 2 === 0 ? "ig" : "fb") as Kind,
+      kind: kinds[i % kinds.length],
       radius: 2.7 + (i % 6) * 0.55,
       speed: 0.35 + (i % 8) * 0.08,
       phase: Math.random() * Math.PI * 2,
@@ -430,7 +446,8 @@ function CyberGridFloor() {
 function seedBodies(reduce: boolean): Body[] {
   const n = reduce ? 16 : 34;
   return Array.from({ length: n }, (_, i) => {
-    const kind: Kind = i % 2 === 0 ? "ig" : "fb";
+    const kinds: Kind[] = ["ig", "fb", "yt"];
+    const kind: Kind = kinds[i % kinds.length];
     const baseScale = 0.72 + (i % 5) * 0.14;
     return {
       kind,

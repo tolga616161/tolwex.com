@@ -5,6 +5,7 @@ import { SiteNav } from "@/components/navigation/SiteNav";
 import { SiteFooter } from "@/components/SiteFooter";
 import { WhatsAppFab } from "@/components/contact/WhatsAppFab";
 import { PageAtmosphere } from "@/components/fx/PageAtmosphere";
+import { AnnouncementBanner } from "@/components/marketing/AnnouncementBanner";
 
 const display = Syne({
   variable: "--font-display-face",
@@ -60,6 +61,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     <html lang="tr" className={`${display.variable} ${body.variable} h-full`}>
       <body className="min-h-full flex flex-col antialiased site-body">
         <PageAtmosphere />
+        <AnnouncementBanner />
         <SiteNav />
         <main className="flex-1 site-main">{children}</main>
         <SiteFooter />

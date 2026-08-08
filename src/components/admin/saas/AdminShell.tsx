@@ -8,10 +8,10 @@ import { TolwexLogo } from "@/components/brand/TolwexLogo";
 const NAV: Array<{ href: string; label: string }> = [
   { href: "/admin61", label: "Dashboard" },
   { href: "/admin61/users", label: "Kullanıcılar" },
-  { href: "/admin61/orders", label: "Siparişler" },
+  { href: "/admin61/orders", label: "Sipariş Onay" },
   { href: "/admin61/services", label: "Servisler" },
   { href: "/admin61/categories", label: "Kategoriler" },
-  { href: "/admin61/balance-requests", label: "Bakiye Talepleri" },
+  { href: "/admin61/balance-requests", label: "Ödeme Bildirimleri" },
   { href: "/admin61/coupons", label: "Kuponlar" },
   { href: "/admin61/support", label: "Destek" },
   { href: "/admin61/api", label: "API Ayarları" },
