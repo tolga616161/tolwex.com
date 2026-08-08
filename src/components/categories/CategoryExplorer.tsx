@@ -85,6 +85,7 @@ export function CategoryExplorer() {
         <span className="blob blob-b" />
         <span className="net-lines" />
         <span className="particles" />
+        <span className="category-binary">01010101 · 11001010 · INSTAGRAM · TIKTOK · GOOGLE · 10101010</span>
       </div>
 
       <div className="relative z-10">

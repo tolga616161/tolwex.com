@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { HeroSection } from "@/components/hero/HeroSection";
 import { CategoryExplorer } from "@/components/categories/CategoryExplorer";
+import { DigitalAtmosphere } from "@/components/fx/DigitalAtmosphere";
 import { getMetaConfig } from "@/lib/meta/config";
 import { getMetaDomainHints } from "@/lib/meta/public-urls";
 import { redirect } from "next/navigation";
@@ -25,7 +26,10 @@ export default async function HomePage({
   }
 
   return (
-    <div className="site-shell pt-4 pb-20 space-y-14">
+    <div className="site-shell pt-4 pb-20 space-y-14 relative">
+      <div className="page-atmosphere" aria-hidden>
+        <DigitalAtmosphere variant="page" />
+      </div>
       <HeroSection configured={config.configured} />
 
       <aside className="glass-panel rounded-2xl p-4 md:p-5 text-sm leading-relaxed border border-amber-400/20">
