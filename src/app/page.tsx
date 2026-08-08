@@ -4,13 +4,20 @@ import { CategoryExplorer } from "@/components/categories/CategoryExplorer";
 import { DigitalAtmosphere } from "@/components/fx/DigitalAtmosphere";
 import { ProductGrid } from "@/components/products/ProductGrid";
 import { getFeaturedProducts } from "@/lib/products/data";
-import { getMetaConfig } from "@/lib/meta/config";
 import { CONTACT_PHONE_DISPLAY, whatsappUrl } from "@/lib/contact";
 
-export const dynamic = "force-dynamic";
-
 export default async function HomePage() {
-  const config = await getMetaConfig();
+  let configured = true;
+  if (process.env.GITHUB_PAGES !== "1") {
+    try {
+      const { getMetaConfig } = await import("@/lib/meta/config");
+      const config = await getMetaConfig();
+      configured = config.configured;
+    } catch {
+      configured = true;
+    }
+  }
+
   const featuredProducts = getFeaturedProducts();
 
   return (
@@ -18,17 +25,15 @@ export default async function HomePage() {
       <div className="page-atmosphere" aria-hidden>
         <DigitalAtmosphere variant="page" />
       </div>
-      <HeroSection configured={config.configured} />
+      <HeroSection configured={configured} />
 
       <ProductGrid
-        title="Öne çıkan ürünler"
-        subtitle="Haber silme, fake hesap kapatma, Instagram güvenlik ve daha fazlası."
+        title="Öne çıkan hizmetler"
+        subtitle="Eski tarihli hesaplar, kapanan hesap aktif etme, Meta Verified ve daha fazlası."
         products={featuredProducts.map((p) => ({
           slug: p.slug,
           name: p.name,
           shortDesc: p.shortDesc,
-          price: p.price,
-          currency: p.currency,
           badge: p.badge,
           icon: p.icon,
           accent: p.accent,
@@ -41,16 +46,16 @@ export default async function HomePage() {
       <section className="grid md:grid-cols-3 gap-4">
         {[
           {
-            title: "Resmi bağlantı",
-            text: "Instagram girişi yalnızca Meta’nın kendi ekranında gerçekleşir. Şifre istemeyiz.",
+            title: "Hesap hizmetleri",
+            text: "Eski tarihli hesaplar, Facebook eski hesap ve hesap aktif etme.",
           },
           {
-            title: "Şeffaf sonuçlar",
-            text: "Ölçülebilen bilgiler gösterilir; uydurma güvenlik skoru yoktur.",
+            title: "Meta & güvenlik",
+            text: "Meta Verified hataları ve Instagram güvenlik kontrolü.",
           },
           {
-            title: "Hızlı destek",
-            text: `WhatsApp: ${CONTACT_PHONE_DISPLAY} — ürün ve sipariş için yazın.`,
+            title: "Teklif için yazın",
+            text: `Fiyat sitede yok. WhatsApp: ${CONTACT_PHONE_DISPLAY}`,
           },
         ].map((item) => (
           <div key={item.title} className="glass-panel rounded-2xl p-6">
@@ -62,18 +67,18 @@ export default async function HomePage() {
 
       <section className="glass-panel rounded-2xl p-6 md:p-8">
         <p className="text-sm md:text-base leading-relaxed">
-          Instagram hesabınız yalnızca resmi Meta bağlantısı üzerinden bağlanır.
-          Instagram şifreniz platformumuz tarafından istenmez veya saklanmaz.
+          Sosyal medya hesap, kurtarma ve itibar hizmetleri. Detay ve teklif için
+          WhatsApp’tan yazın.
         </p>
         <div className="mt-5 flex flex-wrap gap-3">
-          <Link href="/instagram/connect" className="btn btn-primary">
-            Instagram Hesabını Güvenli Şekilde Bağla
+          <Link href="/urunler" className="btn btn-primary">
+            Tüm Hizmetler
           </Link>
           <Link href="/instagram/dashboard" className="btn btn-ghost">
             Hesap Güvenlik Testi
           </Link>
           <a
-            href={whatsappUrl("Merhaba, ürünler hakkında bilgi almak istiyorum.")}
+            href={whatsappUrl("Merhaba, hizmetler hakkında bilgi almak istiyorum.")}
             className="btn btn-ghost"
             target="_blank"
             rel="noopener noreferrer"

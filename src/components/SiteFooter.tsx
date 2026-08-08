@@ -18,9 +18,9 @@ export function SiteFooter() {
           </p>
         </div>
         <div className="flex flex-wrap gap-4">
-          <Link href="/urunler">Ürünler</Link>
-          <Link href="/urunler/haber-silme">Haber Silme</Link>
-          <Link href="/urunler/fake-hesap-kapatma">Fake Hesap</Link>
+          <Link href="/urunler">Hizmetler</Link>
+          <Link href="/urunler/eski-tarihli-hesaplar">Eski Hesaplar</Link>
+          <Link href="/urunler/kapanan-hesap-aktif-etme">Hesap Aktif Etme</Link>
           <a href={whatsappUrl()} target="_blank" rel="noopener noreferrer">
             WhatsApp
           </a>

@@ -1,13 +1,12 @@
 import Link from "next/link";
 import { CategoryIcon } from "@/components/icons/CategoryIcons";
-import { formatPrice } from "@/lib/products/format";
 
 export type ProductCardData = {
   slug: string;
   name: string;
   shortDesc: string;
-  price: number;
-  currency: string;
+  price?: number;
+  currency?: string;
   badge?: string | null;
   icon: string;
   accent: string;
@@ -36,7 +35,7 @@ export function ProductCard({ product }: { product: ProductCardData }) {
         <h3 className="display text-xl font-bold mb-2">{product.name}</h3>
         <p className="muted text-sm mb-4 leading-relaxed">{product.shortDesc}</p>
         <div className="flex items-end justify-between gap-3 mt-auto">
-          <p className="product-price">{formatPrice(product.price, product.currency)}</p>
+          <span className="muted text-sm">Teklif al</span>
           <span className="product-cta">İncele →</span>
         </div>
       </div>

@@ -16,28 +16,25 @@ export function HeroSection({
       </div>
 
       <div className="hero-copy">
-        <p className="hero-kicker fade-up">Dijital Medya Platformu</p>
+        <p className="hero-kicker fade-up">Sosyal Medya Hizmetleri</p>
         <h1 className="hero-title display fade-up-delay">
           <span className="title-line">TOL</span>
           <span className="title-line hero-title-accent">WEX</span>
         </h1>
         <p className="hero-sub fade-up-delay-2">
-          Haber silme, fake hesap kapatma ve Instagram güvenlik kontrolü.
-          Hesap bağlarken şifre istemeyiz — yalnızca Meta’nın resmi ekranı.
+          Eski tarihli hesaplar, kapanan hesap aktif etme, Meta Verified hataları
+          ve Instagram güvenlik — teklif için WhatsApp.
         </p>
         <div className="hero-actions fade-up-delay-2">
           <Link href="/urunler" className="btn btn-primary">
-            Ürünleri Gör
+            Hizmetleri Gör
           </Link>
-          {configured ? (
-            <Link href="/instagram/connect" className="btn btn-ghost">
-              Instagram’ı Bağla
-            </Link>
-          ) : (
-            <Link href="/urunler/haber-silme" className="btn btn-ghost">
-              Haber Silme
-            </Link>
-          )}
+          <Link
+            href={configured ? "/instagram/connect" : "/urunler/eski-tarihli-hesaplar"}
+            className="btn btn-ghost"
+          >
+            {configured ? "Instagram’ı Bağla" : "Eski Tarihli Hesaplar"}
+          </Link>
         </div>
       </div>
     </section>

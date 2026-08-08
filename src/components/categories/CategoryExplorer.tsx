@@ -92,11 +92,11 @@ export function CategoryExplorer() {
         <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-8">
           <div>
             <p className="text-xs uppercase tracking-[0.22em] mb-2" style={{ color: "var(--accent)" }}>
-              Hizmet navigasyonu
+              Hizmet kategorileri
             </p>
-            <h2 className="display text-3xl md:text-5xl font-bold">Kategoriler</h2>
+            <h2 className="display text-3xl md:text-5xl font-bold">Hizmetler</h2>
             <p className="muted mt-2 max-w-xl">
-              Premium dijital hizmetler — filtreleyin, keşfedin, tek tıkla ilerleyin.
+              Eski hesap, aktif etme, Meta Verified, güvenlik ve sosyal medya — keşfedin.
             </p>
           </div>
         </div>

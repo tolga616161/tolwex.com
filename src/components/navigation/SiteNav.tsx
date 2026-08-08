@@ -8,12 +8,12 @@ import { CategoryIcon } from "@/components/icons/CategoryIcons";
 import { CONTACT_PHONE_DISPLAY, whatsappUrl } from "@/lib/contact";
 
 const MOBILE_LINKS = [
-  { label: "Ürün Kataloğu", href: "/urunler", icon: "ads" },
+  { label: "Tüm Hizmetler", href: "/urunler", icon: "ads" },
+  { label: "Eski Tarihli Hesaplar", href: "/urunler/eski-tarihli-hesaplar", icon: "instagram" },
+  { label: "Facebook Eski Hesap", href: "/urunler/facebook-eski-tarihli-hesaplar", icon: "facebook" },
+  { label: "Kapanan Hesap Aktif", href: "/urunler/kapanan-hesap-aktif-etme", icon: "instagram" },
+  { label: "Meta Verified", href: "/urunler/meta-verified-hatalari", icon: "facebook" },
   { label: "Haber Silme", href: "/urunler/haber-silme", icon: "seo" },
-  { label: "Fake Hesap Kapatma", href: "/urunler/fake-hesap-kapatma", icon: "instagram" },
-  { label: "Instagram Güvenlik", href: "/urunler/instagram-hesap-guvenlik-kontrolu", icon: "instagram" },
-  { label: "Meta Ads", href: "/urunler/meta-ads-baslangic", icon: "facebook" },
-  { label: "TikTok Paket", href: "/urunler/tiktok-icerik-paketi", icon: "tiktok" },
   { label: "Hesap Bağla", href: "/instagram/connect", icon: "social" },
 ];
 
@@ -67,7 +67,7 @@ export function SiteNav() {
               Kapat
             </button>
           </div>
-          <p className="text-xs uppercase tracking-[0.2em] muted mb-4">Ürün menüsü</p>
+          <p className="text-xs uppercase tracking-[0.2em] muted mb-4">Hizmet menüsü</p>
           <div className="mobile-cats">
             {MOBILE_LINKS.map((l) => (
               <a
@@ -87,7 +87,7 @@ export function SiteNav() {
               className="btn btn-primary"
               onClick={() => setMobileOpen(false)}
             >
-              Ürün Kataloğunu Aç
+              Tüm Hizmetler
             </Link>
             <a
               href={whatsappUrl()}
@@ -130,7 +130,7 @@ export function SiteNav() {
 
         <nav className="nav-desktop">
           <Link href="/urunler" className="nav-link">
-            Katalog
+            Hizmetler
           </Link>
           <div
             className="mega-wrap"
@@ -143,7 +143,7 @@ export function SiteNav() {
               aria-expanded={megaOpen}
               onClick={() => setMegaOpen((v) => !v)}
             >
-              Ürünler
+              Kategoriler
               <span className="chev">▾</span>
             </button>
             <div className={`mega-panel ${megaOpen ? "is-open" : ""}`}>
@@ -183,7 +183,7 @@ export function SiteNav() {
             WhatsApp
           </a>
           <Link href="/urunler" className="btn btn-primary nav-cta">
-            Mağaza
+            Hizmetler
           </Link>
         </nav>
 

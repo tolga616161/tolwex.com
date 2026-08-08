@@ -7,14 +7,12 @@ export default function ProductsPage() {
   return (
     <div className="site-shell py-8 pb-20">
       <ProductGrid
-        title="Tüm Ürünler"
-        subtitle="Instagram, reklam, TikTok, SEO ve tasarım paketleri."
+        title="Tüm Hizmetler"
+        subtitle="Sosyal medya hesap, kurtarma, güvenlik ve itibar hizmetleri."
         products={products.map((p) => ({
           slug: p.slug,
           name: p.name,
           shortDesc: p.shortDesc,
-          price: p.price,
-          currency: p.currency,
           badge: p.badge,
           icon: p.icon,
           accent: p.accent,

@@ -377,8 +377,8 @@ export function ProductsAdmin() {
                   ) : null}
                 </p>
                 <p className="muted text-sm">
-                  {p.price} TRY · {p.category} · {p.active ? "aktif" : "pasif"}
-                  {p.featured ? " · öne çıkan" : ""}
+                  {p.category} · {p.active ? "aktif" : "pasif"}
+                  {p.featured ? " · öne çıkan" : ""} · fiyat gizli (teklif)
                 </p>
               </div>
               <div className="flex flex-wrap gap-2">

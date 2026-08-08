@@ -2,7 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { CategoryIcon } from "@/components/icons/CategoryIcons";
 import { OrderForm } from "@/components/products/OrderForm";
-import { formatPrice, parseFeatures } from "@/lib/products/format";
+import { parseFeatures } from "@/lib/products/format";
 import { getAllProducts, getProductBySlug } from "@/lib/products/data";
 
 export function generateStaticParams() {
@@ -23,7 +23,7 @@ export default async function ProductDetailPage({
   return (
     <div className="site-shell py-8 pb-20">
       <Link href="/urunler" className="muted text-sm">
-        ← Tüm ürünler
+        ← Tüm hizmetler
       </Link>
 
       <div className="mt-5 grid lg:grid-cols-[1.2fr_0.8fr] gap-6">
@@ -47,9 +47,6 @@ export default async function ProductDetailPage({
             </div>
           </div>
 
-          <p className="product-price text-3xl mb-5">
-            {formatPrice(product.price, product.currency)}
-          </p>
           <p className="leading-relaxed muted mb-6">{product.description}</p>
 
           {features.length ? (
