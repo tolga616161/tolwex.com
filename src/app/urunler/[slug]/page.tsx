@@ -1,11 +1,13 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { prisma } from "@/lib/db";
 import { CategoryIcon } from "@/components/icons/CategoryIcons";
 import { OrderForm } from "@/components/products/OrderForm";
 import { formatPrice, parseFeatures } from "@/lib/products/format";
+import { getAllProducts, getProductBySlug } from "@/lib/products/data";
 
-export const dynamic = "force-dynamic";
+export function generateStaticParams() {
+  return getAllProducts().map((p) => ({ slug: p.slug }));
+}
 
 export default async function ProductDetailPage({
   params,
@@ -13,9 +15,7 @@ export default async function ProductDetailPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const product = await prisma.product.findFirst({
-    where: { slug, active: true },
-  });
+  const product = getProductBySlug(slug);
   if (!product) notFound();
 
   const features = parseFeatures(product.features);

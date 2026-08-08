@@ -1,13 +1,8 @@
-import { prisma } from "@/lib/db";
 import { ProductGrid } from "@/components/products/ProductGrid";
+import { getAllProducts } from "@/lib/products/data";
 
-export const dynamic = "force-dynamic";
-
-export default async function ProductsPage() {
-  const products = await prisma.product.findMany({
-    where: { active: true },
-    orderBy: [{ sortOrder: "asc" }, { createdAt: "desc" }],
-  });
+export default function ProductsPage() {
+  const products = getAllProducts();
 
   return (
     <div className="site-shell py-8 pb-20">

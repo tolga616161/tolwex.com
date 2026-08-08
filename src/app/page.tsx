@@ -3,40 +3,18 @@ import { HeroSection } from "@/components/hero/HeroSection";
 import { CategoryExplorer } from "@/components/categories/CategoryExplorer";
 import { DigitalAtmosphere } from "@/components/fx/DigitalAtmosphere";
 import { ProductGrid } from "@/components/products/ProductGrid";
-import { getMetaConfig } from "@/lib/meta/config";
-import { prisma } from "@/lib/db";
-import { redirect } from "next/navigation";
+import { getFeaturedProducts } from "@/lib/products/data";
 import { CONTACT_PHONE_DISPLAY, whatsappUrl } from "@/lib/contact";
 
-export default async function HomePage({
-  searchParams,
-}: {
-  searchParams: Promise<{ error?: string }>;
-}) {
-  const params = await searchParams;
-  const config = await getMetaConfig();
-  const featuredProducts = await prisma.product.findMany({
-    where: { active: true, featured: true },
-    orderBy: [{ sortOrder: "asc" }],
-    take: 8,
-  });
-
-  // Legacy ?error= links → premium error screen
-  if (params.error) {
-    const code = ["not_configured", "oauth_denied", "csrf", "expired_token", "invalid_token"].includes(
-      params.error
-    )
-      ? params.error
-      : "unknown";
-    redirect(`/auth/error?code=${encodeURIComponent(code)}`);
-  }
+export default function HomePage() {
+  const featuredProducts = getFeaturedProducts();
 
   return (
     <div className="site-shell pt-4 pb-20 space-y-14 relative">
       <div className="page-atmosphere" aria-hidden>
         <DigitalAtmosphere variant="page" />
       </div>
-      <HeroSection configured={config.configured} />
+      <HeroSection configured />
 
       <ProductGrid
         title="Öne çıkan ürünler"
@@ -86,9 +64,6 @@ export default async function HomePage({
         <div className="mt-5 flex flex-wrap gap-3">
           <Link href="/instagram/connect" className="btn btn-primary">
             Instagram Hesabını Güvenli Şekilde Bağla
-          </Link>
-          <Link href="/instagram/dashboard" className="btn btn-ghost">
-            Hesap Güvenlik Testi
           </Link>
           <a
             href={whatsappUrl("Merhaba, ürünler hakkında bilgi almak istiyorum.")}
