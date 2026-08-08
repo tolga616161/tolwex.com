@@ -2,9 +2,9 @@ import Link from "next/link";
 import { TolwexLogo } from "@/components/brand/TolwexLogo";
 
 const LINKS = [
-  { label: "Ürünler", href: "/urunler" },
+  { label: "Hizmetler", href: "/hizmetler" },
+  { label: "Üye Girişi", href: "/uye/giris" },
   { label: "Eski Hesap", href: "/urunler/eski-tarihli-hesaplar" },
-  { label: "Projeli Hesap", href: "/urunler/projeli-hesaplar" },
   { label: "Kapanan Hesap", href: "/urunler/kapanan-hesap-aktif-etme" },
   { label: "Gizlilik", href: "/privacy" },
   { label: "Kullanım Koşulları", href: "/terms" },
