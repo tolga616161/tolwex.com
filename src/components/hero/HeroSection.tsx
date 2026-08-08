@@ -7,24 +7,24 @@ export function HeroSection() {
   return (
     <section className="hero-stage">
       <div className="hero-copy">
-        <p className="hero-kicker">TOLWEX · Social Intelligence</p>
+        <p className="hero-kicker">TOLWEX · Hesap Hizmetleri</p>
         <h1 className="hero-title display">
-          <span className="title-line">SOSYAL MEDYANIZI</span>
-          <span className="title-line hero-title-accent">VERİYE DÖNÜŞTÜRÜN.</span>
+          <span className="title-line">META ESKİ &</span>
+          <span className="title-line hero-title-accent">PROJELİ HESAPLAR.</span>
         </h1>
         <p className="hero-sub">
-          Profil ziyaret analizi, hesap güvenliği ve sosyal istihbarat —
-          IP takibi veya şifre istemeden, profesyonel danışmanlık katmanında.
+          Eski tarihli hesap, projeli paket ve kapanan hesap açma — kapanma
+          ekranını yükle, nedeni yaz, WhatsApp’tan takip et.
         </p>
         <div className="hero-actions">
-          <Link href="/analiz/profilime-kim-bakti" className="btn btn-primary">
-            Profilime Kim Baktı?
+          <Link href="/urunler/eski-tarihli-hesaplar" className="btn btn-primary">
+            Eski Hesaplar
           </Link>
-          <Link href="/instagram/security" className="btn btn-ghost">
-            Hesap Güvenliği
+          <Link href="/urunler/kapanan-hesap-aktif-etme" className="btn btn-ghost">
+            Kapanan Hesap Aç
           </Link>
           <a
-            href={whatsappUrl("Merhaba, TOLWEX hizmetleri hakkında bilgi almak istiyorum.")}
+            href={whatsappUrl("Merhaba, hesap hizmetleri hakkında yazıyorum.")}
             className="btn btn-ghost"
             target="_blank"
             rel="noopener noreferrer"

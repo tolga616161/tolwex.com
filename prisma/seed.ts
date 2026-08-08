@@ -6,10 +6,10 @@ const prisma = new PrismaClient();
 const PRODUCTS = [
   {
     slug: "eski-tarihli-hesaplar",
-    name: "Eski Tarihli Hesaplar",
-    shortDesc: "Yaşlı / eski tarihli sosyal medya hesap çözümleri",
+    name: "Meta Eski Tarihli Hesaplar",
+    shortDesc: "Instagram / Meta eski tarihli hesap seçenekleri",
     description:
-      "İhtiyacınıza uygun eski tarihli hesap seçenekleri ve güvenli teslim süreci. Instagram ve diğer platformlar için danışmanlık + yönlendirme.",
+      "İhtiyacınıza uygun eski tarihli Instagram ve Meta hesap seçenekleri. Yaş / tarih filtresi, güvenli teslim ve WhatsApp destek. Şifre paylaşımı istenmez — teslim süreci bilgilendirilerek yönetilir.",
     price: 0,
     category: "hesap",
     badge: "Popüler",
@@ -19,6 +19,38 @@ const PRODUCTS = [
     features: ["Platform seçimi", "Tarih / yaş filtresi", "Güvenli teslim", "WhatsApp destek"],
     featured: true,
     sortOrder: 1,
+  },
+  {
+    slug: "projeli-hesaplar",
+    name: "Projeli Hesaplar",
+    shortDesc: "Marka ve proje için hazır / yaşlı hesap paketleri",
+    description:
+      "Kampanya, ajans veya marka projeleri için uygun hesap paketleri. İstenen platform, yaş ve kullanım senaryosuna göre seçenek sunulur; teslim ve kullanım notları WhatsApp üzerinden netleştirilir.",
+    price: 0,
+    category: "hesap",
+    badge: "Proje",
+    icon: "social",
+    accent: "#2ec4b6",
+    accent2: "#1877f2",
+    features: ["Proje ihtiyacına göre seçim", "Yaşlı / hazır paket", "Teslim notları", "WhatsApp takip"],
+    featured: true,
+    sortOrder: 2,
+  },
+  {
+    slug: "kapanan-hesap-aktif-etme",
+    name: "Kapanan Hesap Açma",
+    shortDesc: "Askı / kapanma ekranını yükle, nedeni yaz, süreci başlat",
+    description:
+      "Instagram veya Facebook hesabın askıya alındıysa ya da kapandıysa: kapanma ekranı görselini yükle, hesabı ve nedeni yaz. Ekip resmi itiraz / aktifleştirme sürecinde WhatsApp üzerinden takip eder. Bu sitede şifre istenmez.",
+    price: 0,
+    category: "kurtarma",
+    badge: "Acil",
+    icon: "instagram",
+    accent: "#e4574d",
+    accent2: "#e9a319",
+    features: ["Görsel yükleme", "Kapanma nedeni", "İtiraz dosyası", "WhatsApp süreç takibi"],
+    featured: true,
+    sortOrder: 3,
   },
   {
     slug: "facebook-eski-tarihli-hesaplar",
@@ -34,53 +66,21 @@ const PRODUCTS = [
     accent2: "#0a54c2",
     features: ["Eski tarihli seçenek", "Sayfa / profil", "Kontrol listesi", "Teslim desteği"],
     featured: true,
-    sortOrder: 2,
-  },
-  {
-    slug: "kapanan-hesap-aktif-etme",
-    name: "Kapanan Hesap Aktif Etme",
-    shortDesc: "Askıya alınan veya kapanan hesapları yeniden açma desteği",
-    description:
-      "Instagram, Facebook ve diğer platformlarda kapanan / askıya alınan hesaplar için resmi itiraz ve aktifleştirme süreci takibi.",
-    price: 0,
-    category: "kurtarma",
-    badge: "Acil",
-    icon: "instagram",
-    accent: "#e4574d",
-    accent2: "#e9a319",
-    features: ["Durum analizi", "İtiraz dosyası", "Süreç takibi", "Sonuç bilgilendirme"],
-    featured: true,
-    sortOrder: 3,
-  },
-  {
-    slug: "meta-verified-hatalari",
-    name: "Meta Verified Hataları",
-    shortDesc: "Meta Verified başvuru ve hata çözüm desteği",
-    description:
-      "Meta Verified onay, red ve hata mesajları için inceleme + düzeltme önerileri. Profil ve belge uyumu kontrolü.",
-    price: 0,
-    category: "meta",
-    badge: "Meta",
-    icon: "facebook",
-    accent: "#1877f2",
-    accent2: "#f58529",
-    features: ["Hata analizi", "Profil uyumu", "Belge kontrolü", "Yeniden başvuru planı"],
-    featured: true,
     sortOrder: 4,
   },
   {
-    slug: "instagram-hesap-guvenlik-kontrolu",
-    name: "Instagram Hesap Güvenlik Kontrolü",
-    shortDesc: "Resmi Meta bağlantısı ile hesap durumu kontrolü",
+    slug: "instagram-hesap-kurtarma",
+    name: "Instagram Hesap Kurtarma",
+    shortDesc: "Hack / erişim kaybı sonrası kurtarma desteği",
     description:
-      "Instagram hesabınızı resmi Meta OAuth ile bağlayın. İzinler, bağlantı sağlığı ve güvenlik checklist — uydurma skor yok.",
+      "Hesabınıza giremiyorsanız resmi kurtarma adımları, e-posta/telefon güncelleme ve Meta süreç takibi.",
     price: 0,
-    category: "guvenlik",
-    badge: "Güvenlik",
+    category: "kurtarma",
+    badge: "Kurtarma",
     icon: "instagram",
-    accent: "#f58529",
-    accent2: "#dd2a7b",
-    features: ["Resmi OAuth", "İzin durumu", "Güvenlik checklist", "2FA rehberi"],
+    accent: "#dd2a7b",
+    accent2: "#8134af",
+    features: ["Erişim analizi", "Kurtarma adımları", "Meta süreç", "Destek hattı"],
     featured: true,
     sortOrder: 5,
   },
@@ -97,7 +97,7 @@ const PRODUCTS = [
     accent: "#e4574d",
     accent2: "#e9a319",
     features: ["URL analizi", "Başvuru süreci", "Takip", "WhatsApp destek"],
-    featured: true,
+    featured: false,
     sortOrder: 6,
   },
   {
@@ -113,23 +113,23 @@ const PRODUCTS = [
     accent: "#dd2a7b",
     accent2: "#f58529",
     features: ["Tespit", "Bildirim dosyası", "Kanıt listesi", "Takip"],
-    featured: true,
+    featured: false,
     sortOrder: 7,
   },
   {
-    slug: "instagram-hesap-kurtarma",
-    name: "Instagram Hesap Kurtarma",
-    shortDesc: "Hack / erişim kaybı sonrası kurtarma desteği",
+    slug: "meta-verified-hatalari",
+    name: "Meta Verified Hataları",
+    shortDesc: "Meta Verified başvuru ve hata çözüm desteği",
     description:
-      "Hesabınıza giremiyorsanız resmi kurtarma adımları, e-posta/telefon güncelleme ve Meta süreç takibi.",
+      "Meta Verified onay, red ve hata mesajları için inceleme + düzeltme önerileri.",
     price: 0,
-    category: "kurtarma",
-    badge: "Kurtarma",
-    icon: "instagram",
-    accent: "#dd2a7b",
-    accent2: "#8134af",
-    features: ["Erişim analizi", "Kurtarma adımları", "Meta süreç", "Destek hattı"],
-    featured: true,
+    category: "meta",
+    badge: "Meta",
+    icon: "facebook",
+    accent: "#1877f2",
+    accent2: "#f58529",
+    features: ["Hata analizi", "Profil uyumu", "Belge kontrolü", "Yeniden başvuru planı"],
+    featured: false,
     sortOrder: 8,
   },
   {
@@ -145,47 +145,15 @@ const PRODUCTS = [
     accent: "#25f4ee",
     accent2: "#fe2c55",
     features: ["Hesap kurulumu", "Güvenlik", "İçerik planı", "Destek"],
-    featured: true,
+    featured: false,
     sortOrder: 9,
-  },
-  {
-    slug: "youtube-hesap-hizmetleri",
-    name: "YouTube Hesap Hizmetleri",
-    shortDesc: "Kanal kurulum, doğrulama ve sorun çözümü",
-    description:
-      "YouTube kanal kurulumu, doğrulama hataları, kısıtlama / itiraz ve kanal güvenlik desteği.",
-    price: 0,
-    category: "sosyal",
-    badge: "YouTube",
-    icon: "google",
-    accent: "#ff0000",
-    accent2: "#282828",
-    features: ["Kanal kurulum", "Doğrulama", "İtiraz desteği", "Güvenlik"],
-    featured: false,
-    sortOrder: 10,
-  },
-  {
-    slug: "x-twitter-hesap-hizmetleri",
-    name: "X (Twitter) Hesap Hizmetleri",
-    shortDesc: "X hesabı, doğrulama ve erişim sorunları",
-    description:
-      "X (Twitter) hesap güvenliği, erişim kaybı, kısıtlama ve doğrulama süreçlerinde destek.",
-    price: 0,
-    category: "sosyal",
-    badge: "X",
-    icon: "social",
-    accent: "#e7e9ea",
-    accent2: "#1d9bf0",
-    features: ["Erişim sorunları", "Güvenlik", "Doğrulama", "Destek"],
-    featured: false,
-    sortOrder: 11,
   },
   {
     slug: "sosyal-medya-yonetimi",
     name: "Sosyal Medya Yönetimi",
     shortDesc: "Instagram · Facebook · TikTok içerik yönetimi",
     description:
-      "Çok kanallı içerik planı, yayın takvimi ve hesap yönetimi. Markanız için sürdürülebilir sosyal medya hizmeti.",
+      "Çok kanallı içerik planı, yayın takvimi ve hesap yönetimi.",
     price: 0,
     category: "sosyal",
     badge: "Yönetim",
@@ -193,8 +161,8 @@ const PRODUCTS = [
     accent: "#a78bfa",
     accent2: "#2ec4b6",
     features: ["İçerik planı", "Yayın takvimi", "Topluluk", "Rapor"],
-    featured: true,
-    sortOrder: 12,
+    featured: false,
+    sortOrder: 10,
   },
 ];
 
@@ -232,25 +200,17 @@ async function main() {
     where: { slug: { notIn: [...KEEP_SLUGS] } },
     select: { id: true, slug: true },
   });
-  if (obsolete.length) {
-    await prisma.product.deleteMany({
-      where: { id: { in: obsolete.map((p) => p.id) } },
-    });
+  for (const row of obsolete) {
+    await prisma.product.delete({ where: { id: row.id } });
   }
-
-  // Never store/display prices on the storefront
-  await prisma.product.updateMany({ data: { price: 0 } });
-
-  console.log(
-    `Seeded ${PRODUCTS.length} services; removed ${obsolete.length} obsolete products`
-  );
 }
 
 main()
-  .catch((e) => {
-    console.error(e);
-    process.exit(1);
-  })
-  .finally(async () => {
+  .then(async () => {
     await prisma.$disconnect();
+  })
+  .catch(async (e) => {
+    console.error(e);
+    await prisma.$disconnect();
+    process.exit(1);
   });

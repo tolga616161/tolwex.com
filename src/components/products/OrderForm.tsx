@@ -1,15 +1,21 @@
 "use client";
 
 import { CONTACT_PHONE_DISPLAY, whatsappUrl } from "@/lib/contact";
+import { AccountRecoveryForm } from "@/components/products/AccountRecoveryForm";
 
 export function OrderForm({
   productId,
   productName,
+  slug,
 }: {
   productId: string;
   productName: string;
+  slug?: string;
 }) {
-  void productId;
+  if (slug === "kapanan-hesap-aktif-etme") {
+    return <AccountRecoveryForm productId={productId} productName={productName} />;
+  }
+
   const wa = whatsappUrl(
     `Merhaba, "${productName}" hizmeti için bilgi / teklif istiyorum.`
   );
@@ -19,7 +25,8 @@ export function OrderForm({
       <h3 className="display text-xl">Teklif Al</h3>
       <p className="muted text-sm">{productName}</p>
       <p className="text-sm leading-relaxed muted">
-        WhatsApp’tan yazın; size özel teklif iletilelim.
+        WhatsApp’tan yazın; size özel teklif iletilelim. İhtiyaç (platform, yaş,
+        adet) belirtirseniz daha hızlı dönüş yapılır.
       </p>
       <a
         href={wa}

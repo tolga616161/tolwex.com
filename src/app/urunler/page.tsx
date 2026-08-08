@@ -8,7 +8,7 @@ export default async function ProductsPage() {
     <div className="site-shell py-8 pb-20">
       <ProductGrid
         title="Tüm Hizmetler"
-        subtitle="Sosyal medya hesap, kurtarma, güvenlik ve itibar hizmetleri."
+        subtitle="Meta eski hesap, projeli paket, kapanan hesap açma ve ilgili hizmetler."
         products={products.map((p) => ({
           slug: p.slug,
           name: p.name,

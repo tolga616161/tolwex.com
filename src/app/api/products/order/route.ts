@@ -9,7 +9,7 @@ const schema = z.object({
   name: z.string().min(2).max(120),
   phone: z.string().min(7).max(40),
   email: z.string().email().optional().or(z.literal("")),
-  note: z.string().max(1000).optional(),
+  note: z.string().max(4000).optional(),
 });
 
 export async function POST(req: NextRequest) {

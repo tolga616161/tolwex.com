@@ -2,13 +2,12 @@ import Link from "next/link";
 import { TolwexLogo } from "@/components/brand/TolwexLogo";
 
 const LINKS = [
-  { label: "Hizmetler", href: "/#hizmetler" },
-  { label: "Güvenlik", href: "/#guvenlik" },
+  { label: "Ürünler", href: "/urunler" },
+  { label: "Eski Hesap", href: "/urunler/eski-tarihli-hesaplar" },
+  { label: "Projeli Hesap", href: "/urunler/projeli-hesaplar" },
+  { label: "Kapanan Hesap", href: "/urunler/kapanan-hesap-aktif-etme" },
   { label: "Gizlilik", href: "/privacy" },
   { label: "Kullanım Koşulları", href: "/terms" },
-  { label: "SSS", href: "/instagram/guide" },
-  { label: "Kim Baktı?", href: "/analiz/profilime-kim-bakti" },
-  { label: "İletişim", href: "/#guvenlik" },
 ];
 
 export function SiteFooter() {
@@ -17,7 +16,7 @@ export function SiteFooter() {
       <div className="site-shell footer-inner">
         <div className="footer-brand">
           <TolwexLogo size="md" />
-          <p className="footer-tag">Social Intelligence & Digital Analytics</p>
+          <p className="footer-tag">Meta eski · projeli · kapanan hesap hizmetleri</p>
         </div>
         <nav className="footer-links" aria-label="Footer">
           {LINKS.map((l) => (

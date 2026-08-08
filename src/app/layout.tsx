@@ -18,9 +18,9 @@ const body = IBM_Plex_Sans({
 });
 
 export const metadata: Metadata = {
-  title: "TOLWEX — Social Intelligence & Digital Analytics",
+  title: "TOLWEX — Meta Eski · Projeli · Kapanan Hesap",
   description:
-    "TOLWEX, sosyal medya hesaplarınızın erişilebilen gerçek verilerini analiz ederek kurumsal içgörüler sunar.",
+    "Meta eski tarihli hesap, projeli hesap paketleri ve kapanan hesap açma. Kapanma ekranı yükle, nedeni yaz, WhatsApp ile takip et.",
   icons: {
     icon: [{ url: "/favicon.svg", type: "image/svg+xml" }],
   },

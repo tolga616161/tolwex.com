@@ -1,15 +1,10 @@
 import { HeroSection } from "@/components/hero/HeroSection";
 import { PageAtmosphere } from "@/components/fx/PageAtmosphere";
 import {
-  BlockingSection,
-  DashboardPreview,
-  FakeRiskSection,
+  FeaturedProductsSection,
   HowItWorksSection,
-  NewsRemovalSection,
-  ProfileVisitSection,
-  SecuritySection,
+  RecoveryHighlightSection,
   ServicesSection,
-  UnfollowSection,
 } from "@/components/marketing/HomeSections";
 
 export default function HomePage() {
@@ -17,14 +12,9 @@ export default function HomePage() {
     <div className="home-root">
       <PageAtmosphere />
       <HeroSection />
+      <FeaturedProductsSection />
       <ServicesSection />
-      <ProfileVisitSection />
-      <SecuritySection />
-      <DashboardPreview />
-      <BlockingSection />
-      <UnfollowSection />
-      <FakeRiskSection />
-      <NewsRemovalSection />
+      <RecoveryHighlightSection />
       <HowItWorksSection />
     </div>
   );

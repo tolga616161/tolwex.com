@@ -8,10 +8,10 @@ import { whatsappUrl } from "@/lib/contact";
 
 const NAV = [
   { label: "Ana Sayfa", href: "/" },
-  { label: "Kim Baktı?", href: "/analiz/profilime-kim-bakti" },
-  { label: "Güvenlik", href: "/instagram/security" },
-  { label: "Hizmetler", href: "/#hizmetler" },
-  { label: "Analiz", href: "/#analiz" },
+  { label: "Eski Hesap", href: "/urunler/eski-tarihli-hesaplar" },
+  { label: "Projeli", href: "/urunler/projeli-hesaplar" },
+  { label: "Kapanan Hesap", href: "/urunler/kapanan-hesap-aktif-etme" },
+  { label: "Ürünler", href: "/urunler" },
   { label: "Nasıl Çalışır?", href: "/#nasil-calisir" },
 ];
 
@@ -38,7 +38,7 @@ export function SiteNav() {
     };
   }, [mobileOpen]);
 
-  const wa = whatsappUrl("Merhaba, TOLWEX hakkında yazıyorum.");
+  const wa = whatsappUrl("Merhaba, TOLWEX hesap hizmetleri hakkında yazıyorum.");
 
   const mobileMenu =
     mounted &&
@@ -75,11 +75,11 @@ export function SiteNav() {
           </nav>
           <div className="mt-10 grid gap-3">
             <Link
-              href="/analiz/profilime-kim-bakti"
+              href="/urunler/kapanan-hesap-aktif-etme"
               className="btn btn-ghost"
               onClick={() => setMobileOpen(false)}
             >
-              Profil Analizi
+              Hesabı Yükle
             </Link>
             <a
               href={wa}
@@ -125,8 +125,8 @@ export function SiteNav() {
         </nav>
 
         <div className="nav-actions">
-          <Link href="/instagram/security" className="nav-link nav-login">
-            Güvenlik
+          <Link href="/urunler" className="nav-link nav-login">
+            Ürünler
           </Link>
           <a href={wa} className="btn btn-primary nav-cta" target="_blank" rel="noopener noreferrer">
             WhatsApp

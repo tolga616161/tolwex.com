@@ -61,7 +61,11 @@ export default async function ProductDetailPage({
           ) : null}
         </section>
 
-        <OrderForm productId={product.id} productName={product.name} />
+        <OrderForm
+          productId={product.id}
+          productName={product.name}
+          slug={product.slug}
+        />
       </div>
     </div>
   );
