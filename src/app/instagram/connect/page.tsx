@@ -1,61 +1,150 @@
 import Link from "next/link";
+import { ConnectButton } from "@/components/ConnectButton";
+import { DomainSetupCard } from "@/components/meta/DomainSetupCard";
 import { CONTACT_PHONE_DISPLAY, whatsappUrl } from "@/lib/contact";
+import { getMetaDomainHints } from "@/lib/meta/public-urls";
 
 export const metadata = {
-  title: "İletişim & Destek — TOLWEX",
+  title: "Instagram / Meta Bağla — TOLWEX",
 };
 
-export default function InstagramConnectPage() {
+const isStaticHost = process.env.GITHUB_PAGES === "1";
+
+export default async function InstagramConnectPage() {
+  let configured = false;
+  if (!isStaticHost) {
+    try {
+      const { getMetaConfig } = await import("@/lib/meta/config");
+      const config = await getMetaConfig();
+      configured = config.configured;
+    } catch {
+      configured = false;
+    }
+  }
+
+  const hints = getMetaDomainHints();
+
   return (
     <div className="site-shell py-8 pb-24">
       <section className="connect-hero glass-panel rounded-3xl p-6 md:p-10 relative overflow-hidden">
         <div className="relative z-10 max-w-2xl">
-          <p className="section-kicker">Destek</p>
+          <p className="section-kicker">Meta OAuth</p>
           <h1 className="display text-3xl md:text-5xl font-bold mb-4">
-            WhatsApp üzerinden destek
+            Instagram hesabını Meta ile bağla
           </h1>
           <p className="muted leading-relaxed mb-4">
-            Public sitede Instagram API bağlantısı veya şifre istenmez. Profil
-            ziyaret analizi IP ile yapılmaz. Güvenlik ve analiz için WhatsApp’tan
-            yazın veya ilgili sayfaları açın.
+            Şifre bu sitede yazılmaz. Meta’nın resmi giriş ekranı açılır. Bağlantı
+            yalnızca{" "}
+            <strong className="text-white">tolwex-com.vercel.app</strong> üzerinde
+            çalışır — <code className="copy-code">tolwex.com</code> hâlâ GitHub
+            Pages’te olduğu için orada API / Bağlan 404 verir.
           </p>
-          <div className="flex flex-col sm:flex-row flex-wrap gap-3 mb-6">
-            <a
-              href={whatsappUrl("Merhaba, TOLWEX destek için yazıyorum.")}
-              className="btn btn-primary"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              WhatsApp · {CONTACT_PHONE_DISPLAY}
-            </a>
-            <Link href="/instagram/security" className="btn btn-ghost">
-              Hesap Güvenliği
-            </Link>
-            <Link href="/analiz/profilime-kim-bakti" className="btn btn-ghost">
-              Profilime Kim Baktı?
-            </Link>
-          </div>
-          <p className="legal-note">
-            Meta Developer / OAuth ayarları yalnızca admin panelinde yönetilir —
-            ziyaretçi arayüzünde API bağlama teşvik edilmez.
-          </p>
+
+          {isStaticHost ? (
+            <div className="glass-panel rounded-2xl p-4 mb-4 text-sm space-y-3">
+              <p className="font-semibold text-white">Bu kopya statik (Pages)</p>
+              <p className="muted">
+                Meta bağlamak için şuraya git:{" "}
+                <a
+                  className="underline text-white"
+                  href="https://tolwex-com.vercel.app/instagram/connect"
+                >
+                  tolwex-com.vercel.app/instagram/connect
+                </a>
+              </p>
+              <a
+                href={whatsappUrl("Meta bağlantısı için yazıyorum.")}
+                className="btn btn-primary inline-flex"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                WhatsApp {CONTACT_PHONE_DISPLAY}
+              </a>
+            </div>
+          ) : !configured ? (
+            <p className="muted text-sm mb-4">
+              Meta App ID / Secret henüz yapılandırılmadı.{" "}
+              <Link href="/admin61" className="underline">
+                Admin61
+              </Link>{" "}
+              veya WhatsApp:{" "}
+              <a
+                href={whatsappUrl("Instagram bağlantısı için yazıyorum.")}
+                className="underline"
+              >
+                {CONTACT_PHONE_DISPLAY}
+              </a>
+            </p>
+          ) : (
+            <div className="flex flex-col gap-3 mb-6">
+              <ConnectButton label="Instagram Hesabımı Bağla" force />
+              <Link href="/instagram/dashboard" className="btn btn-ghost">
+                Kontrol ekranı
+              </Link>
+            </div>
+          )}
         </div>
       </section>
 
-      <section className="mt-8 grid md:grid-cols-2 gap-4">
-        <div className="glass-panel rounded-2xl p-5">
-          <h3 className="display text-xl mb-2">Profil ziyaret</h3>
-          <p className="muted text-sm leading-relaxed">
-            Kesin “kim baktı” listesi ve IP takibi yoktur. Tahmini sinyal analizi
-            ve şeffaf sınırlar sunulur.
-          </p>
-        </div>
-        <div className="glass-panel rounded-2xl p-5">
-          <h3 className="display text-xl mb-2">Hesap güvenliği</h3>
-          <p className="muted text-sm leading-relaxed">
-            2FA, cihaz, şifre ve bağlı uygulamalar için resmi adımlar + TOLWEX
-            kontrol listesi.
-          </p>
+      <div className="mt-6">
+        <DomainSetupCard
+          appDomains={hints.appDomains}
+          siteUrl={hints.siteUrl}
+          redirectUri={hints.oauthRedirectUri}
+        />
+      </div>
+
+      <section className="mt-8 glass-panel rounded-2xl p-5 md:p-6">
+        <h2 className="display text-xl mb-3">Meta panelde şimdi yazılacaklar</h2>
+        <p className="muted text-sm mb-4">
+          App ID: <code className="copy-code">1023808800487900</code> — Settings →
+          Basic ve Facebook Login → Settings.
+        </p>
+        <ol className="muted space-y-2 list-decimal pl-5 text-sm leading-relaxed">
+          <li>
+            <strong className="text-white">App Domains:</strong>{" "}
+            <code className="copy-code">tolwex-com.vercel.app</code>
+          </li>
+          <li>
+            <strong className="text-white">Website → Site URL:</strong>{" "}
+            <code className="copy-code">https://tolwex-com.vercel.app/</code>
+          </li>
+          <li>
+            <strong className="text-white">Valid OAuth Redirect URIs:</strong>{" "}
+            <code className="copy-code">
+              https://tolwex-com.vercel.app/api/meta/oauth/callback
+            </code>
+          </li>
+          <li>
+            Privacy:{" "}
+            <code className="copy-code">https://tolwex-com.vercel.app/privacy</code>
+          </li>
+          <li>
+            Roles → kendi Facebook hesabını + Instagram tester ekle (Development
+            modunda şart)
+          </li>
+          <li>
+            Kaydet → 1–2 dk bekle → yukarıdaki{" "}
+            <strong className="text-white">Bağla</strong> butonuna bas
+          </li>
+        </ol>
+        <div className="flex flex-wrap gap-3 mt-5">
+          <a
+            className="btn btn-primary"
+            href="https://developers.facebook.com/apps/1023808800487900/settings/basic/"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Meta Basic Ayarları
+          </a>
+          <a
+            className="btn btn-ghost"
+            href="https://developers.facebook.com/apps/1023808800487900/fb-login/settings/"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Facebook Login Settings
+          </a>
         </div>
       </section>
     </div>

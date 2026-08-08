@@ -1,87 +1,91 @@
-# Meta Developer — TOLWEX (adım adım)
+# Meta Developer — TOLWEX (şimdi ne yapılacak)
 
-## Önce şunu bil
+## Durum (doğrulandı)
 
-| Özellik | Durum |
+| Kontrol | Sonuç |
 |---------|--------|
-| Instagram ile Bağlan (OAuth) | Kod hazır — **Node hosting** şart |
-| Admin `/admin61` | Kod hazır — **Node hosting** şart |
-| Profilime kim baktı listesi | **Resmi API yok** — sahte liste yok |
-| Engelleyenler listesi (kişisel IG) | **Resmi API yok** — sahte liste yok |
-| Hesap adı, tip, izinler, medya sayısı | OAuth sonrası API’den gelir |
+| Vercel API `/api/meta/status` | `configured: true`, App ID `1023…7900` |
+| OAuth start | Facebook’a 307 redirect **çalışıyor** |
+| `tolwex.com` | Hâlâ **GitHub Pages** → `/api/*` ve `/admin61` = **404** |
+| Bağlantı sayısı | `0` — henüz tamamlanmış OAuth yok |
 
-`tolwex.com` şu an **GitHub Pages** (sadece HTML). Bu yüzden:
-- `https://tolwex.com/api/meta/oauth/start` → **404**
-- `https://tolwex.com/admin61` → **404**
+**Kod sorunu değil.** Facebook, App Domains / Valid OAuth Redirect URI eşleşmediği için login’i kesiyor.
 
-Çözüm: Vercel veya Hostinger **Node.js**’e deploy + domain oraya bağla.
+Canlı bağlan URL’si (bunu kullan):
+`https://tolwex-com.vercel.app/instagram/connect`
 
 ---
 
-## Meta panelde dolduracakların (App ID: sende)
+## Meta panelde TAM olarak yazılacaklar (App ID: 1023808800487900)
 
-Aç: https://developers.facebook.com/apps/
+Aç: https://developers.facebook.com/apps/1023808800487900/settings/basic/
 
 ### 1) Settings → Basic
-| Alan | Yaz |
-|------|-----|
-| App Domains | `tolwex.com` |
-| Privacy Policy URL | `https://tolwex.com/privacy` |
-| Terms of Service URL | `https://tolwex.com/terms` |
-| User data deletion | `https://tolwex.com/api/data-deletion` |
-| Website → Site URL | `https://tolwex.com/` |
+| Alan | Değer |
+|------|--------|
+| App Domains | `tolwex-com.vercel.app` |
+| Privacy Policy URL | `https://tolwex-com.vercel.app/privacy` |
+| Terms of Service URL | `https://tolwex-com.vercel.app/terms` |
+| User data deletion | `https://tolwex-com.vercel.app/api/data-deletion` |
+| Website → Site URL | `https://tolwex-com.vercel.app/` |
+
+Eski `meron-social.glitch.me` varsa sil / değiştir.
 
 ### 2) Facebook Login → Settings
-| Alan | Yaz |
-|------|-----|
-| Valid OAuth Redirect URIs | `https://tolwex.com/api/meta/oauth/callback` |
+https://developers.facebook.com/apps/1023808800487900/fb-login/settings/
+
+| Alan | Değer |
+|------|--------|
+| Valid OAuth Redirect URIs | `https://tolwex-com.vercel.app/api/meta/oauth/callback` |
 | Client OAuth Login | Yes |
 | Web OAuth Login | Yes |
 
-### 3) Ürünler
-- **Facebook Login** ekli olsun
-- **Instagram** / Instagram Graph (Business) ekle
-- Development’ta: Roles → kendi FB hesabın + Instagram tester
+### 3) Roles (Development modunda şart)
+- Roles → Administrators / Developers / Testers: kendi Facebook hesabın
+- Instagram tester: bağlayacağın IG hesabı
 
-### 4) Sunucu `.env` (Node host’ta)
+### 4) Kaydet → 1–2 dk bekle → bağla
+1. https://tolwex-com.vercel.app/instagram/connect
+2. **Instagram Hesabımı Bağla**
+3. Meta onay → `/instagram/dashboard`
+
+---
+
+## Vercel env (zaten böyle olmalı)
+
 ```
-NEXT_PUBLIC_APP_URL=https://tolwex.com
-META_APP_ID=...panelden...
+NEXT_PUBLIC_APP_URL=https://tolwex-com.vercel.app
+META_REDIRECT_URI=https://tolwex-com.vercel.app/api/meta/oauth/callback
+META_APP_ID=1023808800487900
 META_APP_SECRET=...panelden...
-META_REDIRECT_URI=https://tolwex.com/api/meta/oauth/callback
-META_API_VERSION=v21.0
-META_WEBHOOK_VERIFY_TOKEN=...rastgele...
-SESSION_SECRET=...min 32 karakter...
-TOKEN_ENCRYPTION_KEY=...openssl rand -hex 32...
-ADMIN_PASSWORD=...
-DATABASE_URL=...
 ```
 
-Secret’ı siteye / GitHub’a yazma.
+---
 
-### 5) Test
-1. Node site ayakta
-2. `/admin61` → şifre → Meta kurulum → Connection Test
-3. `/instagram/connect` → **Instagram Hesabımı Bağla**
-4. Meta ekranı açılır → onay → `/instagram/dashboard`
+## tolwex.com ne zaman?
+
+DNS’i Pages’ten Vercel’e alınca Meta’yı `tolwex.com` ile değiştir:
+
+| Alan | Yeni değer |
+|------|------------|
+| App Domains | `tolwex.com` |
+| Site URL | `https://tolwex.com/` |
+| OAuth Redirect | `https://tolwex.com/api/meta/oauth/callback` |
+| Vercel env | `NEXT_PUBLIC_APP_URL` + `META_REDIRECT_URI` → tolwex.com |
+
+DNS (Vercel):
+- A `@` → `76.76.21.21`
+- CNAME `www` → `cname.vercel-dns.com`
+
+Şu an DNS hâlâ `185.199.x` (GitHub Pages) — bu yüzden `tolwex.com` üzerinden Meta bağlanmaz.
 
 ---
 
-## “Kim baktı” / “Engelleyenler” neden yok?
+## Sık hata
 
-Instagram bunları **resmi Graph API ile vermiyor**.
-Uydurma kullanıcı listesi göstermiyoruz (yasal + ban riski).
-
-Sayfada dürüst açıklama var:
-- Profil ziyaret = tahmini sinyal / “liste yok”
-- Engelleme = olası sinyal / “resmi liste değil”
-
----
-
-## Senin sıradaki iş
-
-1. Vercel veya Hostinger Node’a projeyi al
-2. Yukarıdaki Meta alanlarını kaydet
-3. Env’leri yapıştır
-4. Domain DNS’i Node host’a çevir (Pages’ten çıkar)
-5. O zaman Bağlan + admin61 çalışır
+| Facebook mesajı | Çözüm |
+|-----------------|--------|
+| App Domains / Can’t Load URL | App Domains = `tolwex-com.vercel.app` |
+| redirect_uri mismatch | Valid OAuth Redirect URI birebir callback URL |
+| App not set up / Development | Roles’a kendi hesabını ekle |
+| `tolwex.com` 404 | Vercel URL kullan veya DNS’i Vercel’e çevir |
