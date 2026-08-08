@@ -313,14 +313,6 @@ h3,
 }
 
 /* —— FULL PAGE 3D —— */
-.network-vignette {
-  position: absolute;
-  inset: 0;
-  background:
-    radial-gradient(ellipse 85% 70% at 55% 30%, transparent 10%, rgba(0, 0, 0, 0.28) 70%, rgba(0, 0, 0, 0.62) 100%),
-    linear-gradient(180deg, rgba(0, 0, 0, 0.08), rgba(0, 0, 0, 0.35));
-  pointer-events: none;
-}
 .page-3d-atmosphere {
   position: fixed;
   inset: 0;
@@ -328,6 +320,22 @@ h3,
   pointer-events: none;
   overflow: hidden;
   opacity: 1;
+}
+.network-scene {
+  position: absolute;
+  inset: 0;
+}
+.network-scene canvas {
+  width: 100% !important;
+  height: 100% !important;
+}
+.network-vignette {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 85% 70% at 55% 30%, transparent 10%, rgba(0, 0, 0, 0.28) 70%, rgba(0, 0, 0, 0.62) 100%),
+    linear-gradient(180deg, rgba(0, 0, 0, 0.08), rgba(0, 0, 0, 0.35));
+  pointer-events: none;
 }
 
 .home-root {
