@@ -303,8 +303,7 @@ export function ProductsAdmin() {
         <div>
           <h1 className="display text-4xl font-bold">Hizmet Yönetimi</h1>
           <p className="muted">
-            İsim, açıklama, özellikler, sıra — hepsini buradan düzenleyin. Sitede fiyat
-            gösterilmez. Destek:{" "}
+            İsim, açıklama, özellikler, sıra — hepsini buradan düzenleyin. Destek:{" "}
             <a
               href={whatsappUrl()}
               className="underline"

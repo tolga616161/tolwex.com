@@ -3,27 +3,30 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
-import { MEGA_MENU } from "@/lib/categories";
-import { CategoryIcon, IconWhatsApp } from "@/components/icons/CategoryIcons";
-import { CONTACT_PHONE_DISPLAY, whatsappUrl } from "@/lib/contact";
+import { TolwexLogo } from "@/components/brand/TolwexLogo";
 
-const MOBILE_LINKS = [
-  { label: "Tüm Hizmetler", href: "/urunler", icon: "ads" },
-  { label: "Eski Tarihli Hesaplar", href: "/urunler/eski-tarihli-hesaplar", icon: "instagram" },
-  { label: "Facebook Eski Hesap", href: "/urunler/facebook-eski-tarihli-hesaplar", icon: "facebook" },
-  { label: "Kapanan Hesap Aktif", href: "/urunler/kapanan-hesap-aktif-etme", icon: "instagram" },
-  { label: "Meta Verified", href: "/urunler/meta-verified-hatalari", icon: "facebook" },
-  { label: "Haber Silme", href: "/urunler/haber-silme", icon: "seo" },
-  { label: "Hesap Bağla", href: "/instagram/connect", icon: "social" },
+const NAV = [
+  { label: "Ana Sayfa", href: "/" },
+  { label: "Analiz", href: "/#analiz" },
+  { label: "Hizmetler", href: "/#hizmetler" },
+  { label: "Güvenlik", href: "/#guvenlik" },
+  { label: "Nasıl Çalışır?", href: "/#nasil-calisir" },
 ];
 
 export function SiteNav() {
-  const [megaOpen, setMegaOpen] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
     setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 12);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
   useEffect(() => {
@@ -31,15 +34,6 @@ export function SiteNav() {
     return () => {
       document.body.style.overflow = "";
     };
-  }, [mobileOpen]);
-
-  useEffect(() => {
-    if (!mobileOpen) return;
-    function onKey(e: KeyboardEvent) {
-      if (e.key === "Escape") setMobileOpen(false);
-    }
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
   }, [mobileOpen]);
 
   const mobileMenu =
@@ -51,13 +45,9 @@ export function SiteNav() {
         id="mobile-menu"
       >
         <div className="mobile-sheet-inner">
-          <div className="flex items-center justify-between mb-8">
-            <Link
-              href="/"
-              className="brand display"
-              onClick={() => setMobileOpen(false)}
-            >
-              TOL<span>WEX</span>
+          <div className="flex items-center justify-between mb-10">
+            <Link href="/" onClick={() => setMobileOpen(false)}>
+              <TolwexLogo size="md" />
             </Link>
             <button
               type="button"
@@ -67,37 +57,33 @@ export function SiteNav() {
               Kapat
             </button>
           </div>
-          <p className="text-xs uppercase tracking-[0.2em] muted mb-4">Hizmet menüsü</p>
-          <div className="mobile-cats">
-            {MOBILE_LINKS.map((l) => (
+          <nav className="mobile-nav-list">
+            {NAV.map((item) => (
               <a
-                key={l.label}
-                href={l.href}
-                className="mobile-cat"
+                key={item.href}
+                href={item.href}
+                className="mobile-nav-link"
                 onClick={() => setMobileOpen(false)}
               >
-                <CategoryIcon name={l.icon} className="size-6" />
-                <span>{l.label}</span>
+                {item.label}
               </a>
             ))}
-          </div>
-          <div className="mt-8 grid gap-3">
+          </nav>
+          <div className="mt-10 grid gap-3">
             <Link
-              href="/urunler"
+              href="/instagram/dashboard"
+              className="btn btn-ghost"
+              onClick={() => setMobileOpen(false)}
+            >
+              Giriş Yap
+            </Link>
+            <Link
+              href="/instagram/connect"
               className="btn btn-primary"
               onClick={() => setMobileOpen(false)}
             >
-              Tüm Hizmetler
+              Instagram ile Bağlan
             </Link>
-            <a
-              href={whatsappUrl()}
-              className="btn btn-ghost"
-              target="_blank"
-              rel="noopener noreferrer"
-              onClick={() => setMobileOpen(false)}
-            >
-              WhatsApp {CONTACT_PHONE_DISPLAY}
-            </a>
           </div>
         </div>
       </div>,
@@ -105,7 +91,7 @@ export function SiteNav() {
     );
 
   return (
-    <header className="site-nav">
+    <header className={`site-nav ${scrolled ? "is-scrolled" : ""}`}>
       <div className="site-shell nav-inner">
         <button
           type="button"
@@ -113,90 +99,33 @@ export function SiteNav() {
           aria-label={mobileOpen ? "Menüyü kapat" : "Menüyü aç"}
           aria-expanded={mobileOpen}
           aria-controls="mobile-menu"
-          onClick={(e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            setMobileOpen((v) => !v);
-          }}
+          onClick={() => setMobileOpen((v) => !v)}
         >
           <span />
           <span />
           <span />
         </button>
 
-        <Link href="/" className="brand display">
-          TOL<span>WEX</span>
+        <Link href="/" className="nav-brand" aria-label="TOLWEX ana sayfa">
+          <TolwexLogo size="sm" />
         </Link>
 
-        <nav className="nav-desktop">
-          <Link href="/urunler" className="nav-link">
-            Hizmetler
-          </Link>
-          <div
-            className="mega-wrap"
-            onMouseEnter={() => setMegaOpen(true)}
-            onMouseLeave={() => setMegaOpen(false)}
-          >
-            <button
-              type="button"
-              className={`nav-link ${megaOpen ? "is-on" : ""}`}
-              aria-expanded={megaOpen}
-              onClick={() => setMegaOpen((v) => !v)}
-            >
-              Kategoriler
-              <span className="chev">▾</span>
-            </button>
-            <div className={`mega-panel ${megaOpen ? "is-open" : ""}`}>
-              <div className="mega-grid">
-                {MEGA_MENU.map((col) => (
-                  <div key={col.title}>
-                    <p className="mega-title">{col.title}</p>
-                    <ul className="mega-list">
-                      {col.items.map((item) => (
-                        <li key={item.label}>
-                          <a
-                            href={item.href}
-                            className="mega-item"
-                            onClick={() => setMegaOpen(false)}
-                          >
-                            <span className="mega-item-label">{item.label}</span>
-                            <span className="mega-item-desc">{item.desc}</span>
-                          </a>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-          <Link href="/instagram/connect" className="nav-link">
-            Bağla
-          </Link>
-          <a
-            href={whatsappUrl()}
-            className="nav-link"
-            target="_blank"
-            rel="noopener noreferrer"
-            title={CONTACT_PHONE_DISPLAY}
-          >
-            WhatsApp
-          </a>
-          <Link href="/urunler" className="btn btn-primary nav-cta">
-            Hizmetler
-          </Link>
+        <nav className="nav-desktop" aria-label="Ana menü">
+          {NAV.map((item) => (
+            <a key={item.href} href={item.href} className="nav-link">
+              {item.label}
+            </a>
+          ))}
         </nav>
 
-        <a
-          href={whatsappUrl()}
-          className="nav-mobile-wa"
-          target="_blank"
-          rel="noopener noreferrer"
-          aria-label="WhatsApp"
-          title={CONTACT_PHONE_DISPLAY}
-        >
-          <IconWhatsApp className="nav-wa-icon" />
-        </a>
+        <div className="nav-actions">
+          <Link href="/instagram/dashboard" className="nav-link nav-login">
+            Giriş Yap
+          </Link>
+          <Link href="/instagram/connect" className="btn btn-primary nav-cta">
+            Instagram ile Bağlan
+          </Link>
+        </div>
       </div>
       {mobileMenu}
     </header>

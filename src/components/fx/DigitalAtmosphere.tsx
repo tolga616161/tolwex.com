@@ -9,7 +9,7 @@ const FLOATERS = [
   { icon: "youtube", className: "floater f4 brand-yt", label: "YT" },
   { icon: "x", className: "floater f5 brand-x", label: "X" },
   { icon: "google", className: "floater f6 brand-g", label: "G" },
-  { icon: "whatsapp", className: "floater f7 brand-wa", label: "WA" },
+  { icon: "google", className: "floater f7 brand-g2", label: "G2" },
   { icon: "instagram", className: "floater f8 brand-ig2", label: "IG2" },
   { icon: "facebook", className: "floater f9 brand-fb2", label: "FB2" },
   { icon: "tiktok", className: "floater f10 brand-tt2", label: "TT2" },

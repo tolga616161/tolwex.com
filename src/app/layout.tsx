@@ -1,26 +1,29 @@
 import type { Metadata, Viewport } from "next";
-import { Space_Grotesk, Manrope } from "next/font/google";
+import { Syne, IBM_Plex_Sans } from "next/font/google";
 import "./globals.css";
 import { SiteNav } from "@/components/navigation/SiteNav";
 import { SiteFooter } from "@/components/SiteFooter";
 import { WhatsAppFab } from "@/components/contact/WhatsAppFab";
 
-const display = Space_Grotesk({
+const display = Syne({
   variable: "--font-display-face",
   subsets: ["latin", "latin-ext"],
-  weight: ["500", "600", "700"],
+  weight: ["500", "600", "700", "800"],
 });
 
-const body = Manrope({
+const body = IBM_Plex_Sans({
   variable: "--font-body-face",
   subsets: ["latin", "latin-ext"],
-  weight: ["400", "500", "600", "700", "800"],
+  weight: ["400", "500", "600", "700"],
 });
 
 export const metadata: Metadata = {
-  title: "TOLWEX — Dijital Medya & Instagram Hesap Kontrolü",
+  title: "TOLWEX — Social Intelligence & Digital Analytics",
   description:
-    "Haber silme, fake hesap kapatma ve resmi Meta/Instagram OAuth ile hesap güvenliği. tolwex.com",
+    "TOLWEX, sosyal medya hesaplarınızın erişilebilen gerçek verilerini analiz ederek kurumsal içgörüler sunar.",
+  icons: {
+    icon: [{ url: "/favicon.svg", type: "image/svg+xml" }],
+  },
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
@@ -36,7 +39,7 @@ export const viewport: Viewport = {
   initialScale: 1,
   maximumScale: 5,
   viewportFit: "cover",
-  themeColor: "#050d14",
+  themeColor: "#000000",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
@@ -46,6 +49,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         <SiteNav />
         <main className="flex-1">{children}</main>
         <SiteFooter />
+        {/* Single site-wide WhatsApp control — no header duplicate */}
         <WhatsAppFab />
       </body>
     </html>
