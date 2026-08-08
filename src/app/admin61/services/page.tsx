@@ -77,7 +77,7 @@ export default function AdminServicesPage() {
                 <td>{s.name}</td>
                 <td>{s.category}</td>
                 <td>{s.rate}</td>
-                <td>{s.sellRate}</td>
+                <td>{Number(s.sellRate).toFixed(2)}</td>
                 <td>
                   {s.min}/{s.max}
                 </td>

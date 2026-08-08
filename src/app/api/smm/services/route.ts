@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
+import { applyMarkup, smmConfig } from "@/lib/smm/client";
 import { ensureSmmCatalogFresh } from "@/lib/smm/sync";
 
 export const dynamic = "force-dynamic";
@@ -61,15 +62,21 @@ export async function GET(req: NextRequest) {
     }),
   ]);
 
+  const markup = smmConfig().markupPercent;
   return NextResponse.json({
     page,
     pageSize,
     total,
     pages: Math.max(1, Math.ceil(total / pageSize)),
+    markupPercent: markup,
     categories: categories.map((c) => ({
       name: c.category,
       count: c._count._all,
     })),
-    items,
+    items: items.map((item) => ({
+      ...item,
+      // Always expose clean 2-decimal sell price (+%50)
+      sellRate: applyMarkup(item.rate, markup),
+    })),
   });
 }

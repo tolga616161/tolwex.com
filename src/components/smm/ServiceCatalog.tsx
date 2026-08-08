@@ -193,7 +193,7 @@ function OrderModal({ item, onClose }: { item: Item; onClose: () => void }) {
           />
         </label>
         <p className="smm-price">
-          Tahmini tutar: <strong>{estimate} ₺</strong>
+          Tahmini tutar: <strong>{estimate}</strong>
         </p>
         {msg ? <p className="muted text-sm">{msg}</p> : null}
         <div className="flex gap-2">
