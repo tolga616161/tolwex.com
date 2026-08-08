@@ -1,26 +1,59 @@
 import Link from "next/link";
-import { HeroSection } from "@/components/hero/HeroSection";
+import { MemberAuthForm } from "@/components/auth/MemberAuthForm";
 import { ServiceCatalog } from "@/components/smm/ServiceCatalog";
 import { HowItWorksSection } from "@/components/marketing/HomeSections";
 
 export default function HomePage() {
   return (
     <div className="home-root">
-      <HeroSection />
-      <section className="home-section section-alt" id="neden">
+      <section className="hero-stage panel-hero smm-landing-hero">
+        <div className="site-shell panel-hero-grid">
+          <div className="hero-copy panel-hero-copy">
+            <p className="hero-kicker">TOLWEX</p>
+            <h1 className="hero-title display">
+              <span className="title-line">#1 SMM RESELLER</span>
+              <span className="title-line hero-title-accent">PANELİ.</span>
+            </h1>
+            <p className="hero-sub">
+              Instagram, TikTok, YouTube, Facebook ve daha fazlası — takipçi, beğeni,
+              izlenme. Tek panelden otomatik sipariş, bakiye ve API.
+            </p>
+            <div className="hero-actions">
+              <Link href="/uye/kayit" className="btn btn-primary">
+                Hemen Başla
+              </Link>
+              <Link href="/hizmetler" className="btn btn-ghost">
+                Servisler
+              </Link>
+              <Link href="/sss" className="btn btn-ghost">
+                SSS
+              </Link>
+            </div>
+          </div>
+          <div className="panel-hero-login">
+            <MemberAuthForm mode="login" compact />
+          </div>
+        </div>
+      </section>
+
+      <section className="home-section section-alt" id="ozellikler">
         <div className="site-shell why-grid">
           {[
             {
-              t: "Otomatik katalog",
-              d: "smmapi.com API’sinden tüm servisler çekilir, Hizmetler’de listelenir.",
+              t: "Anında teslimat",
+              d: "Siparişler smmapi.com üzerinden otomatik işleme alınır.",
             },
             {
-              t: "Üye kayıt / giriş",
-              d: "Kullanıcı adı + şifre ile panel hesabı. Kayıt ol, giriş yap, sipariş ver.",
+              t: "Reseller API",
+              d: "PerfectPanel uyumlu /api/v1 — kendi yazılımınızı bağlayın.",
             },
             {
-              t: "Anında sipariş",
-              d: "Kategori → servis → link → adet. Sipariş API’ye otomatik düşer.",
+              t: "Toplu sipariş",
+              d: "Tekli veya mass order: service|adet|link formatı.",
+            },
+            {
+              t: "Şeffaf fiyat",
+              d: "Canlı katalog, min/max ve 1000 başına satış fiyatı.",
             },
           ].map((x) => (
             <article key={x.t} className="why-card glass-panel rounded-2xl p-5">
@@ -30,22 +63,13 @@ export default function HomePage() {
           ))}
         </div>
       </section>
+
       <section className="home-section" id="hizmetler">
         <div className="site-shell">
           <div className="section-head">
             <p className="section-kicker">Servisler</p>
             <h2 className="section-title">HİZMET LİSTESİ</h2>
-            <p className="section-sub">
-              Fiyatlar tedarikçi oranının üzerine %50 kâr eklenmiş satış fiyatıdır.
-            </p>
-          </div>
-          <div className="mb-6 flex flex-wrap gap-3">
-            <Link href="/uye/kayit" className="btn btn-primary">
-              Üye ol ve sipariş ver
-            </Link>
-            <Link href="/uye/giris" className="btn btn-ghost">
-              Giriş yap
-            </Link>
+            <p className="section-sub">Giriş yapmadan göz atın, sipariş için üye olun.</p>
           </div>
           <ServiceCatalog />
         </div>

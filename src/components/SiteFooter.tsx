@@ -1,8 +1,12 @@
+"use client";
+
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { TolwexLogo } from "@/components/brand/TolwexLogo";
 
 const LINKS = [
   { label: "Hizmetler", href: "/hizmetler" },
+  { label: "SSS", href: "/sss" },
   { label: "Üye Girişi", href: "/uye/giris" },
   { label: "Kayıt Ol", href: "/uye/kayit" },
   { label: "Gizlilik", href: "/privacy" },
@@ -10,12 +14,22 @@ const LINKS = [
 ];
 
 export function SiteFooter() {
+  const pathname = usePathname() || "/";
+  if (pathname.startsWith("/admin61")) return null;
+  if (
+    pathname.startsWith("/uye") &&
+    !pathname.startsWith("/uye/giris") &&
+    !pathname.startsWith("/uye/kayit")
+  ) {
+    return null;
+  }
+
   return (
     <footer className="site-footer">
       <div className="site-shell footer-inner">
         <div className="footer-brand">
           <TolwexLogo size="md" />
-          <p className="footer-tag">Profesyonel SMM Panel</p>
+          <p className="footer-tag">Profesyonel SMM Reseller Panel</p>
         </div>
         <nav className="footer-links" aria-label="Footer">
           {LINKS.map((l) => (

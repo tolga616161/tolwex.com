@@ -5,6 +5,7 @@ import { hashPassword } from "@/lib/auth/password";
 import { getSession } from "@/lib/session";
 import { rateLimit } from "@/lib/rate-limit";
 import { writeAuditLog } from "@/lib/audit";
+import { generateApiKey } from "@/lib/api-key";
 
 const schema = z
   .object({
@@ -58,6 +59,7 @@ export async function POST(req: NextRequest) {
       name: (parsed.data.name || username).trim(),
       phone: parsed.data.phone?.trim() || "",
       passwordHash: hashPassword(parsed.data.password),
+      apiKey: generateApiKey(),
     },
   });
 

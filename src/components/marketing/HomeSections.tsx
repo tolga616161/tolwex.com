@@ -1,9 +1,9 @@
 export function HowItWorksSection() {
   const steps = [
-    { n: "01", title: "ÜYE OL / GİRİŞ", text: "Kullanıcı adı ve şifre ile panel hesabı aç." },
-    { n: "02", title: "SERVİS SEÇ", text: "smmapi.com’dan gelen kategorilerden hizmetini seç." },
-    { n: "03", title: "SİPARİŞ VER", text: "Link + adet gir; sipariş otomatik işleme alınır." },
-    { n: "04", title: "SONUÇ", text: "Siparişlerim ekranından durumu takip et." },
+    { n: "01", title: "ÜYE OL", text: "Kullanıcı adı ve şifre ile panel hesabı aç." },
+    { n: "02", title: "BAKİYE YÜKLE", text: "Talep veya kupon ile bakiyeni doldur." },
+    { n: "03", title: "SİPARİŞ VER", text: "Tekli / toplu sipariş veya API ile gönder." },
+    { n: "04", title: "TAKİP ET", text: "Siparişlerim ve dashboard’dan durumu izle." },
   ];
 
   return (

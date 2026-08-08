@@ -10,6 +10,9 @@ type Order = {
   quantity: number;
   charge: number;
   status: string;
+  providerOrderId: string | null;
+  startCounter: number | null;
+  remains: number | null;
   createdAt: string;
 };
 
@@ -36,43 +39,61 @@ export default function MemberOrdersPage() {
   }, []);
 
   if (!me) {
-    return <div className="site-shell py-16 muted">Yükleniyor…</div>;
+    return (
+      <div className="sp-shell">
+        <div className="sp-main muted">Yükleniyor…</div>
+      </div>
+    );
   }
 
   return (
     <MemberPanelShell username={me.username} email={me.email} balance={me.balance}>
-      <div className="member-page">
-        <div className="section-head mb-6">
-          <p className="section-kicker">Siparişlerim</p>
-          <h1 className="section-title">Sipariş geçmişi</h1>
+      <div className="sp-page">
+        <div className="sp-page-title">
+          <h1>Siparişlerim</h1>
+          <p>Order logs · durum tedarikçiden senkronlanır</p>
         </div>
-        <div className="admin-table-wrap glass-panel rounded-2xl overflow-hidden">
-          <table className="admin-table">
-            <thead>
-              <tr>
-                <th>Servis</th>
-                <th>Adet</th>
-                <th>Tutar</th>
-                <th>Durum</th>
-                <th>Tarih</th>
-              </tr>
-            </thead>
-            <tbody>
-              {orders.map((o) => (
-                <tr key={o.id}>
-                  <td>
-                    <div>{o.serviceName}</div>
-                    <div className="muted text-xs truncate max-w-xs">{o.link}</div>
-                  </td>
-                  <td>{o.quantity}</td>
-                  <td>{o.charge.toFixed(2)} ₺</td>
-                  <td>{o.status}</td>
-                  <td>{new Date(o.createdAt).toLocaleString("tr-TR")}</td>
+        <div className="sp-card">
+          <div className="sp-table-wrap">
+            <table className="sp-table">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Servis</th>
+                  <th>Adet</th>
+                  <th>Start</th>
+                  <th>Remains</th>
+                  <th>Tutar</th>
+                  <th>Durum</th>
+                  <th>Tarih</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-          {orders.length === 0 ? <p className="muted p-4 text-sm">Sipariş yok.</p> : null}
+              </thead>
+              <tbody>
+                {orders.map((o) => (
+                  <tr key={o.id}>
+                    <td>{o.providerOrderId || o.id.slice(0, 8)}</td>
+                    <td>
+                      <div>{o.serviceName}</div>
+                      <div className="muted text-xs" style={{ maxWidth: 220 }}>
+                        {o.link}
+                      </div>
+                    </td>
+                    <td>{o.quantity}</td>
+                    <td>{o.startCounter ?? "—"}</td>
+                    <td>{o.remains ?? "—"}</td>
+                    <td>{o.charge.toFixed(2)} ₺</td>
+                    <td>
+                      <span className="sp-badge">{o.status}</span>
+                    </td>
+                    <td>{new Date(o.createdAt).toLocaleString("tr-TR")}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            {orders.length === 0 ? (
+              <p className="muted p-4 text-sm">Sipariş yok.</p>
+            ) : null}
+          </div>
         </div>
       </div>
     </MemberPanelShell>

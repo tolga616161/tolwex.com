@@ -1,15 +1,21 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/db";
-import { adjustBalance, requireMember } from "@/lib/member";
-import { placeSmmOrder } from "@/lib/smm/client";
+import { requireMember } from "@/lib/member";
+import { placeMemberOrder } from "@/lib/smm/place-order";
 import { rateLimit } from "@/lib/rate-limit";
-import { writeAuditLog } from "@/lib/audit";
 
 const schema = z.object({
   serviceId: z.string().min(1),
   link: z.string().url().max(500),
   quantity: z.number().int().positive(),
+  comments: z.string().max(5000).optional(),
+  dripfeedRuns: z.number().int().min(1).max(1000).optional(),
+  dripfeedInterval: z.number().int().min(1).max(1440).optional(),
+});
+
+const massSchema = z.object({
+  lines: z.string().min(3).max(20000),
 });
 
 export async function GET() {
@@ -19,7 +25,7 @@ export async function GET() {
   const orders = await prisma.smmOrder.findMany({
     where: { memberId: member.id },
     orderBy: { createdAt: "desc" },
-    take: 100,
+    take: 200,
   });
   return NextResponse.json({ orders });
 }
@@ -29,110 +35,77 @@ export async function POST(req: NextRequest) {
   if (!member) return NextResponse.json({ error: "Giriş gerekli" }, { status: 401 });
 
   const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "local";
-  const rl = rateLimit(`order-member:${member.id}:${ip}`, 12, 60_000);
+  const rl = rateLimit(`order-member:${member.id}:${ip}`, 30, 60_000);
   if (!rl.ok) {
     return NextResponse.json({ error: "Çok fazla sipariş denemesi" }, { status: 429 });
   }
 
   const json = await req.json().catch(() => null);
+
+  // Mass order: serviceId|quantity|link per line (provider id or internal id)
+  if (json && typeof json === "object" && "lines" in json) {
+    const parsed = massSchema.safeParse(json);
+    if (!parsed.success) {
+      return NextResponse.json({ error: "Geçersiz toplu sipariş" }, { status: 400 });
+    }
+    const rows = parsed.data.lines
+      .split("\n")
+      .map((l) => l.trim())
+      .filter(Boolean)
+      .slice(0, 50);
+
+    const results: Array<{ ok: boolean; line: string; error?: string; orderId?: string }> = [];
+    for (const line of rows) {
+      const parts = line.split("|").map((p) => p.trim());
+      if (parts.length < 3) {
+        results.push({ ok: false, line, error: "Format: service_id|adet|link" });
+        continue;
+      }
+      const [sid, qtyStr, link] = parts;
+      const quantity = Number(qtyStr);
+      const asNum = Number(sid);
+      try {
+        const order = await placeMemberOrder({
+          memberId: member.id,
+          ...(Number.isFinite(asNum) && String(asNum) === sid
+            ? { providerServiceId: asNum }
+            : { serviceId: sid }),
+          link,
+          quantity,
+        });
+        results.push({ ok: true, line, orderId: order.id });
+      } catch (e) {
+        results.push({
+          ok: false,
+          line,
+          error: e instanceof Error ? e.message : "Hata",
+        });
+      }
+    }
+    return NextResponse.json({ ok: true, results });
+  }
+
   const parsed = schema.safeParse(json);
   if (!parsed.success) {
     return NextResponse.json({ error: "Geçersiz sipariş" }, { status: 400 });
   }
 
-  const service = await prisma.smmService.findFirst({
-    where: { id: parsed.data.serviceId, active: true },
-  });
-  if (!service) {
-    return NextResponse.json({ error: "Servis bulunamadı" }, { status: 404 });
-  }
-  if (parsed.data.quantity < service.min || parsed.data.quantity > service.max) {
-    return NextResponse.json(
-      { error: `Adet ${service.min} – ${service.max} arasında olmalı` },
-      { status: 400 }
-    );
-  }
-
-  const charge = Math.round(((service.sellRate * parsed.data.quantity) / 1000) * 10000) / 10000;
-  const cost = Math.round(((service.rate * parsed.data.quantity) / 1000) * 10000) / 10000;
-
-  if (member.balance < charge) {
-    return NextResponse.json(
-      { error: `Yetersiz bakiye. Gerekli: ${charge.toFixed(2)} ₺ · Bakiye: ${member.balance.toFixed(2)} ₺` },
-      { status: 402 }
-    );
-  }
-
-  let providerOrderId: string | null = null;
-  let status = "pending";
-  let errorMessage: string | null = null;
-
   try {
-    const placed = await placeSmmOrder({
-      service: service.providerServiceId,
-      link: parsed.data.link.trim(),
-      quantity: parsed.data.quantity,
-    });
-    providerOrderId = String(placed.order);
-    status = "processing";
-  } catch (e) {
-    status = "error";
-    errorMessage = e instanceof Error ? e.message : "Sipariş gönderilemedi";
-  }
-
-  if (status === "error") {
-    const order = await prisma.smmOrder.create({
-      data: {
-        memberId: member.id,
-        serviceId: service.id,
-        providerServiceId: service.providerServiceId,
-        serviceName: service.name,
-        link: parsed.data.link.trim(),
-        quantity: parsed.data.quantity,
-        charge,
-        cost,
-        status,
-        providerOrderId,
-        errorMessage: errorMessage || undefined,
-      },
-    });
-    await writeAuditLog({
-      action: "smm.order_error",
-      actorType: "visitor",
-      actorId: member.id,
-      metadata: { orderId: order.id },
-    });
-    return NextResponse.json({ error: errorMessage || "Sipariş başarısız", order }, { status: 502 });
-  }
-
-  await adjustBalance(member.id, -charge, "order", `Sipariş · ${service.name}`, "");
-
-  const order = await prisma.smmOrder.create({
-    data: {
+    const order = await placeMemberOrder({
       memberId: member.id,
-      serviceId: service.id,
-      providerServiceId: service.providerServiceId,
-      serviceName: service.name,
-      link: parsed.data.link.trim(),
+      serviceId: parsed.data.serviceId,
+      link: parsed.data.link,
       quantity: parsed.data.quantity,
-      charge,
-      cost,
-      status,
-      providerOrderId,
-    },
-  });
-
-  await prisma.walletTransaction.updateMany({
-    where: { memberId: member.id, type: "order", refId: "" },
-    data: { refId: order.id },
-  });
-
-  await writeAuditLog({
-    action: "smm.order",
-    actorType: "visitor",
-    actorId: member.id,
-    metadata: { orderId: order.id, providerServiceId: service.providerServiceId },
-  });
-
-  return NextResponse.json({ ok: true, order });
+      comments: parsed.data.comments,
+      dripfeedRuns: parsed.data.dripfeedRuns,
+      dripfeedInterval: parsed.data.dripfeedInterval,
+    });
+    return NextResponse.json({ ok: true, order });
+  } catch (e) {
+    const err = e as Error & { status?: number; order?: unknown };
+    return NextResponse.json(
+      { error: err.message || "Sipariş başarısız", order: err.order },
+      { status: err.status || 500 }
+    );
+  }
 }

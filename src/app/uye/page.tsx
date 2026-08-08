@@ -9,17 +9,38 @@ export const dynamic = "force-dynamic";
 export default async function MemberDashboardPage() {
   const member = await requireMemberPage();
 
-  const [orderCount, openTickets, lastOrders] = await Promise.all([
+  const [totalOrders, openTickets, byStatus, lastOrders, news] = await Promise.all([
     prisma.smmOrder.count({ where: { memberId: member.id } }),
     prisma.supportTicket.count({
       where: { memberId: member.id, status: { in: ["open", "answered"] } },
     }),
+    prisma.smmOrder.groupBy({
+      by: ["status"],
+      where: { memberId: member.id },
+      _count: { _all: true },
+    }),
     prisma.smmOrder.findMany({
       where: { memberId: member.id },
       orderBy: { createdAt: "desc" },
-      take: 5,
+      take: 8,
+    }),
+    prisma.newsItem.findMany({
+      where: {
+        active: true,
+        OR: [{ expiresAt: null }, { expiresAt: { gt: new Date() } }],
+      },
+      orderBy: { createdAt: "desc" },
+      take: 3,
     }),
   ]);
+
+  const statusMap = Object.fromEntries(byStatus.map((s) => [s.status, s._count._all]));
+  const completed = statusMap.completed || 0;
+  const processing =
+    (statusMap.processing || 0) + (statusMap.inprogress || 0) + (statusMap["in progress"] || 0);
+  const pending = statusMap.pending || 0;
+  const partial = statusMap.partial || 0;
+  const canceled = (statusMap.canceled || 0) + (statusMap.cancelled || 0);
 
   return (
     <MemberPanelShell
@@ -27,56 +48,116 @@ export default async function MemberDashboardPage() {
       email={member.email}
       balance={member.balance}
     >
-      <div className="member-page">
-        <div className="section-head mb-6">
-          <p className="section-kicker">Dashboard</p>
-          <h1 className="section-title">Hoş geldin, {member.username}</h1>
-          <p className="section-sub">Sipariş ver, bakiyeni yönet, destek al.</p>
+      <div className="sp-page">
+        <div className="sp-page-title">
+          <h1>İstatistikler</h1>
+          <p>Hesap özeti ve sipariş durumu</p>
         </div>
 
-        <div className="member-stat-grid">
-          <article className="glass-panel rounded-2xl p-5">
-            <p className="muted text-xs">Bakiye</p>
-            <p className="display text-2xl font-bold">{member.balance.toFixed(2)} ₺</p>
+        <div className="sp-stat-grid">
+          <article className="sp-stat tone-a">
+            <span>Bakiye</span>
+            <strong>{member.balance.toFixed(2)} ₺</strong>
           </article>
-          <article className="glass-panel rounded-2xl p-5">
-            <p className="muted text-xs">Siparişler</p>
-            <p className="display text-2xl font-bold">{orderCount}</p>
+          <article className="sp-stat tone-b">
+            <span>Toplam Harcama</span>
+            <strong>{member.spent.toFixed(2)} ₺</strong>
           </article>
-          <article className="glass-panel rounded-2xl p-5">
-            <p className="muted text-xs">Açık destek</p>
-            <p className="display text-2xl font-bold">{openTickets}</p>
+          <article className="sp-stat tone-c">
+            <span>Toplam Sipariş</span>
+            <strong>{totalOrders}</strong>
+          </article>
+          <article className="sp-stat tone-d">
+            <span>Açık Destek</span>
+            <strong>{openTickets}</strong>
           </article>
         </div>
 
-        <div className="flex flex-wrap gap-3 my-6">
+        <div className="sp-stat-grid sm">
+          <article className="sp-stat">
+            <span>Completed</span>
+            <strong>{completed}</strong>
+          </article>
+          <article className="sp-stat">
+            <span>Processing</span>
+            <strong>{processing}</strong>
+          </article>
+          <article className="sp-stat">
+            <span>Pending</span>
+            <strong>{pending}</strong>
+          </article>
+          <article className="sp-stat">
+            <span>Partial</span>
+            <strong>{partial}</strong>
+          </article>
+          <article className="sp-stat">
+            <span>Canceled</span>
+            <strong>{canceled}</strong>
+          </article>
+        </div>
+
+        <div className="sp-actions">
           <Link href="/uye/yeni-siparis" className="btn btn-primary">
             Yeni Sipariş
           </Link>
           <Link href="/uye/bakiye" className="btn btn-ghost">
             Bakiye Yükle
           </Link>
-          <Link href="/uye/servisler" className="btn btn-ghost">
-            Servisler
+          <Link href="/uye/api" className="btn btn-ghost">
+            API Doküman
           </Link>
         </div>
 
-        <div className="glass-panel rounded-2xl p-5">
-          <h2 className="display text-lg mb-4">Son siparişler</h2>
-          {lastOrders.length === 0 ? (
-            <p className="muted text-sm">Henüz sipariş yok.</p>
-          ) : (
-            <ul className="member-list">
-              {lastOrders.map((o) => (
-                <li key={o.id}>
-                  <span>{o.serviceName || `Servis #${o.providerServiceId}`}</span>
-                  <span className="muted">
-                    {o.status} · {o.charge.toFixed(2)} ₺
-                  </span>
+        {news.length ? (
+          <div className="sp-card mb-4">
+            <div className="sp-card-head">
+              <h2>Duyurular</h2>
+            </div>
+            <ul className="sp-news">
+              {news.map((n) => (
+                <li key={n.id}>
+                  <strong>{n.title}</strong>
+                  <p>{n.body}</p>
                 </li>
               ))}
             </ul>
-          )}
+          </div>
+        ) : null}
+
+        <div className="sp-card">
+          <div className="sp-card-head">
+            <h2>Son siparişler</h2>
+            <Link href="/uye/siparisler">Tümü</Link>
+          </div>
+          <div className="sp-table-wrap">
+            <table className="sp-table">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Servis</th>
+                  <th>Adet</th>
+                  <th>Tutar</th>
+                  <th>Durum</th>
+                </tr>
+              </thead>
+              <tbody>
+                {lastOrders.map((o) => (
+                  <tr key={o.id}>
+                    <td>{o.providerOrderId || o.id.slice(0, 8)}</td>
+                    <td>{o.serviceName}</td>
+                    <td>{o.quantity}</td>
+                    <td>{o.charge.toFixed(2)} ₺</td>
+                    <td>
+                      <span className={`sp-badge status-${o.status}`}>{o.status}</span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            {lastOrders.length === 0 ? (
+              <p className="muted p-4 text-sm">Henüz sipariş yok.</p>
+            ) : null}
+          </div>
         </div>
       </div>
     </MemberPanelShell>

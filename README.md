@@ -1,23 +1,34 @@
 # TOLWEX — Profesyonel SMM Panel
 
-Üye paneli, bakiye, kupon, destek ve smmapi.com servis senkronu ile çalışan SMM paneli.
+SmartPanel tarzı üye paneli: istatistikler, tekli/toplu sipariş, drip-feed, bakiye, kupon, destek, SSS ve PerfectPanel uyumlu kullanıcı API’si.
 
-## Özellikler
+Referans mimari: [smm-panel-free](https://github.com/evansnguyen0104/smm-panel-free) (özellikler Next.js’e taşındı).
 
-- Üye kayıt / giriş (kullanıcı adı + şifre)
-- Yeni sipariş, siparişler, servis kataloğu
-- Bakiye talepleri ve kupon kullanımı
-- Destek talepleri
-- Admin: kullanıcılar, siparişler, servisler, kategoriler, kuponlar, API senkron, loglar
+## Üye menü
 
-## Ortam değişkenleri
+Dashboard · Yeni Sipariş · Siparişlerim · Servisler · Bakiye Yükle · İşlem Geçmişi · Destek · SSS · API · Profil · Çıkış
 
-- `DATABASE_URL`
-- `SESSION_SECRET`
-- `ADMIN_PASSWORD`
-- `SMM_API_KEY`
-- `SMM_API_URL` (varsayılan: `https://smmapi.com/api/v2`)
-- `SMM_MARKUP_PERCENT` (varsayılan: `50`)
+## Ortam
+
+```bash
+DATABASE_URL=
+SESSION_SECRET=
+ADMIN_PASSWORD=
+SMM_API_KEY=
+SMM_API_URL=https://smmapi.com/api/v2
+SMM_MARKUP_PERCENT=50
+CRON_SECRET=
+```
+
+## Cron (sipariş durumu)
+
+```
+GET /api/cron/sync-orders?key=$CRON_SECRET
+```
+
+## Kullanıcı API
+
+`POST /api/v1` — `balance` · `services` · `add` · `status`
 
 ## Geliştirme
 

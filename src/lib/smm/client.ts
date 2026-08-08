@@ -64,27 +64,53 @@ export async function fetchSmmServices(): Promise<SmmRawService[]> {
 }
 
 export async function fetchSmmBalance(): Promise<{ balance: string; currency: string }> {
-  const data = (await smmPost({ action: "balance" })) as {
+  return (await smmPost({ action: "balance" })) as {
     balance: string;
     currency: string;
   };
-  return data;
 }
 
-export async function placeSmmOrder(input: {
+export type PlaceOrderInput = {
   service: number;
   link: string;
   quantity: number;
-}): Promise<{ order: number | string }> {
-  const data = (await smmPost({
+  comments?: string;
+  runs?: number;
+  interval?: number;
+};
+
+export async function placeSmmOrder(input: PlaceOrderInput): Promise<{ order: number | string }> {
+  const body: Record<string, string | number> = {
     action: "add",
     service: input.service,
     link: input.link,
     quantity: input.quantity,
-  })) as { order: number | string };
-  return data;
+  };
+  if (input.comments) body.comments = input.comments;
+  if (input.runs && input.interval) {
+    body.runs = input.runs;
+    body.interval = input.interval;
+  }
+  return (await smmPost(body)) as { order: number | string };
 }
 
 export async function fetchSmmOrderStatus(orderId: string | number) {
   return smmPost({ action: "status", order: orderId });
+}
+
+export async function fetchSmmMultiStatus(orderIds: Array<string | number>) {
+  return smmPost({
+    action: "status",
+    orders: orderIds.join(","),
+  }) as Promise<Record<string, {
+    status?: string;
+    charge?: string | number;
+    start_count?: string | number;
+    remains?: string | number;
+    currency?: string;
+  }>>;
+}
+
+export async function requestSmmRefill(orderId: string | number) {
+  return smmPost({ action: "refill", order: orderId });
 }

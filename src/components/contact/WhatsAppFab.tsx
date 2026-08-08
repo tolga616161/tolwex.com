@@ -1,12 +1,23 @@
 "use client";
 
+import { usePathname } from "next/navigation";
 import { IconWhatsApp } from "@/components/icons/CategoryIcons";
 import { CONTACT_PHONE_DISPLAY, whatsappUrl } from "@/lib/contact";
 
 export function WhatsAppFab() {
+  const pathname = usePathname() || "/";
+  if (pathname.startsWith("/admin61")) return null;
+  if (
+    pathname.startsWith("/uye") &&
+    !pathname.startsWith("/uye/giris") &&
+    !pathname.startsWith("/uye/kayit")
+  ) {
+    return null;
+  }
+
   return (
     <a
-      href={whatsappUrl("Merhaba, TOLWEX hizmetleri hakkında bilgi almak istiyorum.")}
+      href={whatsappUrl("Merhaba, TOLWEX SMM paneli hakkında yazıyorum.")}
       className="wa-fab"
       target="_blank"
       rel="noopener noreferrer"

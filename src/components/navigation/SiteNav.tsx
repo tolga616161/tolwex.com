@@ -3,21 +3,32 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
+import { usePathname } from "next/navigation";
 import { TolwexLogo } from "@/components/brand/TolwexLogo";
 import { whatsappUrl } from "@/lib/contact";
 
 const NAV = [
   { label: "Ana Sayfa", href: "/" },
   { label: "Servisler", href: "/hizmetler" },
+  { label: "SSS", href: "/sss" },
   { label: "Üye Ol", href: "/uye/kayit" },
   { label: "Giriş", href: "/uye/giris" },
   { label: "Panel", href: "/uye" },
 ];
 
+function isPanelChrome(path: string) {
+  if (path.startsWith("/admin61")) return true;
+  if (path.startsWith("/uye/giris") || path.startsWith("/uye/kayit")) return false;
+  if (path.startsWith("/uye")) return true;
+  return false;
+}
+
 export function SiteNav() {
+  const pathname = usePathname() || "/";
   const [mobileOpen, setMobileOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const hide = isPanelChrome(pathname);
 
   useEffect(() => {
     setMounted(true);
@@ -36,6 +47,8 @@ export function SiteNav() {
       document.body.style.overflow = "";
     };
   }, [mobileOpen]);
+
+  if (hide) return null;
 
   const wa = whatsappUrl("Merhaba, TOLWEX SMM paneli hakkında yazıyorum.");
 

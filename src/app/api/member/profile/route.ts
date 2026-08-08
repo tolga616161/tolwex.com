@@ -15,6 +15,7 @@ export async function GET() {
       name: member.name,
       phone: member.phone,
       balance: member.balance,
+      spent: member.spent,
       createdAt: member.createdAt,
     },
   });

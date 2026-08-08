@@ -27,6 +27,8 @@ model Member {
   name         String   @default("")
   phone        String   @default("")
   balance      Float    @default(0)
+  spent        Float    @default(0)
+  apiKey       String   @unique @default(cuid())
   active       Boolean  @default(true)
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
@@ -63,37 +65,44 @@ model SmmService {
 }
 
 model SmmOrder {
-  id                String     @id @default(cuid())
+  id                String      @id @default(cuid())
   memberId          String
-  member            Member     @relation(fields: [memberId], references: [id], onDelete: Cascade)
+  member            Member      @relation(fields: [memberId], references: [id], onDelete: Cascade)
   serviceId         String?
   service           SmmService? @relation(fields: [serviceId], references: [id], onDelete: SetNull)
   providerServiceId Int
-  serviceName       String     @default("")
+  serviceName       String      @default("")
+  serviceType       String      @default("Default")
   link              String
   quantity          Int
-  charge            Float      @default(0)
-  cost              Float      @default(0)
-  status            String     @default("pending")
+  charge            Float       @default(0)
+  cost              Float       @default(0)
+  status            String      @default("pending")
   providerOrderId   String?
+  startCounter      Int?
+  remains           Int?
+  comments          String      @default("")
+  dripfeedRuns      Int?
+  dripfeedInterval  Int?
   errorMessage      String?
-  createdAt         DateTime   @default(now())
-  updatedAt         DateTime   @updatedAt
+  createdAt         DateTime    @default(now())
+  updatedAt         DateTime    @updatedAt
 
   @@index([memberId, createdAt])
   @@index([status, createdAt])
+  @@index([providerOrderId])
 }
 
 model WalletTransaction {
-  id          String   @id @default(cuid())
-  memberId    String
-  member      Member   @relation(fields: [memberId], references: [id], onDelete: Cascade)
-  type        String   // deposit | order | adjust | coupon
-  amount      Float
-  balanceAfter Float   @default(0)
-  note        String   @default("")
-  refId       String   @default("")
-  createdAt   DateTime @default(now())
+  id           String   @id @default(cuid())
+  memberId     String
+  member       Member   @relation(fields: [memberId], references: [id], onDelete: Cascade)
+  type         String
+  amount       Float
+  balanceAfter Float    @default(0)
+  note         String   @default("")
+  refId        String   @default("")
+  createdAt    DateTime @default(now())
 
   @@index([memberId, createdAt])
 }
@@ -105,7 +114,7 @@ model BalanceRequest {
   amount    Float
   method    String   @default("whatsapp")
   note      String   @default("")
-  status    String   @default("pending") // pending | approved | rejected
+  status    String   @default("pending")
   adminNote String   @default("")
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -114,15 +123,15 @@ model BalanceRequest {
 }
 
 model Coupon {
-  id        String   @id @default(cuid())
-  code      String   @unique
-  amount    Float    @default(0)
-  percent   Float    @default(0)
-  maxUses   Int      @default(1)
-  usedCount Int      @default(0)
-  active    Boolean  @default(true)
+  id        String    @id @default(cuid())
+  code      String    @unique
+  amount    Float     @default(0)
+  percent   Float     @default(0)
+  maxUses   Int       @default(1)
+  usedCount Int       @default(0)
+  active    Boolean   @default(true)
   expiresAt DateTime?
-  createdAt DateTime @default(now())
+  createdAt DateTime  @default(now())
 }
 
 model SupportTicket {
@@ -131,7 +140,7 @@ model SupportTicket {
   member    Member?  @relation(fields: [memberId], references: [id], onDelete: SetNull)
   subject   String
   message   String
-  status    String   @default("open") // open | answered | closed
+  status    String   @default("open")
   reply     String   @default("")
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -139,9 +148,27 @@ model SupportTicket {
   @@index([status, createdAt])
 }
 
+model Faq {
+  id        String   @id @default(cuid())
+  question  String
+  answer    String
+  sort      Int      @default(0)
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+}
+
+model NewsItem {
+  id        String   @id @default(cuid())
+  type      String   @default("announcement")
+  title     String
+  body      String
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+  expiresAt DateTime?
+}
+
 model PanelSetting {
-  id    String @id @default("main")
-  /// JSON blob for panel settings
-  data  String @default("{}")
+  id        String   @id @default("main")
+  data      String   @default("{}")
   updatedAt DateTime @updatedAt
 }

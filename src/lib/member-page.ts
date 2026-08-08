@@ -15,6 +15,8 @@ export async function requireMemberPage() {
       name: true,
       phone: true,
       balance: true,
+      spent: true,
+      apiKey: true,
       createdAt: true,
     },
   });
