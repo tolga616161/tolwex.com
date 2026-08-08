@@ -91,17 +91,26 @@ export function AdminPanel() {
     return (
       <form onSubmit={login} className="surface rounded-2xl p-6 max-w-md space-y-4">
         <h1 className="display text-3xl">Admin Girişi</h1>
-        <p className="muted text-sm">
-          Ürün kataloğu ve Meta ayarları için giriş yapın.
-        </p>
+        <p className="muted text-sm">Sadece şifre girin.</p>
+        <label className="block text-sm muted" htmlFor="admin-password">
+          Şifre
+        </label>
         <input
+          id="admin-password"
+          name="password"
           type="password"
-          placeholder="Admin şifresi"
+          placeholder="Şifre"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           autoComplete="current-password"
+          autoFocus
+          required
         />
-        {loginError ? <p className="text-sm" style={{ color: "#ffc4c0" }}>{loginError}</p> : null}
+        {loginError ? (
+          <p className="text-sm" style={{ color: "#ffc4c0" }}>
+            {loginError}
+          </p>
+        ) : null}
         <button type="submit" className="btn btn-primary">
           Giriş yap
         </button>
