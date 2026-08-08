@@ -5,8 +5,6 @@ export type ProductCardData = {
   slug: string;
   name: string;
   shortDesc: string;
-  price?: number;
-  currency?: string;
   badge?: string | null;
   icon: string;
   accent: string;

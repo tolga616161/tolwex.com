@@ -19,16 +19,65 @@ export type StaticProduct = {
   sortOrder: number;
 };
 
-const PRODUCTS = productsJson as StaticProduct[];
+const FALLBACK = productsJson as StaticProduct[];
 
-export function getAllProducts(): StaticProduct[] {
-  return PRODUCTS.filter((p) => p.active).sort((a, b) => a.sortOrder - b.sortOrder);
+function isStaticExport() {
+  return process.env.GITHUB_PAGES === "1";
 }
 
-export function getFeaturedProducts(): StaticProduct[] {
-  return getAllProducts().filter((p) => p.featured);
+function sortProducts(list: StaticProduct[]) {
+  return [...list].sort((a, b) => a.sortOrder - b.sortOrder);
 }
 
-export function getProductBySlug(slug: string): StaticProduct | undefined {
-  return getAllProducts().find((p) => p.slug === slug);
+async function fromDatabase(activeOnly: boolean): Promise<StaticProduct[] | null> {
+  if (isStaticExport()) return null;
+  try {
+    const { prisma } = await import("@/lib/db");
+    const rows = await prisma.product.findMany({
+      where: activeOnly ? { active: true } : undefined,
+      orderBy: [{ sortOrder: "asc" }, { createdAt: "desc" }],
+    });
+    return rows.map((p) => ({
+      id: p.id,
+      slug: p.slug,
+      name: p.name,
+      shortDesc: p.shortDesc,
+      description: p.description,
+      price: 0,
+      currency: p.currency,
+      category: p.category,
+      badge: p.badge,
+      icon: p.icon,
+      accent: p.accent,
+      accent2: p.accent2,
+      features: p.features,
+      featured: p.featured,
+      active: p.active,
+      sortOrder: p.sortOrder,
+    }));
+  } catch {
+    return null;
+  }
+}
+
+/** Active services for storefront (DB when available, else JSON). */
+export async function getAllProducts(): Promise<StaticProduct[]> {
+  const db = await fromDatabase(true);
+  if (db) return db;
+  return sortProducts(FALLBACK.filter((p) => p.active));
+}
+
+export async function getFeaturedProducts(): Promise<StaticProduct[]> {
+  const all = await getAllProducts();
+  return all.filter((p) => p.featured);
+}
+
+export async function getProductBySlug(slug: string): Promise<StaticProduct | undefined> {
+  const all = await getAllProducts();
+  return all.find((p) => p.slug === slug);
+}
+
+/** Sync helpers for static export / generateStaticParams (JSON only). */
+export function getStaticProductSlugs() {
+  return FALLBACK.filter((p) => p.active).map((p) => p.slug);
 }

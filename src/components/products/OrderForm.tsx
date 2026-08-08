@@ -19,7 +19,7 @@ export function OrderForm({
       <h3 className="display text-xl">Teklif Al</h3>
       <p className="muted text-sm">{productName}</p>
       <p className="text-sm leading-relaxed muted">
-        Fiyat sitede yayınlanmaz. WhatsApp’tan yazın, size özel teklif iletilelim.
+        WhatsApp’tan yazın; size özel teklif iletilelim.
       </p>
       <a
         href={wa}

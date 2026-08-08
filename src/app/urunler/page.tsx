@@ -1,8 +1,8 @@
 import { ProductGrid } from "@/components/products/ProductGrid";
 import { getAllProducts } from "@/lib/products/data";
 
-export default function ProductsPage() {
-  const products = getAllProducts();
+export default async function ProductsPage() {
+  const products = await getAllProducts();
 
   return (
     <div className="site-shell py-8 pb-20">

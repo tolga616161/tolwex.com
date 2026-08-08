@@ -1008,6 +1008,15 @@ h3,
     transform: translateY(18px);
   }
 }
+@keyframes binaryPulse {
+  0%,
+  100% {
+    opacity: 0.12;
+  }
+  45% {
+    opacity: 0.65;
+  }
+}
 
 /* —— CATEGORIES —— */
 .category-bg {
@@ -1253,7 +1262,13 @@ h3,
 
 input[type="text"],
 input[type="password"],
-input[type="url"] {
+input[type="url"],
+input[type="number"],
+input[type="email"],
+input[type="tel"],
+input:not([type]),
+textarea,
+select {
   width: 100%;
   background: rgba(0, 0, 0, 0.25);
   border: 1px solid var(--line);
@@ -1262,7 +1277,25 @@ input[type="url"] {
   padding: 0.75rem 0.9rem;
   font: inherit;
 }
-input:focus {
+select {
+  cursor: pointer;
+}
+select option {
+  background: #0b1c24;
+  color: #eef6f7;
+}
+input[type="color"] {
+  width: 100%;
+  min-height: 2.6rem;
+  background: rgba(0, 0, 0, 0.25);
+  border: 1px solid var(--line);
+  border-radius: 0.65rem;
+  padding: 0.25rem;
+  cursor: pointer;
+}
+input:focus,
+textarea:focus,
+select:focus {
   outline: 2px solid rgba(46, 196, 182, 0.45);
   outline-offset: 1px;
 }

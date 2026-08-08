@@ -11,8 +11,11 @@ export type AppSession = {
 };
 
 function isHttpsApp(): boolean {
+  // Local/dev must use non-secure cookies even if NEXT_PUBLIC_APP_URL is https.
+  // Secure cookies break admin login on http://localhost.
+  if (process.env.NODE_ENV !== "production") return false;
   const url = process.env.NEXT_PUBLIC_APP_URL || "";
-  return url.startsWith("https://") || process.env.NODE_ENV === "production";
+  return url.startsWith("https://");
 }
 
 export function sessionOptions(): SessionOptions {

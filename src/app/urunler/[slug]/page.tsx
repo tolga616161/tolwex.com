@@ -3,10 +3,10 @@ import { notFound } from "next/navigation";
 import { CategoryIcon } from "@/components/icons/CategoryIcons";
 import { OrderForm } from "@/components/products/OrderForm";
 import { parseFeatures } from "@/lib/products/format";
-import { getAllProducts, getProductBySlug } from "@/lib/products/data";
+import { getProductBySlug, getStaticProductSlugs } from "@/lib/products/data";
 
 export function generateStaticParams() {
-  return getAllProducts().map((p) => ({ slug: p.slug }));
+  return getStaticProductSlugs().map((slug) => ({ slug }));
 }
 
 export default async function ProductDetailPage({
@@ -15,7 +15,7 @@ export default async function ProductDetailPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const product = getProductBySlug(slug);
+  const product = await getProductBySlug(slug);
   if (!product) notFound();
 
   const features = parseFeatures(product.features);

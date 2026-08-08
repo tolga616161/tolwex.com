@@ -227,13 +227,23 @@ async function main() {
     });
   }
 
-  // Hide old catalog items not in the new hizmet list
-  await prisma.product.updateMany({
+  // Remove obsolete catalog items (keep leads via SetNull on productId)
+  const obsolete = await prisma.product.findMany({
     where: { slug: { notIn: [...KEEP_SLUGS] } },
-    data: { active: false, featured: false },
+    select: { id: true, slug: true },
   });
+  if (obsolete.length) {
+    await prisma.product.deleteMany({
+      where: { id: { in: obsolete.map((p) => p.id) } },
+    });
+  }
 
-  console.log(`Seeded ${PRODUCTS.length} services; deactivated obsolete products`);
+  // Never store/display prices on the storefront
+  await prisma.product.updateMany({ data: { price: 0 } });
+
+  console.log(
+    `Seeded ${PRODUCTS.length} services; removed ${obsolete.length} obsolete products`
+  );
 }
 
 main()

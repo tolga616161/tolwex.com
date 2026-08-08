@@ -18,7 +18,7 @@ export default async function HomePage() {
     }
   }
 
-  const featuredProducts = getFeaturedProducts();
+  const featuredProducts = await getFeaturedProducts();
 
   return (
     <div className="site-shell pt-4 pb-20 space-y-14 relative">

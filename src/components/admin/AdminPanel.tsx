@@ -87,6 +87,14 @@ export function AdminPanel() {
     setTesting(false);
   }
 
+  async function logout() {
+    await fetch("/api/admin/login", { method: "DELETE" });
+    setAuthed(false);
+    setStatus(null);
+    setChecks([]);
+    setPassword("");
+  }
+
   if (!authed) {
     return (
       <form onSubmit={login} className="surface rounded-2xl p-6 max-w-md space-y-4">
@@ -127,11 +135,14 @@ export function AdminPanel() {
         </div>
         <div className="flex flex-wrap gap-2">
           <Link href="/admin61/products" className="btn btn-primary">
-            Ürün Yönetimi
+            Hizmet Yönetimi
           </Link>
           <Link href="/admin61/setup" className="btn btn-ghost">
             Meta API Kurulum
           </Link>
+          <button type="button" className="btn btn-ghost" onClick={logout}>
+            Çıkış
+          </button>
         </div>
       </div>
 
