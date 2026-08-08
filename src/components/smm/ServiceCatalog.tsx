@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
+import { formatMoney } from "@/lib/money";
 
 type Item = {
   id: string;
@@ -92,7 +93,7 @@ export function ServiceCatalog({ memberMode = false }: { memberMode?: boolean })
               </span>
             </div>
             <p className="smm-price">
-              <strong>{item.sellRate.toFixed(2)} ₺</strong>
+              <strong>{formatMoney(item.sellRate)}</strong>
               <span>/ 1000</span>
             </p>
             {memberMode ? (
@@ -146,7 +147,7 @@ function OrderModal({ item, onClose }: { item: Item; onClose: () => void }) {
   const [qty, setQty] = useState(item.min);
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState<string | null>(null);
-  const estimate = ((item.sellRate * qty) / 1000).toFixed(2);
+  const estimate = formatMoney(Math.round(((item.sellRate * qty) / 1000) * 100) / 100);
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();

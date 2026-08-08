@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { formatMoney } from "@/lib/money";
 
 type Item = {
   id: string;
@@ -67,7 +68,9 @@ export function NewOrderForm() {
   );
 
   const billQty = useDrip && selected?.dripfeed ? runs * qty : qty;
-  const charge = selected ? ((selected.sellRate * billQty) / 1000).toFixed(2) : "0.00";
+  const charge = selected
+    ? formatMoney(Math.round(((selected.sellRate * billQty) / 1000) * 100) / 100)
+    : formatMoney(0);
   const isComments =
     selected?.type?.toLowerCase().includes("custom_comments") ||
     selected?.type?.toLowerCase() === "custom comments";
@@ -171,7 +174,7 @@ export function NewOrderForm() {
             >
               {items.map((i) => (
                 <option key={i.id} value={i.id}>
-                  ID{i.providerServiceId} - {i.name} - {i.sellRate.toFixed(4)} ₺
+                  ID{i.providerServiceId} - {i.name} - {formatMoney(i.sellRate)}
                 </option>
               ))}
             </select>
@@ -189,7 +192,7 @@ export function NewOrderForm() {
               </div>
               <div>
                 <span>Fiyat / 1000</span>
-                <strong>{selected.sellRate.toFixed(4)} ₺</strong>
+                <strong>{formatMoney(selected.sellRate)}</strong>
               </div>
             </div>
           ) : null}
@@ -274,7 +277,7 @@ export function NewOrderForm() {
           ) : null}
 
           <div className="sp-charge">
-            Charge: <strong>{charge} ₺</strong>
+            Charge: <strong>{charge}</strong>
           </div>
 
           {err ? <p className="sp-err">{err}</p> : null}

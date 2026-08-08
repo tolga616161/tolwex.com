@@ -21,9 +21,16 @@ export function smmConfig() {
   };
 }
 
+/**
+ * Customer sell price = provider rate + markup%.
+ * Default +50%. Always ceil to 2 decimals (no tiny 4–5 digit fractions).
+ * Floor 0.01 so listing never shows 0,00.
+ */
 export function applyMarkup(rate: number, markupPercent = 50): number {
-  const sell = rate * (1 + markupPercent / 100);
-  return Math.round(sell * 10000) / 10000;
+  const raw = Number(rate) || 0;
+  const sell = raw * (1 + markupPercent / 100);
+  const ceiled = Math.ceil((sell - Number.EPSILON) * 100) / 100;
+  return Math.max(0.01, ceiled);
 }
 
 async function smmPost(body: Record<string, string | number>) {

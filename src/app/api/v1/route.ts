@@ -56,7 +56,7 @@ export async function POST(req: NextRequest) {
         name: s.name,
         type: s.type,
         category: s.category,
-        rate: s.sellRate,
+        rate: Math.round(s.sellRate * 100) / 100,
         min: s.min,
         max: s.max,
         dripfeed: s.dripfeed,
@@ -107,7 +107,7 @@ export async function POST(req: NextRequest) {
       for (const o of owned) {
         const k = o.providerOrderId || o.id;
         map[k] = {
-          charge: o.charge.toFixed(5),
+          charge: o.charge.toFixed(2),
           start_count: o.startCounter ?? 0,
           status: o.status,
           remains: o.remains ?? "",
@@ -145,7 +145,7 @@ export async function POST(req: NextRequest) {
       }
     }
     return NextResponse.json({
-      charge: order.charge.toFixed(5),
+      charge: order.charge.toFixed(2),
       start_count: order.startCounter ?? 0,
       status: order.status,
       remains: order.remains ?? "",

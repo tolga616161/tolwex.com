@@ -3,6 +3,25 @@ import { applyMarkup, fetchSmmServices, smmConfig } from "@/lib/smm/client";
 
 let syncing: Promise<Awaited<ReturnType<typeof syncSmmServices>>> | null = null;
 
+/** Recompute sellRate = rate + %markup, 2-decimal ceil — no provider call. */
+export async function recalculateSellRates() {
+  const { markupPercent } = smmConfig();
+  const all = await prisma.smmService.findMany({ select: { id: true, rate: true } });
+  const batchSize = 100;
+  for (let i = 0; i < all.length; i += batchSize) {
+    const chunk = all.slice(i, i + batchSize);
+    await Promise.all(
+      chunk.map((s) =>
+        prisma.smmService.update({
+          where: { id: s.id },
+          data: { sellRate: applyMarkup(s.rate, markupPercent) },
+        })
+      )
+    );
+  }
+  return { updated: all.length, markupPercent };
+}
+
 export async function syncSmmServices() {
   const { markupPercent } = smmConfig();
   const raw = await fetchSmmServices();

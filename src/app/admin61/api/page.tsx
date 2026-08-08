@@ -58,9 +58,30 @@ export default function AdminApiPage() {
           <code> SMM_API_KEY</code>, <code> SMM_API_URL</code>,{" "}
           <code> SMM_MARKUP_PERCENT</code>.
         </p>
-        <button type="button" className="btn btn-primary" onClick={sync} disabled={busy}>
-          {busy ? "Senkronlanıyor…" : "Servisleri senkronize et"}
-        </button>
+        <div className="flex flex-wrap gap-2">
+          <button type="button" className="btn btn-primary" onClick={sync} disabled={busy}>
+            {busy ? "Senkronlanıyor…" : "Servisleri senkronize et"}
+          </button>
+          <button
+            type="button"
+            className="btn btn-ghost"
+            disabled={busy}
+            onClick={async () => {
+              setBusy(true);
+              setSyncMsg(null);
+              const res = await fetch("/api/admin/smm/sync?reprice=1", { method: "POST" });
+              const data = await res.json().catch(() => ({}));
+              setBusy(false);
+              setSyncMsg(
+                res.ok
+                  ? `Fiyatlar yenilendi: ${data.updated ?? "?"} servis · %${data.markupPercent ?? 50} kâr · 2 ondalık`
+                  : data.error || "Fiyat güncellemesi başarısız"
+              );
+            }}
+          >
+            Fiyatları %50 ile yuvarla
+          </button>
+        </div>
         {syncMsg ? <p className="text-sm">{syncMsg}</p> : null}
       </div>
     </div>

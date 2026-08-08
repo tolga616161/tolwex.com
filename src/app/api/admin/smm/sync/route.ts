@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { requireAdminApi } from "@/lib/admin/auth";
 import { writeAuditLog } from "@/lib/audit";
 import { fetchSmmBalance, smmConfig } from "@/lib/smm/client";
-import { syncSmmServices } from "@/lib/smm/sync";
+import { recalculateSellRates, syncSmmServices } from "@/lib/smm/sync";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 60;
@@ -44,11 +44,22 @@ export async function GET() {
   });
 }
 
-export async function POST() {
+export async function POST(request: Request) {
   const gate = await requireAdminApi();
   if (!gate.ok) return gate.response;
 
   try {
+    const url = new URL(request.url);
+    if (url.searchParams.get("reprice") === "1") {
+      const result = await recalculateSellRates();
+      await writeAuditLog({
+        action: "smm.reprice",
+        actorType: "admin",
+        metadata: result,
+      });
+      return NextResponse.json({ ok: true, ...result });
+    }
+
     const result = await syncSmmServices();
     await writeAuditLog({
       action: "smm.sync",

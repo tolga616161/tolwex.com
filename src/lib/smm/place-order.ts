@@ -46,8 +46,8 @@ export async function placeMemberOrder(input: PlaceOrderRequest) {
     );
   }
 
-  const charge = Math.round(((service.sellRate * billQty) / 1000) * 10000) / 10000;
-  const cost = Math.round(((service.rate * billQty) / 1000) * 10000) / 10000;
+  const charge = Math.round(((service.sellRate * billQty) / 1000) * 100) / 100;
+  const cost = Math.round(((service.rate * billQty) / 1000) * 100) / 100;
 
   if (member.balance < charge) {
     throw Object.assign(
