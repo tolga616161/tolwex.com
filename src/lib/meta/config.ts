@@ -9,6 +9,8 @@ export type MetaRuntimeConfig = {
   domain: string;
   apiVersion: string;
   webhookVerifyToken: string;
+  igBusinessAccountId: string;
+  facebookPageId: string;
   source: "env" | "database" | "none";
 };
 
@@ -25,6 +27,8 @@ export async function getMetaConfig(): Promise<MetaRuntimeConfig> {
   const envWebhook = envValue("META_WEBHOOK_VERIFY_TOKEN");
   const envDomain = envValue("NEXT_PUBLIC_APP_URL");
 
+  const row = await prisma.metaConfig.findFirst({ orderBy: { updatedAt: "desc" } });
+
   if (envAppId && envSecret && envRedirect) {
     return {
       configured: true,
@@ -34,11 +38,12 @@ export async function getMetaConfig(): Promise<MetaRuntimeConfig> {
       domain: envDomain,
       apiVersion: envVersion,
       webhookVerifyToken: envWebhook,
+      igBusinessAccountId: row?.igBusinessAccountId || "",
+      facebookPageId: row?.facebookPageId || "",
       source: "env",
     };
   }
 
-  const row = await prisma.metaConfig.findFirst({ orderBy: { updatedAt: "desc" } });
   if (row?.configured && row.appId && row.encryptedAppSecret && row.redirectUri) {
     let appSecret = "";
     try {
@@ -52,6 +57,8 @@ export async function getMetaConfig(): Promise<MetaRuntimeConfig> {
         domain: row.domain,
         apiVersion: row.apiVersion || "v21.0",
         webhookVerifyToken: row.webhookVerifyToken || "",
+        igBusinessAccountId: row.igBusinessAccountId || "",
+        facebookPageId: row.facebookPageId || "",
         source: "database",
       };
     }
@@ -63,6 +70,8 @@ export async function getMetaConfig(): Promise<MetaRuntimeConfig> {
       domain: row.domain,
       apiVersion: row.apiVersion || "v21.0",
       webhookVerifyToken: row.webhookVerifyToken || "",
+      igBusinessAccountId: row.igBusinessAccountId || "",
+      facebookPageId: row.facebookPageId || "",
       source: "database",
     };
   }
@@ -75,6 +84,8 @@ export async function getMetaConfig(): Promise<MetaRuntimeConfig> {
     domain: envDomain || row?.domain || "",
     apiVersion: envVersion || row?.apiVersion || "v21.0",
     webhookVerifyToken: envWebhook || row?.webhookVerifyToken || "",
+    igBusinessAccountId: row?.igBusinessAccountId || "",
+    facebookPageId: row?.facebookPageId || "",
     source: "none",
   };
 }
@@ -87,14 +98,28 @@ export async function getMetaPublicStatus() {
     where: { connected: true },
   });
 
+  const connectionStatus =
+    row?.lastTestOk === true
+      ? "CONNECTED"
+      : row?.lastTestOk === false
+        ? "ERROR"
+        : config.configured
+          ? "NOT CONNECTED"
+          : "NOT CONNECTED";
+
   return {
     configured: config.configured,
     source: config.source,
     appIdConfigured: Boolean(config.appId),
     appSecretConfigured: Boolean(config.appSecret),
+    appIdMasked: config.appId
+      ? `${config.appId.slice(0, 4)}…${config.appId.slice(-4)}`
+      : null,
     redirectUri: config.redirectUri || null,
     domain: config.domain || null,
     apiVersion: config.apiVersion,
+    igBusinessAccountId: config.igBusinessAccountId || null,
+    facebookPageId: config.facebookPageId || null,
     webhookConfigured: Boolean(config.webhookVerifyToken),
     webhookCallbackUrl: `${process.env.NEXT_PUBLIC_APP_URL || ""}/api/meta/webhook`,
     lastTestAt: row?.lastTestAt?.toISOString() ?? null,
@@ -103,9 +128,8 @@ export async function getMetaPublicStatus() {
     lastApiRequestAt: row?.lastApiRequestAt?.toISOString() ?? null,
     lastApiError: row?.lastApiError ?? null,
     connectedAccountsCount: connectedCount,
-    integrationStatus: config.configured
-      ? "ready"
-      : "not_configured",
+    connectionStatus,
+    integrationStatus: config.configured ? "ready" : "not_configured",
     message: config.configured
       ? "Meta entegrasyonu yapılandırıldı."
       : "Meta entegrasyonu henüz yapılandırılmadı.",
@@ -119,6 +143,8 @@ export async function upsertMetaConfig(input: {
   domain: string;
   apiVersion: string;
   webhookVerifyToken?: string;
+  igBusinessAccountId?: string;
+  facebookPageId?: string;
 }) {
   const existing = await prisma.metaConfig.findFirst({ orderBy: { updatedAt: "desc" } });
   let encryptedAppSecret = existing?.encryptedAppSecret || "";
@@ -137,6 +163,9 @@ export async function upsertMetaConfig(input: {
     domain: input.domain.trim(),
     apiVersion: input.apiVersion.trim() || "v21.0",
     webhookVerifyToken: input.webhookVerifyToken?.trim() || existing?.webhookVerifyToken || "",
+    igBusinessAccountId:
+      input.igBusinessAccountId?.trim() ?? existing?.igBusinessAccountId ?? "",
+    facebookPageId: input.facebookPageId?.trim() ?? existing?.facebookPageId ?? "",
     configured,
   };
 

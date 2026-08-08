@@ -73,6 +73,12 @@ export function DashboardPreview() {
             <Link href="/instagram/connect" className="btn btn-primary">
               Instagram ile Bağlan
             </Link>
+            <Link href="/analiz/profilime-kim-bakti" className="btn btn-ghost">
+              Profilime Kim Baktı?
+            </Link>
+            <Link href="/analiz/beni-engelleyenler" className="btn btn-ghost">
+              Engelleme Analizi
+            </Link>
             <Link href="/instagram/dashboard" className="btn btn-ghost">
               Paneli Aç
             </Link>
@@ -85,10 +91,10 @@ export function DashboardPreview() {
 
 export function ProfileVisitSection() {
   return (
-    <section className="home-section">
+    <section id="profil-ziyaret" className="home-section">
       <div className="site-shell split-block">
         <div>
-          <p className="section-kicker">Profil</p>
+          <p className="section-kicker">Profilime Kim Baktı?</p>
           <h2 className="section-title">PROFİL ZİYARET ANALİZİ</h2>
           <p className="section-sub">
             Instagram kullanıcı bazında profil ziyaretçi listesini üçüncü taraf
@@ -97,10 +103,17 @@ export function ProfileVisitSection() {
           </p>
           <p className="legal-note">
             Kesin ziyaretçi listesi üretilmez. Yalnızca erişilebilir sinyaller
-            yorumlanır.
+            yorumlanır — TAHMİNİ ANALİZ.
           </p>
+          <Link href="/analiz/profilime-kim-bakti" className="btn btn-primary mt-4 inline-flex">
+            Analiz ekranını aç
+          </Link>
         </div>
-        <div className="mono-panel">
+        <div className="mono-panel analysis-feature-card">
+          <div className="analysis-visual accent-eye" aria-hidden>
+            <span className="analysis-visual-orb" />
+            <span className="analysis-visual-core">◉</span>
+          </div>
           <p className="mono-panel-title">Sinyal katmanları</p>
           <ul className="mono-list">
             <li>Erişilebilir etkileşim verisi</li>
@@ -116,17 +129,25 @@ export function ProfileVisitSection() {
 
 export function BlockingSection() {
   return (
-    <section className="home-section section-alt">
+    <section id="engelleme" className="home-section section-alt">
       <div className="site-shell split-block">
         <div>
-          <p className="section-kicker">Engelleme</p>
-          <h2 className="section-title">MUHTEMEL ENGELLEME SİNYALLERİ</h2>
+          <p className="section-kicker">Beni Engelleyenler</p>
+          <h2 className="section-title">ENGELLEME ANALİZİ</h2>
           <p className="section-sub">
             Bu analiz resmi bir Instagram engelleme listesi değildir. TOLWEX
-            yalnızca erişilebilen gerçek veri değişikliklerini analiz eder.
+            yalnızca erişilebilen gerçek veri değişikliklerini — muhtemel
+            engelleme sinyallerini — yorumlar.
           </p>
+          <Link href="/analiz/beni-engelleyenler" className="btn btn-primary mt-4 inline-flex">
+            Engelleme analizini aç
+          </Link>
         </div>
-        <div className="mono-panel">
+        <div className="mono-panel analysis-feature-card">
+          <div className="analysis-visual accent-block" aria-hidden>
+            <span className="analysis-visual-orb" />
+            <span className="analysis-visual-core">⊘</span>
+          </div>
           <p className="mono-panel-title">Ne gösterilir?</p>
           <ul className="mono-list">
             <li>Karşılıklı görünürlük değişimleri</li>
@@ -159,9 +180,17 @@ export function UnfollowSection() {
             kurup ilk kaydı oluşturduktan sonra sonraki kontrollerde fark
             analizi yapılabilir. Sahte veri oluşturulmaz.
           </p>
-          <Link href="/instagram/connect" className="btn btn-primary mt-6 inline-flex">
-            İlk kaydı başlat
-          </Link>
+          <div className="flex flex-wrap gap-3 mt-6">
+            <Link href="/analiz/takipten-cikanlar" className="btn btn-primary inline-flex">
+              Takipten çıkanlar
+            </Link>
+            <Link href="/analiz/takip-etmeyenler" className="btn btn-ghost inline-flex">
+              Takip etmeyenler
+            </Link>
+            <Link href="/instagram/connect" className="btn btn-ghost inline-flex">
+              İlk kaydı başlat
+            </Link>
+          </div>
         </div>
       </div>
     </section>
@@ -204,6 +233,9 @@ export function FakeRiskSection() {
               </div>
             ))}
           </div>
+          <Link href="/analiz/fake-hesap" className="btn btn-primary mt-6 inline-flex">
+            Risk analizini aç
+          </Link>
         </div>
       </div>
     </section>

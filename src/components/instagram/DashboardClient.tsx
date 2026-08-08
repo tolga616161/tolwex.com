@@ -159,6 +159,22 @@ export function DashboardClient() {
 
       <div className="surface rounded-2xl p-4 text-sm fade-up-delay">{data.privacyNotice}</div>
 
+      <div className="grid sm:grid-cols-2 xl:grid-cols-3 gap-3 fade-up-delay">
+        {[
+          { href: "/analiz/profilime-kim-bakti", t: "Profilime Kim Baktı?", s: "Tahmini analiz" },
+          { href: "/analiz/beni-engelleyenler", t: "Engelleme Analizi", s: "Muhtemel sinyaller" },
+          { href: "/analiz/takipten-cikanlar", t: "Takipten Çıkanlar", s: "Karşılaştırmalı" },
+          { href: "/analiz/takip-etmeyenler", t: "Takip Etmeyenler", s: "Karşılaştırmalı" },
+          { href: "/analiz/fake-hesap", t: "Fake Hesap Analizi", s: "Risk skoru 0–100" },
+          { href: "/instagram/security", t: "Güvenlik Merkezi", s: "Checklist + OAuth" },
+        ].map((c) => (
+          <Link key={c.href} href={c.href} className="surface rounded-2xl p-4 hover:border-white/30 transition-colors">
+            <p className="font-semibold text-white mb-1">{c.t}</p>
+            <p className="muted text-sm">{c.s}</p>
+          </Link>
+        ))}
+      </div>
+
       {!data.metaConfigured ? (
         <div className="surface rounded-2xl p-6">
           <p className="mb-4">

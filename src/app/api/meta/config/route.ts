@@ -21,6 +21,12 @@ export async function GET() {
   return NextResponse.json({
     ...status,
     webhookVerifyToken: config.webhookVerifyToken || null,
+    appId: config.source === "env" ? "" : config.appId || "",
+    // When env-managed, admin edits DB optional IDs only; never return secret
+    envManaged: config.source === "env",
+    igBusinessAccountId: config.igBusinessAccountId || "",
+    facebookPageId: config.facebookPageId || "",
+    hints: (await import("@/lib/meta/public-urls")).getMetaDomainHints(),
   });
 }
 
@@ -31,6 +37,8 @@ const bodySchema = z.object({
   domain: z.string().min(1),
   apiVersion: z.string().default("v21.0"),
   webhookVerifyToken: z.string().optional(),
+  igBusinessAccountId: z.string().optional(),
+  facebookPageId: z.string().optional(),
 });
 
 export async function POST(req: NextRequest) {

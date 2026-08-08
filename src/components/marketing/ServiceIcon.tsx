@@ -8,7 +8,9 @@ type Icon =
   | "report"
   | "news"
   | "security"
-  | "social";
+  | "social"
+  | "eye"
+  | "block";
 
 export function ServiceIcon({ name }: { name: Icon }) {
   return (
@@ -28,18 +30,50 @@ export function ServiceIcon({ name }: { name: Icon }) {
           <circle cx="33" cy="15" r="2" fill="currentColor" />
         </>
       )}
+      {name === "eye" && (
+        <>
+          <path
+            d="M6 24c4-8 10-12 18-12s14 4 18 12c-4 8-10 12-18 12S10 32 6 24z"
+            stroke="currentColor"
+            strokeWidth="2"
+          />
+          <circle cx="24" cy="24" r="6" stroke="currentColor" strokeWidth="2" />
+          <circle cx="24" cy="24" r="2.5" fill="currentColor" />
+        </>
+      )}
+      {name === "block" && (
+        <>
+          <circle cx="24" cy="24" r="14" stroke="currentColor" strokeWidth="2" />
+          <path d="M14 14l20 20" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" />
+        </>
+      )}
       {name === "followers" && (
         <>
           <circle cx="18" cy="18" r="5" stroke="currentColor" strokeWidth="2" />
           <circle cx="30" cy="18" r="5" stroke="currentColor" strokeWidth="2" />
-          <path d="M10 36c1.5-6 6-9 14-9s12.5 3 14 9" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+          <path
+            d="M10 36c1.5-6 6-9 14-9s12.5 3 14 9"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+          />
         </>
       )}
       {name === "unfollow" && (
         <>
           <circle cx="20" cy="18" r="6" stroke="currentColor" strokeWidth="2" />
-          <path d="M10 36c1.2-7 5-10 10-10" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-          <path d="M28 20l12 12M40 20L28 32" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+          <path
+            d="M10 36c1.2-7 5-10 10-10"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+          />
+          <path
+            d="M28 20l12 12M40 20L28 32"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+          />
         </>
       )}
       {name === "nonfollow" && (
@@ -47,7 +81,13 @@ export function ServiceIcon({ name }: { name: Icon }) {
           <circle cx="16" cy="20" r="5" stroke="currentColor" strokeWidth="2" />
           <circle cx="32" cy="20" r="5" stroke="currentColor" strokeWidth="2" />
           <path d="M16 28v6M32 28v2" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-          <path d="M22 20h4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" opacity="0.5" />
+          <path
+            d="M22 20h4"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            opacity="0.5"
+          />
         </>
       )}
       {name === "fake" && (
@@ -67,14 +107,29 @@ export function ServiceIcon({ name }: { name: Icon }) {
       {name === "news" && (
         <>
           <rect x="8" y="12" width="22" height="26" rx="2" stroke="currentColor" strokeWidth="2" />
-          <path d="M12 18h14M12 24h10M12 30h12" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+          <path
+            d="M12 18h14M12 24h10M12 30h12"
+            stroke="currentColor"
+            strokeWidth="1.8"
+            strokeLinecap="round"
+          />
           <path d="M28 18l8-4v22l-8-4V18z" stroke="currentColor" strokeWidth="2" />
         </>
       )}
       {name === "security" && (
         <>
-          <path d="M24 8l14 6v10c0 9-6 14-14 16C16 38 10 33 10 24V14l14-6z" stroke="currentColor" strokeWidth="2" />
-          <path d="M18 24l4 4 8-8" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
+          <path
+            d="M24 8l14 6v10c0 9-6 14-14 16C16 38 10 33 10 24V14l14-6z"
+            stroke="currentColor"
+            strokeWidth="2"
+          />
+          <path
+            d="M18 24l4 4 8-8"
+            stroke="currentColor"
+            strokeWidth="2.2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
         </>
       )}
       {name === "social" && (

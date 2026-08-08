@@ -8,6 +8,7 @@ import { TolwexLogo } from "@/components/brand/TolwexLogo";
 const NAV = [
   { label: "Ana Sayfa", href: "/" },
   { label: "Analiz", href: "/#analiz" },
+  { label: "Kim Baktı?", href: "/analiz/profilime-kim-bakti" },
   { label: "Hizmetler", href: "/#hizmetler" },
   { label: "Güvenlik", href: "/#guvenlik" },
   { label: "Nasıl Çalışır?", href: "/#nasil-calisir" },

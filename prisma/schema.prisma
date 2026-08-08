@@ -17,6 +17,9 @@ model MetaConfig {
   domain               String   @default("")
   apiVersion           String   @default("v21.0")
   webhookVerifyToken   String   @default("")
+  /// Optional — entered by admin when available from Meta panel
+  igBusinessAccountId  String   @default("")
+  facebookPageId       String   @default("")
   configured           Boolean  @default(false)
   lastTestAt           DateTime?
   lastTestOk           Boolean?
@@ -152,4 +155,53 @@ model OrderLead {
 
   @@index([status])
   @@index([createdAt])
+}
+
+/// Analysis job / result — never invent user lists; empty when API lacks data
+model AnalysisRun {
+  id               String   @id @default(cuid())
+  visitorSessionId String?
+  connectionId     String?
+  /// profile_visit | blocking | unfollowers | non_followers | fake_risk | general
+  type             String
+  /// pending | running | completed | insufficient_data | unavailable
+  status           String   @default("pending")
+  /// estimated | signal | comparative | unavailable
+  mode             String   @default("unavailable")
+  summary          String   @default("")
+  /// Safe JSON result — no fake usernames
+  resultJson       String   @default("{}")
+  errorMessage     String?
+  createdAt        DateTime @default(now())
+  completedAt      DateTime?
+
+  @@index([type, createdAt])
+  @@index([visitorSessionId])
+  @@index([status])
+}
+
+/// Snapshot of following/followers when Graph API actually returns them
+model RelationshipSnapshot {
+  id               String   @id @default(cuid())
+  connectionId     String
+  /// followers | following
+  listType         String
+  /// JSON array of { id, username } from API — empty if unavailable
+  entriesJson      String   @default("[]")
+  entryCount       Int      @default(0)
+  source           String   @default("graph_api")
+  createdAt        DateTime @default(now())
+
+  @@index([connectionId, listType, createdAt])
+}
+
+model AdminNotification {
+  id        String   @id @default(cuid())
+  title     String
+  body      String   @default("")
+  level     String   @default("info")
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@index([read, createdAt])
 }
