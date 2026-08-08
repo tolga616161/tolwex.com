@@ -27,7 +27,12 @@ export async function getMetaConfig(): Promise<MetaRuntimeConfig> {
   const envWebhook = envValue("META_WEBHOOK_VERIFY_TOKEN");
   const envDomain = envValue("NEXT_PUBLIC_APP_URL");
 
-  const row = await prisma.metaConfig.findFirst({ orderBy: { updatedAt: "desc" } });
+  let row: Awaited<ReturnType<typeof prisma.metaConfig.findFirst>> = null;
+  try {
+    row = await prisma.metaConfig.findFirst({ orderBy: { updatedAt: "desc" } });
+  } catch {
+    row = null;
+  }
 
   if (envAppId && envSecret && envRedirect) {
     return {
@@ -93,10 +98,16 @@ export async function getMetaConfig(): Promise<MetaRuntimeConfig> {
 /** Public-safe status for admin UI — never includes secrets. */
 export async function getMetaPublicStatus() {
   const config = await getMetaConfig();
-  const row = await prisma.metaConfig.findFirst({ orderBy: { updatedAt: "desc" } });
-  const connectedCount = await prisma.instagramConnection.count({
-    where: { connected: true },
-  });
+  let row: Awaited<ReturnType<typeof prisma.metaConfig.findFirst>> = null;
+  let connectedCount = 0;
+  try {
+    row = await prisma.metaConfig.findFirst({ orderBy: { updatedAt: "desc" } });
+    connectedCount = await prisma.instagramConnection.count({
+      where: { connected: true },
+    });
+  } catch {
+    // SQLite may be unavailable on cold start — env-based config still works
+  }
 
   const connectionStatus =
     row?.lastTestOk === true

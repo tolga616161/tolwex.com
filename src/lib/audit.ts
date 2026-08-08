@@ -23,12 +23,16 @@ export async function writeAuditLog(params: {
     }
   }
 
-  await prisma.auditLog.create({
-    data: {
-      action: params.action,
-      actorType: params.actorType || "system",
-      actorId: params.actorId || null,
-      metadata: JSON.stringify(safe),
-    },
-  });
+  try {
+    await prisma.auditLog.create({
+      data: {
+        action: params.action,
+        actorType: params.actorType || "system",
+        actorId: params.actorId || null,
+        metadata: JSON.stringify(safe),
+      },
+    });
+  } catch {
+    // Never block login/OAuth if audit DB is unavailable (e.g. cold SQLite on Vercel)
+  }
 }
