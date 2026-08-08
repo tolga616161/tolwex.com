@@ -4,13 +4,14 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { TolwexLogo } from "@/components/brand/TolwexLogo";
+import { whatsappUrl } from "@/lib/contact";
 
 const NAV = [
   { label: "Ana Sayfa", href: "/" },
-  { label: "Analiz", href: "/#analiz" },
   { label: "Kim Baktı?", href: "/analiz/profilime-kim-bakti" },
+  { label: "Güvenlik", href: "/instagram/security" },
   { label: "Hizmetler", href: "/#hizmetler" },
-  { label: "Güvenlik", href: "/#guvenlik" },
+  { label: "Analiz", href: "/#analiz" },
   { label: "Nasıl Çalışır?", href: "/#nasil-calisir" },
 ];
 
@@ -36,6 +37,8 @@ export function SiteNav() {
       document.body.style.overflow = "";
     };
   }, [mobileOpen]);
+
+  const wa = whatsappUrl("Merhaba, TOLWEX hakkında yazıyorum.");
 
   const mobileMenu =
     mounted &&
@@ -72,19 +75,21 @@ export function SiteNav() {
           </nav>
           <div className="mt-10 grid gap-3">
             <Link
-              href="/instagram/dashboard"
+              href="/analiz/profilime-kim-bakti"
               className="btn btn-ghost"
               onClick={() => setMobileOpen(false)}
             >
-              Giriş Yap
+              Profil Analizi
             </Link>
-            <Link
-              href="/instagram/connect"
+            <a
+              href={wa}
               className="btn btn-primary"
+              target="_blank"
+              rel="noopener noreferrer"
               onClick={() => setMobileOpen(false)}
             >
-              Instagram ile Bağlan
-            </Link>
+              WhatsApp Destek
+            </a>
           </div>
         </div>
       </div>,
@@ -120,12 +125,12 @@ export function SiteNav() {
         </nav>
 
         <div className="nav-actions">
-          <Link href="/instagram/dashboard" className="nav-link nav-login">
-            Giriş Yap
+          <Link href="/instagram/security" className="nav-link nav-login">
+            Güvenlik
           </Link>
-          <Link href="/instagram/connect" className="btn btn-primary nav-cta">
-            Instagram ile Bağlan
-          </Link>
+          <a href={wa} className="btn btn-primary nav-cta" target="_blank" rel="noopener noreferrer">
+            WhatsApp
+          </a>
         </div>
       </div>
       {mobileMenu}

@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { whatsappUrl } from "@/lib/contact";
 
 export function HeroSection() {
   return (
@@ -12,15 +13,23 @@ export function HeroSection() {
           <span className="title-line hero-title-accent">VERİYE DÖNÜŞTÜRÜN.</span>
         </h1>
         <p className="hero-sub">
-          TOLWEX, sosyal medya hesaplarınızın erişilebilen gerçek verilerini analiz
-          ederek daha anlaşılır ve güçlü içgörüler sunar.
+          Profil ziyaret analizi, hesap güvenliği ve sosyal istihbarat —
+          IP takibi veya şifre istemeden, profesyonel danışmanlık katmanında.
         </p>
         <div className="hero-actions">
-          <Link href="/instagram/connect" className="btn btn-primary">
-            Instagram ile Bağlan
+          <Link href="/analiz/profilime-kim-bakti" className="btn btn-primary">
+            Profilime Kim Baktı?
           </Link>
-          <a href="#nasil-calisir" className="btn btn-ghost">
-            Nasıl Çalışır?
+          <Link href="/instagram/security" className="btn btn-ghost">
+            Hesap Güvenliği
+          </Link>
+          <a
+            href={whatsappUrl("Merhaba, TOLWEX hizmetleri hakkında bilgi almak istiyorum.")}
+            className="btn btn-ghost"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            WhatsApp
           </a>
         </div>
       </div>

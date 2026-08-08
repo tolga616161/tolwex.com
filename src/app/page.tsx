@@ -18,13 +18,13 @@ export default function HomePage() {
       <PageAtmosphere />
       <HeroSection />
       <ServicesSection />
-      <DashboardPreview />
       <ProfileVisitSection />
+      <SecuritySection />
+      <DashboardPreview />
       <BlockingSection />
       <UnfollowSection />
       <FakeRiskSection />
       <NewsRemovalSection />
-      <SecuritySection />
       <HowItWorksSection />
     </div>
   );

@@ -38,8 +38,8 @@ export default function Page() {
             ))}
           </ul>
           <p className="muted text-sm mt-4">
-            Skor, bağlı hesap verisi geldiğinde hesaplanır. Bağlantı yokken örnek
-            kullanıcı uydurulmaz.
+            Skor yalnızca erişilebilir profil sinyallerinden hesaplanır. Veri yokken
+            örnek kullanıcı uydurulmaz.
           </p>
         </div>
       </div>

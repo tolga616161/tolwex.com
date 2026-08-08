@@ -1,7 +1,10 @@
 import Link from "next/link";
-import { ConnectButton } from "@/components/ConnectButton";
 import { SecurityChecklist } from "@/components/instagram/SecurityChecklist";
-import { API_NOT_PROVIDED } from "@/lib/meta/api";
+import { CONTACT_PHONE_DISPLAY, whatsappUrl } from "@/lib/contact";
+
+export const metadata = {
+  title: "Hesap Güvenliği — TOLWEX",
+};
 
 const topics = [
   {
@@ -31,7 +34,7 @@ const topics = [
   },
   {
     title: "Güçlü parola",
-    text: "Benzersiz ve uzun bir parola kullanın; paylaşmayın.",
+    text: "Benzersiz ve uzun bir parola kullanın; paylaşmayın. Bu sitede şifre istenmez.",
     href: "https://help.instagram.com/369001354735370",
   },
   {
@@ -43,51 +46,58 @@ const topics = [
 
 export default function SecurityCenterPage() {
   return (
-    <div className="site-shell py-10 pb-20 space-y-10">
-      <section className="fade-up">
+    <div className="site-shell py-10 pb-20 space-y-10 security-page">
+      <section className="security-page-hero glass-panel rounded-3xl p-6 md:p-10 fade-up">
+        <p className="section-kicker">Hesap Güvenliği</p>
         <h1 className="display text-4xl md:text-5xl font-bold mb-3">Güvenlik Merkezi</h1>
-        <p className="muted max-w-2xl">
-          Bu merkez resmi Meta API’nin sağlayabildiği bağlantı bilgileri ile sizin
-          kendi kontrol listenizi bir araya getirir. API’nin doğrulamadığı iddialar
-          üretilmez.
+        <p className="muted max-w-2xl mb-4">
+          Resmi Instagram güvenlik adımları ve TOLWEX kontrol listesi. IP ile gizli
+          takip yok; şifrenizi bu sitede yazmanız gerekmez.
         </p>
-      </section>
-
-      <section className="surface rounded-2xl p-6 fade-up-delay">
-        <h2 className="display text-2xl mb-3">Güvenlik Kontrolü</h2>
-        <ul className="space-y-3">
-          <li className="flex gap-3 items-center">
-            <span className="status-dot status-warn" />
-            <span>Bazı güvenlik bilgileri API tarafından sağlanmıyor</span>
-          </li>
-          <li className="flex gap-3 items-center">
-            <span className="status-dot status-idle" />
-            <span className="muted">{API_NOT_PROVIDED.securityScore}</span>
-          </li>
-          <li className="flex gap-3 items-center">
-            <span className="status-dot status-idle" />
-            <span className="muted">{API_NOT_PROVIDED.selfieVerification}</span>
-          </li>
-          <li className="flex gap-3 items-center">
-            <span className="status-dot status-idle" />
-            <span className="muted">{API_NOT_PROVIDED.twoFactorStatus}</span>
-          </li>
-        </ul>
-        <p className="mt-5 text-sm muted border-t border-white/10 pt-4">
-          İncelemeniz önerilir. Şüpheli giriş fark ettiyseniz resmi hesap güvenliği
-          adımlarını uygulayın.
-        </p>
-        <div className="mt-5 flex flex-wrap gap-3">
-          <ConnectButton label="Instagram Hesabını Bağla" />
-          <Link href="/instagram/dashboard" className="btn btn-ghost">
-            Kontrol Ekranı
+        <div className="flex flex-wrap gap-3">
+          <a
+            href={whatsappUrl("Hesap güvenliği hakkında yazıyorum.")}
+            className="btn btn-primary"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            WhatsApp Destek · {CONTACT_PHONE_DISPLAY}
+          </a>
+          <Link href="/analiz/profilime-kim-bakti" className="btn btn-ghost">
+            Profilime Kim Baktı?
           </Link>
         </div>
       </section>
 
+      <section className="surface rounded-2xl p-6 fade-up-delay security-status-panel">
+        <h2 className="display text-2xl mb-3">Öncelikli kontroller</h2>
+        <ul className="space-y-3">
+          <li className="flex gap-3 items-center">
+            <span className="status-dot status-warn" />
+            <span>2FA açık mı? Yedek kodlar saklandı mı?</span>
+          </li>
+          <li className="flex gap-3 items-center">
+            <span className="status-dot status-idle" />
+            <span className="muted">Tanımadığınız oturum / cihaz var mı?</span>
+          </li>
+          <li className="flex gap-3 items-center">
+            <span className="status-dot status-idle" />
+            <span className="muted">Kullanılmayan üçüncü taraf uygulama erişimi?</span>
+          </li>
+          <li className="flex gap-3 items-center">
+            <span className="status-dot status-ok" />
+            <span className="muted">TOLWEX şifre veya IP takibi istemez</span>
+          </li>
+        </ul>
+        <p className="mt-5 text-sm muted border-t border-white/10 pt-4">
+          Şüpheli giriş fark ettiyseniz resmi hesap güvenliği adımlarını uygulayın;
+          gerekirse WhatsApp’tan yazın.
+        </p>
+      </section>
+
       <section className="grid md:grid-cols-2 gap-4">
         {topics.map((t) => (
-          <article key={t.title} className="surface rounded-2xl p-5">
+          <article key={t.title} className="surface rounded-2xl p-5 security-topic-card">
             <h3 className="display text-xl mb-2">{t.title}</h3>
             <p className="muted text-sm mb-4 leading-relaxed">{t.text}</p>
             <a

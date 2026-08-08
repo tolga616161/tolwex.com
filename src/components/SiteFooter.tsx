@@ -7,7 +7,8 @@ const LINKS = [
   { label: "Gizlilik", href: "/privacy" },
   { label: "Kullanım Koşulları", href: "/terms" },
   { label: "SSS", href: "/instagram/guide" },
-  { label: "İletişim", href: "/instagram/connect" },
+  { label: "Kim Baktı?", href: "/analiz/profilime-kim-bakti" },
+  { label: "İletişim", href: "/#guvenlik" },
 ];
 
 export function SiteFooter() {

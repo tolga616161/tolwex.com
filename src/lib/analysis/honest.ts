@@ -22,13 +22,14 @@ export const ANALYSIS_CATALOG: AnalysisAvailability[] = [
     apiProvidesUserList: false,
     headline: "Profil Ziyaret Tahmini",
     explanation:
-      "Instagram resmi Graph API, kullanıcı bazında “profilime kim baktı” listesini üçüncü taraf uygulamalara vermez. TOLWEX yalnızca erişilebilen etkileşim sinyallerinden tahmini yoğunluk analizi üretebilir.",
+      "Instagram resmi Graph API, kullanıcı bazında “profilime kim baktı” listesini üçüncü taraf uygulamalara vermez. TOLWEX IP / konum takibi yapmaz; yalnızca erişilebilen etkileşim sinyallerinden tahmini yoğunluk analizi sunar.",
     whatWeShow: [
       "Tahmini ziyaret yoğunluğu (sinyal tabanlı)",
       "Zaman aralığına göre aktivite bandı",
       "Erişilebilir etkileşim özeti",
     ],
     whatWeNeverShow: [
+      "IP / konum / cihaz parmak izi takibi",
       "Rastgele @kullanıcı listesi",
       "Kesin ziyaretçi kimlikleri",
       "Uydurma profil fotoğrafları",
