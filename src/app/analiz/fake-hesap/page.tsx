@@ -1,5 +1,4 @@
 import { AnalysisPublicView } from "@/components/analysis/AnalysisPublicView";
-import { PageAtmosphere } from "@/components/fx/PageAtmosphere";
 import { computeFakeRiskFromConnection } from "@/lib/analysis/honest";
 
 export const metadata = { title: "Fake Hesap Analizi — TOLWEX" };
@@ -10,7 +9,6 @@ export default function Page() {
 
   return (
     <>
-      <PageAtmosphere />
       <AnalysisPublicView type="fake_risk" accent="risk" />
       <div className="site-shell pb-24 -mt-12 relative z-10">
         <div className="glass-panel rounded-3xl p-6 md:p-8">

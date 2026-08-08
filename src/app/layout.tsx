@@ -4,6 +4,7 @@ import "./globals.css";
 import { SiteNav } from "@/components/navigation/SiteNav";
 import { SiteFooter } from "@/components/SiteFooter";
 import { WhatsAppFab } from "@/components/contact/WhatsAppFab";
+import { PageAtmosphere } from "@/components/fx/PageAtmosphere";
 
 const display = Syne({
   variable: "--font-display-face",
@@ -45,11 +46,11 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="tr" className={`${display.variable} ${body.variable} h-full`}>
-      <body className="min-h-full flex flex-col antialiased">
+      <body className="min-h-full flex flex-col antialiased site-body">
+        <PageAtmosphere />
         <SiteNav />
-        <main className="flex-1">{children}</main>
+        <main className="flex-1 site-main">{children}</main>
         <SiteFooter />
-        {/* Single site-wide WhatsApp control — no header duplicate */}
         <WhatsAppFab />
       </body>
     </html>

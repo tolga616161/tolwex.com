@@ -25,7 +25,7 @@ export function ProductCard({ product }: { product: ProductCardData }) {
     >
       <div className="product-card-inner">
         <div className="flex items-start justify-between gap-3 mb-5">
-          <div className="category-icon-wrap">
+          <div className="category-icon-wrap product-icon-glow">
             <CategoryIcon name={product.icon} className="size-7" />
           </div>
           {product.badge ? <span className="product-badge">{product.badge}</span> : null}
