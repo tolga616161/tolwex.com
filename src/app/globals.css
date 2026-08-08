@@ -733,11 +733,61 @@ input:focus {
   outline-offset: 1px;
 }
 
+.copy-row {
+  display: grid;
+  gap: 0.35rem;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+.copy-row dt {
+  font-size: 0.72rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-muted);
+}
+.copy-row dd {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+}
+.copy-code {
+  display: inline-block;
+  padding: 0.45rem 0.65rem;
+  border-radius: 0.65rem;
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #fff;
+  font-size: 0.8rem;
+  word-break: break-all;
+}
+
+.connect-hero {
+  min-height: auto;
+}
+
 @media (max-width: 720px) {
   .btn {
     width: 100%;
   }
   .nav-cta {
     width: auto;
+  }
+  .hero-stage {
+    min-height: min(78vh, 560px);
+    align-items: flex-end;
+    padding: 1.4rem;
+  }
+  .hero-title {
+    font-size: clamp(2.6rem, 14vw, 3.6rem);
+  }
+  .category-card-inner {
+    min-height: 220px;
+  }
+  .mobile-cat {
+    min-height: 64px;
+    font-size: 1.05rem;
+  }
+  .site-shell {
+    width: min(1180px, calc(100% - 1.25rem));
   }
 }

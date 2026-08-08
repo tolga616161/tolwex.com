@@ -6,13 +6,14 @@ import { MEGA_MENU } from "@/lib/categories";
 import { CategoryIcon } from "@/components/icons/CategoryIcons";
 
 const MOBILE_LINKS = [
-  { label: "Instagram", href: "/api/meta/oauth/start?force=1", icon: "instagram" },
-  { label: "Facebook", href: "/api/meta/oauth/start?force=1", icon: "facebook" },
+  { label: "Instagram", href: "/instagram/connect", icon: "instagram" },
+  { label: "Facebook", href: "/instagram/connect", icon: "facebook" },
   { label: "TikTok", href: "/#categories", icon: "tiktok" },
   { label: "Google", href: "/#categories", icon: "google" },
   { label: "SEO", href: "/#categories", icon: "seo" },
   { label: "Web Tasarım", href: "/#categories", icon: "design" },
   { label: "Sosyal Medya", href: "/instagram/security", icon: "social" },
+  { label: "Güvenlik Testi", href: "/instagram/dashboard", icon: "social" },
 ];
 
 export function SiteNav() {
@@ -77,9 +78,9 @@ export function SiteNav() {
           <Link href="/instagram/dashboard" className="nav-link">
             Kontrol
           </Link>
-          <a href="/api/meta/oauth/start?force=1" className="btn btn-primary nav-cta">
+          <Link href="/instagram/connect" className="btn btn-primary nav-cta">
             Hesabı Bağla
-          </a>
+          </Link>
         </nav>
 
         <button
@@ -123,9 +124,13 @@ export function SiteNav() {
             <Link href="/instagram/dashboard" className="btn btn-ghost" onClick={() => setMobileOpen(false)}>
               Kontrol Ekranı
             </Link>
-            <a href="/api/meta/oauth/start?force=1" className="btn btn-primary" onClick={() => setMobileOpen(false)}>
+            <Link
+              href="/instagram/connect"
+              className="btn btn-primary"
+              onClick={() => setMobileOpen(false)}
+            >
               Instagram Hesabımı Kontrol Et
-            </a>
+            </Link>
           </div>
         </div>
       </div>

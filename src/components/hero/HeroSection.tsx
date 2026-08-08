@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { ConnectButton } from "@/components/ConnectButton";
 
 export function HeroSection({
   configured,
@@ -27,7 +26,9 @@ export function HeroSection({
         </p>
         <div className="flex flex-col sm:flex-row gap-3 fade-up-delay-2 mt-8">
           {configured ? (
-            <ConnectButton label="Instagram Hesabımı Kontrol Et" force />
+            <Link href="/instagram/connect" className="btn btn-primary pulse-ring">
+              Instagram Hesabımı Kontrol Et
+            </Link>
           ) : (
             <Link href="/admin/setup" className="btn btn-ghost">
               Meta entegrasyonu henüz yapılandırılmadı

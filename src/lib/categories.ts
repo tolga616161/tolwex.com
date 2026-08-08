@@ -37,7 +37,7 @@ export const CATEGORIES: CategoryItem[] = [
     filter: ["social", "digital"],
     accent: "#f58529",
     accent2: "#dd2a7b",
-    href: "/api/meta/oauth/start?force=1",
+    href: "/instagram/connect",
     meta: "OAuth · Güvenlik",
     icon: "instagram",
   },
@@ -49,7 +49,7 @@ export const CATEGORIES: CategoryItem[] = [
     filter: ["social", "ads"],
     accent: "#1877f2",
     accent2: "#0a54c2",
-    href: "/api/meta/oauth/start?force=1",
+    href: "/instagram/connect",
     meta: "Meta · Bağlantı",
     icon: "facebook",
   },
@@ -131,8 +131,8 @@ export const MEGA_MENU = [
   {
     title: "Social Media",
     items: [
-      { label: "Instagram", href: "/api/meta/oauth/start?force=1", desc: "OAuth hesap kontrolü" },
-      { label: "Facebook", href: "/api/meta/oauth/start?force=1", desc: "Meta bağlantısı" },
+      { label: "Instagram", href: "/instagram/connect", desc: "OAuth hesap kontrolü" },
+      { label: "Facebook", href: "/instagram/connect", desc: "Meta bağlantısı" },
       { label: "TikTok", href: "/#categories", desc: "Kısa video büyümesi" },
     ],
   },

@@ -1,8 +1,8 @@
 import Link from "next/link";
-import { ConnectButton } from "@/components/ConnectButton";
 import { HeroSection } from "@/components/hero/HeroSection";
 import { CategoryExplorer } from "@/components/categories/CategoryExplorer";
 import { getMetaConfig } from "@/lib/meta/config";
+import { getMetaDomainHints } from "@/lib/meta/public-urls";
 import { redirect } from "next/navigation";
 
 export default async function HomePage({
@@ -12,6 +12,7 @@ export default async function HomePage({
 }) {
   const params = await searchParams;
   const config = await getMetaConfig();
+  const domains = getMetaDomainHints();
 
   // Legacy ?error= links → premium error screen
   if (params.error) {
@@ -26,6 +27,28 @@ export default async function HomePage({
   return (
     <div className="site-shell pt-4 pb-20 space-y-14">
       <HeroSection configured={config.configured} />
+
+      <aside className="glass-panel rounded-2xl p-4 md:p-5 text-sm leading-relaxed border border-amber-400/20">
+        <p className="font-semibold mb-1" style={{ color: "#ffc76b" }}>
+          Mobilde “domain yer almıyor” hatası alıyorsanız
+        </p>
+        <p className="muted mb-3">
+          Meta App Domains alanına şunları ekleyin, sonra Instagram bağlantısını tekrar deneyin:
+        </p>
+        <div className="flex flex-wrap gap-2">
+          {domains.appDomains.map((d) => (
+            <code key={d} className="copy-code">
+              {d}
+            </code>
+          ))}
+        </div>
+        <p className="muted mt-3">
+          Detaylı adımlar:{" "}
+          <Link href="/instagram/connect" className="underline text-white">
+            Instagram bağlantı sayfası
+          </Link>
+        </p>
+      </aside>
 
       <CategoryExplorer />
 
@@ -57,9 +80,14 @@ export default async function HomePage({
           Instagram şifreniz platformumuz tarafından istenmez veya saklanmaz.
         </p>
         <div className="mt-5 flex flex-wrap gap-3">
-          <ConnectButton label="Instagram Hesabını Güvenli Şekilde Bağla" force />
+          <Link href="/instagram/connect" className="btn btn-primary">
+            Instagram Hesabını Güvenli Şekilde Bağla
+          </Link>
           <Link href="/instagram/security" className="btn btn-ghost">
             Güvenlik Merkezi
+          </Link>
+          <Link href="/instagram/dashboard" className="btn btn-ghost">
+            Hesap Güvenlik Testi
           </Link>
         </div>
       </section>

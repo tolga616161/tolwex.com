@@ -1,21 +1,51 @@
 # Meta Developer App Kurulum Rehberi
 
-1. https://developers.facebook.com/ adresinden uygulama oluşturun.
-2. Ürün olarak **Facebook Login** / **Instagram** ekleyin (hesap türünüze uygun).
-3. Ayarlar:
-   - **App ID** → `META_APP_ID`
-   - **App Secret** → `META_APP_SECRET` (asla frontend’e koymayın)
-   - **Valid OAuth Redirect URIs** → `{APP_URL}/api/meta/oauth/callback`
-   - **App Domains** → sitenizin domain’i
-   - **Privacy Policy URL** → `{APP_URL}/privacy`
-   - **Terms of Service URL** → `{APP_URL}/terms`
-   - **Data Deletion Request URL** → `{APP_URL}/api/data-deletion`
-4. Gerekli izinleri App Review sürecine göre talep edin (`instagram_basic`, `pages_show_list`, vb.).
-5. **Webhook / Verify Token** istenirse:
-   - Callback URL: `{APP_URL}/api/meta/webhook`
-   - Verify Token: `.env` içindeki `META_WEBHOOK_VERIFY_TOKEN` (Admin panelinde de görünür)
-6. Admin panelinden **Meta API Bağlantısını Test Et** ile doğrulayın.
-7. Development mode’da yalnızca rol eklenmiş test kullanıcıları OAuth tamamlayabilir.
-8. Kullanıcı OAuth sonrası access token sunucuda `debug_token` ile doğrulanır.
+Telefondaki şu hata:
 
-Credential yoksa uygulama çalışır; Meta özellikleri “yapılandırılmamış” kalır.
+> Bu bağlantının domaini uygulamanın domainlerinde yer almıyor
+
+neredeyse her zaman **App Domains / Site URL** eksikliğinden gelir.
+
+## Tolwex (App ID: 1023808800487900) — şu anki URL’ler
+
+Kaynak: `NEXT_PUBLIC_APP_URL`
+
+| Alan | Değer |
+|------|--------|
+| App Domains | `bucks-travesti-calcium-bell.trycloudflare.com` **ve** `trycloudflare.com` |
+| Site URL | `https://bucks-travesti-calcium-bell.trycloudflare.com/` |
+| Valid OAuth Redirect URIs | `https://bucks-travesti-calcium-bell.trycloudflare.com/api/meta/oauth/callback` |
+| Privacy Policy URL | `https://bucks-travesti-calcium-bell.trycloudflare.com/privacy` |
+| Terms URL | `https://bucks-travesti-calcium-bell.trycloudflare.com/terms` |
+| Data Deletion | `https://bucks-travesti-calcium-bell.trycloudflare.com/api/data-deletion` |
+| Webhook Callback | `https://bucks-travesti-calcium-bell.trycloudflare.com/api/meta/webhook` |
+
+## Adım adım
+
+1. https://developers.facebook.com/apps/1023808800487900/settings/basic/
+2. **App Domains** → yukarıdaki iki domain’i ekleyin → Save
+3. Altta **Website** platformu yoksa Add Platform → Website → Site URL yapıştırın
+4. **Facebook Login → Settings**
+   - Valid OAuth Redirect URIs → callback URL
+   - “Login with the JavaScript SDK” gerekmez
+5. **Roles → Roles** → kendi Facebook hesabınızı Admin/Developer/Tester ekleyin  
+   (Development mode’da yalnızca roller bağlanabilir)
+6. 1–2 dakika bekleyin, mobilde tekrar deneyin
+
+## Neden Facebook açılıyor?
+
+Instagram hesap bağlantısı resmi Meta Graph / Facebook Login OAuth üzerinden yapılır.
+Bu beklenen davranıştır. Kullanıcı şifresini sitemize yazmaz.
+
+## Not
+
+`*.trycloudflare.com` tünelleri geçicidir. URL değişirse App Domains + Redirect URI’yi yeniden güncelleyin.
+Production’da sabit domain (HTTPS) kullanın.
+
+## Ortam değişkenleri
+
+- `META_APP_ID`
+- `META_APP_SECRET`
+- `META_REDIRECT_URI` (callback ile birebir aynı olmalı)
+- `META_API_VERSION`
+- `META_WEBHOOK_VERIFY_TOKEN`

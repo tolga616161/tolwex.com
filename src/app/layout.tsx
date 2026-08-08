@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Syne, DM_Sans } from "next/font/google";
 import "./globals.css";
 import { SiteNav } from "@/components/navigation/SiteNav";
@@ -20,6 +20,22 @@ export const metadata: Metadata = {
   title: "SecureLink — Dijital Medya & Instagram Hesap Kontrolü",
   description:
     "Resmi Meta/Instagram OAuth ile güvenli hesap bağlantısı. Premium dijital medya platformu.",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "black-translucent",
+    title: "SecureLink",
+  },
+  formatDetection: {
+    telephone: false,
+  },
+};
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 5,
+  viewportFit: "cover",
+  themeColor: "#050d14",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

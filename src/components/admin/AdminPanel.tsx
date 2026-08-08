@@ -179,6 +179,40 @@ export function AdminPanel() {
       ) : null}
 
       <section className="surface rounded-2xl p-6 space-y-3">
+        <h2 className="display text-2xl mb-1">App Domains (mobil hata çözümü)</h2>
+        <p className="muted text-sm">
+          “Domaini uygulamanın domainlerinde yer almıyor” hatası için Meta Basic Settings’e
+          ekleyin:
+        </p>
+        <ul className="text-sm space-y-2">
+          <li>
+            App Domains:{" "}
+            <code className="copy-code">
+              {status?.domain
+                ? status.domain.replace(/^https?:\/\//, "").replace(/\/$/, "")
+                : "—"}
+            </code>{" "}
+            ve <code className="copy-code">trycloudflare.com</code>
+          </li>
+          <li>
+            Site URL: <code className="copy-code">{status?.domain || "—"}/</code>
+          </li>
+          <li>
+            OAuth Redirect:{" "}
+            <code className="copy-code">{status?.redirectUri || "—"}</code>
+          </li>
+        </ul>
+        <a
+          className="btn btn-ghost text-sm"
+          href="https://developers.facebook.com/apps/1023808800487900/settings/basic/"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          Meta App Ayarlarını Aç
+        </a>
+      </section>
+
+      <section className="surface rounded-2xl p-6 space-y-3">
         <h2 className="display text-2xl mb-1">Webhook Token Doğrulama</h2>
         <p className="muted text-sm">
           Meta Developer Console → Webhooks bölümünde “Verify Token” istenirse aşağıdaki

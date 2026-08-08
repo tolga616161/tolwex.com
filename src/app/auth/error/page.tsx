@@ -57,16 +57,17 @@ export default async function AuthErrorPage({
           <p className="muted leading-relaxed mb-8">{msg.body}</p>
           <div className="flex flex-col sm:flex-row gap-3">
             <ConnectButton label="Tekrar Dene" force />
-            <Link href="/" className="btn btn-ghost">
-              Ana sayfaya dön
+            <Link href="/instagram/connect" className="btn btn-ghost">
+              Domain ayarlarını gör
             </Link>
             <Link href="/instagram/dashboard" className="btn btn-ghost">
               Kontrol ekranı
             </Link>
           </div>
           <p className="mt-8 text-sm muted">
-            Instagram şifreniz, cookie veya 2FA kodu bu sitede istenmez. Yalnızca resmi Meta
-            giriş ekranı kullanılır.
+            Telefonda domain hatası gördüyseniz önce Meta App Domains’e site domain’inizi
+            ekleyin. Instagram şifresi bu sitede istenmez; Facebook ekranı resmi Meta
+            girişidir.
           </p>
         </div>
       </div>
