@@ -9,8 +9,6 @@ const FLOATERS = [
   { icon: "facebook", className: "floater f4", label: "FB" },
   { icon: "instagram", className: "floater f5", label: "IG2" },
   { icon: "tiktok", className: "floater f6", label: "TT2" },
-  { icon: "google", className: "floater f7", label: "G2" },
-  { icon: "seo", className: "floater f8", label: "SEO" },
 ] as const;
 
 const BINARY_COLS = [
@@ -20,8 +18,6 @@ const BINARY_COLS = [
   "11001010 00101101 10010110 01000011",
   "01110011 01100101 01100011 01110101",
   "10101010 01010101 11110000 00001111",
-  "01000110 01000010 00100000 01000001",
-  "00110001 00110000 00110001 00110000",
 ];
 
 type Props = {
@@ -34,13 +30,11 @@ export function DigitalAtmosphere({ variant = "hero" }: Props) {
       <div className="binary-field">
         {BINARY_COLS.map((line, i) => (
           <span key={i} className={`binary-col c${i + 1}`}>
-            {line}
-            <br />
-            {line.split("").reverse().join("")}
-            <br />
-            01010101 10101010 00110011
+            01010101
             <br />
             {line}
+            <br />
+            10101010
           </span>
         ))}
       </div>
@@ -49,7 +43,7 @@ export function DigitalAtmosphere({ variant = "hero" }: Props) {
         {FLOATERS.map((f) => (
           <div key={f.label} className={f.className}>
             <div className="floater-face">
-              <CategoryIcon name={f.icon} className="size-6 md:size-7" />
+              <CategoryIcon name={f.icon} className="size-5 md:size-6" />
             </div>
           </div>
         ))}

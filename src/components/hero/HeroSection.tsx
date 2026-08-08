@@ -12,25 +12,22 @@ export function HeroSection({
         <span className="hero-grid" />
         <span className="hero-orb hero-orb-a" />
         <span className="hero-orb hero-orb-b" />
-        <span className="hero-particles" />
         <DigitalAtmosphere variant="hero" />
       </div>
 
-      <div className="relative z-10 max-w-3xl hero-copy">
+      <div className="hero-copy">
         <p className="hero-kicker fade-up">Dijital Medya Platformu</p>
         <h1 className="hero-title display fade-up-delay">
-          <span className="title-3d">
-            Secure
-            <span className="hero-title-accent">Link</span>
-          </span>
+          <span className="title-line">Secure</span>
+          <span className="title-line hero-title-accent">Link</span>
         </h1>
         <p className="hero-sub fade-up-delay-2">
-          Instagram hesabınızı resmi Meta OAuth ile bağlayın. Şifre, cookie veya session
+          Instagram hesabınızı resmi Meta OAuth ile bağlayın. Şifre veya session
           istemeyiz — yalnızca Meta’nın kendi giriş ekranı.
         </p>
-        <div className="flex flex-col sm:flex-row gap-3 fade-up-delay-2 mt-8">
+        <div className="hero-actions fade-up-delay-2">
           {configured ? (
-            <Link href="/instagram/connect" className="btn btn-primary pulse-ring">
+            <Link href="/instagram/connect" className="btn btn-primary">
               Instagram Hesabımı Kontrol Et
             </Link>
           ) : (

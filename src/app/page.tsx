@@ -2,6 +2,7 @@ import Link from "next/link";
 import { HeroSection } from "@/components/hero/HeroSection";
 import { CategoryExplorer } from "@/components/categories/CategoryExplorer";
 import { DigitalAtmosphere } from "@/components/fx/DigitalAtmosphere";
+import { DomainSetupCard } from "@/components/meta/DomainSetupCard";
 import { getMetaConfig } from "@/lib/meta/config";
 import { getMetaDomainHints } from "@/lib/meta/public-urls";
 import { redirect } from "next/navigation";
@@ -32,27 +33,11 @@ export default async function HomePage({
       </div>
       <HeroSection configured={config.configured} />
 
-      <aside className="glass-panel rounded-2xl p-4 md:p-5 text-sm leading-relaxed border border-amber-400/20">
-        <p className="font-semibold mb-1" style={{ color: "#ffc76b" }}>
-          Mobilde “domain yer almıyor” hatası alıyorsanız
-        </p>
-        <p className="muted mb-3">
-          Meta App Domains alanına şunları ekleyin, sonra Instagram bağlantısını tekrar deneyin:
-        </p>
-        <div className="flex flex-wrap gap-2">
-          {domains.appDomains.map((d) => (
-            <code key={d} className="copy-code">
-              {d}
-            </code>
-          ))}
-        </div>
-        <p className="muted mt-3">
-          Detaylı adımlar:{" "}
-          <Link href="/instagram/connect" className="underline text-white">
-            Instagram bağlantı sayfası
-          </Link>
-        </p>
-      </aside>
+      <DomainSetupCard
+        appDomains={domains.appDomains}
+        siteUrl={domains.siteUrl}
+        redirectUri={domains.oauthRedirectUri}
+      />
 
       <CategoryExplorer />
 

@@ -39,6 +39,8 @@ export async function buildAuthorizeUrl(
   if (opts?.rerequest !== false) {
     url.searchParams.set("auth_type", "rerequest");
   }
+  // Better mobile Facebook dialog
+  url.searchParams.set("display", "touch");
   return url.toString();
 }
 
