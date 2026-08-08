@@ -100,11 +100,20 @@ export function SetupWizard() {
     return (
       <form onSubmit={login} className="surface rounded-2xl p-6 max-w-md space-y-4">
         <h1 className="display text-3xl">Meta / Instagram Kurulumu</h1>
+        <p className="muted text-sm">Sadece şifre girin.</p>
+        <label className="block text-sm muted" htmlFor="setup-password">
+          Şifre
+        </label>
         <input
+          id="setup-password"
+          name="password"
           type="password"
-          placeholder="Admin şifresi"
+          placeholder="Şifre"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
+          autoComplete="current-password"
+          autoFocus
+          required
         />
         {message ? <p className="text-sm" style={{ color: "#ffc4c0" }}>{message}</p> : null}
         <button className="btn btn-primary" type="submit">
