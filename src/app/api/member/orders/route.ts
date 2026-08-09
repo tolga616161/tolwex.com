@@ -27,8 +27,15 @@ const schema = z.object({
     .max(500)
     .transform(normalizeLink)
     .refine((v) => /^https?:\/\//i.test(v), "Geçersiz link"),
-  // Forms / JSON sometimes send quantity as string — coerce before int check
-  quantity: z.coerce.number().int("Adet tam sayı olmalı").positive("Adet 0'dan büyük olmalı"),
+  // Forms / JSON sometimes send quantity as string — coerce + floor
+  quantity: z.preprocess(
+    (v) => {
+      if (v === null || v === undefined || v === "") return v;
+      const n = Math.floor(Number(v));
+      return Number.isFinite(n) ? n : v;
+    },
+    z.number().int("Adet tam sayı olmalı").positive("Adet 0'dan büyük olmalı")
+  ),
   comments: z.preprocess(
     (v) => (v === null || v === undefined ? undefined : v),
     z.string().max(5000).optional()
