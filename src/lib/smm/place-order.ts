@@ -2,6 +2,7 @@ import { prisma } from "@/lib/db";
 import { adjustBalance } from "@/lib/member";
 import { placeSmmOrder } from "@/lib/smm/client";
 import { writeAuditLog } from "@/lib/audit";
+import { ensureSmmCatalogFresh } from "@/lib/smm/sync";
 
 export type PlaceOrderRequest = {
   memberId: string;
@@ -20,11 +21,24 @@ export async function placeMemberOrder(input: PlaceOrderRequest) {
   });
   if (!member) throw Object.assign(new Error("Üye bulunamadı"), { status: 401 });
 
-  const service = input.serviceId
+  let service = input.serviceId
     ? await prisma.smmService.findFirst({ where: { id: input.serviceId, active: true } })
     : await prisma.smmService.findFirst({
         where: { providerServiceId: input.providerServiceId, active: true },
       });
+
+  if (!service) {
+    try {
+      await ensureSmmCatalogFresh(0);
+    } catch {
+      // ignore — will 404 below
+    }
+    service = input.serviceId
+      ? await prisma.smmService.findFirst({ where: { id: input.serviceId, active: true } })
+      : await prisma.smmService.findFirst({
+          where: { providerServiceId: input.providerServiceId, active: true },
+        });
+  }
 
   if (!service) throw Object.assign(new Error("Servis bulunamadı"), { status: 404 });
 

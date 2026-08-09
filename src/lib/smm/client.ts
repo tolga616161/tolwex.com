@@ -9,7 +9,27 @@ export type SmmRawService = {
   dripfeed?: boolean;
   refill?: boolean;
   cancel?: boolean;
+  desc?: string;
+  description?: string;
+  service_description?: string;
 };
+
+/** Best-effort description from provider payload + useful flags. */
+export function serviceDescriptionFromRaw(s: SmmRawService): string {
+  const raw =
+    s.description ||
+    s.desc ||
+    s.service_description ||
+    "";
+  const flags = [
+    s.refill ? "Refill var" : "",
+    s.cancel ? "İptal edilebilir" : "",
+    s.dripfeed ? "Drip-feed destekli" : "",
+    s.type && s.type !== "Default" ? `Tip: ${s.type}` : "",
+  ].filter(Boolean);
+  const parts = [String(raw || "").trim(), flags.join(" · ")].filter(Boolean);
+  return parts.join(" — ").slice(0, 2000);
+}
 
 const DEFAULT_URL = "https://smmapi.com/api/v2";
 

@@ -1,5 +1,10 @@
 import { prisma } from "@/lib/db";
-import { applyMarkup, fetchSmmServices, smmConfig } from "@/lib/smm/client";
+import {
+  applyMarkup,
+  fetchSmmServices,
+  serviceDescriptionFromRaw,
+  smmConfig,
+} from "@/lib/smm/client";
 
 let syncing: Promise<Awaited<ReturnType<typeof syncSmmServices>>> | null = null;
 
@@ -39,11 +44,13 @@ export async function syncSmmServices() {
         seen.add(providerServiceId);
         const rate = Number(s.rate) || 0;
         const sellRate = applyMarkup(rate, markupPercent);
+        const description = serviceDescriptionFromRaw(s);
         await prisma.smmService.upsert({
           where: { providerServiceId },
           create: {
             providerServiceId,
             name: String(s.name || "").slice(0, 500),
+            description,
             type: String(s.type || "Default").slice(0, 80),
             category: String(s.category || "Diğer").slice(0, 240),
             rate,
@@ -58,6 +65,7 @@ export async function syncSmmServices() {
           },
           update: {
             name: String(s.name || "").slice(0, 500),
+            description,
             type: String(s.type || "Default").slice(0, 80),
             category: String(s.category || "Diğer").slice(0, 240),
             rate,
@@ -113,7 +121,8 @@ export async function ensureSmmCatalogFresh(maxAgeMs = 6 * 60 * 60 * 1000) {
     select: { syncedAt: true },
   });
   const age = last ? Date.now() - last.syncedAt.getTime() : Number.POSITIVE_INFINITY;
-  const needs = count === 0 || age > maxAgeMs;
+  // Empty catalog always refreshes; thin catalog (<50) also force-syncs
+  const needs = count === 0 || count < 50 || age > maxAgeMs;
   if (!needs) return { synced: false, count, ageMs: age };
 
   if (!smmConfig().key) {
@@ -121,9 +130,14 @@ export async function ensureSmmCatalogFresh(maxAgeMs = 6 * 60 * 60 * 1000) {
   }
 
   if (!syncing) {
-    syncing = syncSmmServices().finally(() => {
-      syncing = null;
-    });
+    syncing = syncSmmServices()
+      .catch((e) => {
+        console.error("smm_sync_failed", e instanceof Error ? e.message : e);
+        throw e;
+      })
+      .finally(() => {
+        syncing = null;
+      });
   }
   const result = await syncing;
   return { synced: true, count: result.upserted, result };

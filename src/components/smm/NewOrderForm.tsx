@@ -8,12 +8,15 @@ type Item = {
   id: string;
   providerServiceId: number;
   name: string;
+  description?: string;
   category: string;
   type: string;
   sellRate: number;
   min: number;
   max: number;
   dripfeed: boolean;
+  refill?: boolean;
+  cancel?: boolean;
 };
 
 type Cat = { name: string; count: number };
@@ -48,12 +51,13 @@ export function NewOrderForm() {
   const [loadingServices, setLoadingServices] = useState(false);
 
   useEffect(() => {
-    fetch("/api/smm/services?pageSize=10")
+    fetch("/api/smm/services?pageSize=10&sync=1")
       .then((r) => r.json())
       .then((d) => {
         const cats: Cat[] = d.categories || [];
         setCategories(cats);
         if (cats[0] && !category) setCategory(cats[0].name);
+        if (!cats.length && d.syncError) setErr(`Servis sync: ${d.syncError}`);
       })
       .catch(() => null);
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -62,7 +66,7 @@ export function NewOrderForm() {
   useEffect(() => {
     if (!category) return;
     setLoadingServices(true);
-    const sp = new URLSearchParams({ category, pageSize: "500", page: "1" });
+    const sp = new URLSearchParams({ category, pageSize: "500", page: "1", sync: "1" });
     fetch(`/api/smm/services?${sp}`)
       .then((r) => r.json())
       .then((d) => {
@@ -240,20 +244,27 @@ export function NewOrderForm() {
             </label>
 
             {selected ? (
-              <div className="sp-meta-row">
-                <div>
-                  <span>Min</span>
-                  <strong>{selected.min.toLocaleString("tr-TR")}</strong>
+              <>
+                <div className="sp-meta-row">
+                  <div>
+                    <span>Min</span>
+                    <strong>{selected.min.toLocaleString("tr-TR")}</strong>
+                  </div>
+                  <div>
+                    <span>Max</span>
+                    <strong>{selected.max.toLocaleString("tr-TR")}</strong>
+                  </div>
+                  <div>
+                    <span>Fiyat / 1000</span>
+                    <strong>{formatMoney(selected.sellRate)}</strong>
+                  </div>
                 </div>
-                <div>
-                  <span>Max</span>
-                  <strong>{selected.max.toLocaleString("tr-TR")}</strong>
-                </div>
-                <div>
-                  <span>Fiyat / 1000</span>
-                  <strong>{formatMoney(selected.sellRate)}</strong>
-                </div>
-              </div>
+                {selected.description ? (
+                  <p className="muted text-sm" style={{ marginTop: "0.35rem" }}>
+                    {selected.description}
+                  </p>
+                ) : null}
+              </>
             ) : null}
 
             <label>

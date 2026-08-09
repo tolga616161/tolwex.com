@@ -7,10 +7,12 @@ export const dynamic = "force-dynamic";
 export const maxDuration = 60;
 
 export async function GET(req: NextRequest) {
+  let syncError: string | undefined;
   try {
-    await ensureSmmCatalogFresh();
-  } catch {
-    // catalog may stay empty if key missing / network error
+    const force = req.nextUrl.searchParams.get("sync") === "1";
+    await ensureSmmCatalogFresh(force ? 0 : undefined);
+  } catch (e) {
+    syncError = e instanceof Error ? e.message : "SMM sync hatası";
   }
 
   const sp = req.nextUrl.searchParams;
@@ -27,6 +29,7 @@ export async function GET(req: NextRequest) {
           OR: [
             { name: { contains: q } },
             { category: { contains: q } },
+            { description: { contains: q } },
           ],
         }
       : {}),
@@ -43,6 +46,7 @@ export async function GET(req: NextRequest) {
         id: true,
         providerServiceId: true,
         name: true,
+        description: true,
         category: true,
         type: true,
         rate: true,
@@ -69,6 +73,7 @@ export async function GET(req: NextRequest) {
     total,
     pages: Math.max(1, Math.ceil(total / pageSize)),
     markupPercent: markup,
+    syncError,
     categories: categories.map((c) => ({
       name: c.category,
       count: c._count._all,

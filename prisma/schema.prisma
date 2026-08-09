@@ -45,6 +45,7 @@ model SmmService {
   id                String   @id @default(cuid())
   providerServiceId Int      @unique
   name              String
+  description       String   @default("")
   type              String   @default("Default")
   category          String   @default("")
   rate              Float

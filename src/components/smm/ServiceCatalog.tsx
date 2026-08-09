@@ -8,6 +8,7 @@ type Item = {
   id: string;
   providerServiceId: number;
   name: string;
+  description?: string;
   category: string;
   sellRate: number;
   rate: number;
@@ -34,6 +35,7 @@ export function ServiceCatalog({ memberMode = false }: { memberMode?: boolean })
       const sp = new URLSearchParams({
         page: String(page),
         pageSize: "36",
+        sync: page === 1 && !q && !category ? "1" : "0",
       });
       if (q.trim()) sp.set("q", q.trim());
       if (category) sp.set("category", category);
@@ -86,6 +88,7 @@ export function ServiceCatalog({ memberMode = false }: { memberMode?: boolean })
           <article key={item.id} className="smm-card">
             <p className="smm-cat">{item.category}</p>
             <h3>{item.name}</h3>
+            {item.description ? <p className="muted text-xs">{item.description}</p> : null}
             <div className="smm-meta">
               <span>#{item.providerServiceId}</span>
               <span>
