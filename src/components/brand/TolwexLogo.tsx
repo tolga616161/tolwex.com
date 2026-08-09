@@ -2,6 +2,8 @@ import Image from "next/image";
 
 type Props = {
   className?: string;
+  /** Site icon (TW mark). Off by default — wordmark-only in nav/header. */
+  showMark?: boolean;
   showWordmark?: boolean;
   size?: "sm" | "md" | "lg";
 };
@@ -12,12 +14,12 @@ const SIZES = {
   lg: { mark: 44, wordH: 28 },
 };
 
-/** Rounded square "T" mark — site icon / brand glyph */
+/** Rounded square "TW" mark — favicon / app icon glyph */
 export function TolwexMark({ className, size = 28 }: { className?: string; size?: number }) {
   return (
     <Image
       src="/brand/tolwex-icon.png"
-      alt=""
+      alt="TW"
       width={size}
       height={size}
       className={className}
@@ -26,13 +28,18 @@ export function TolwexMark({ className, size = 28 }: { className?: string; size?
   );
 }
 
-export function TolwexLogo({ className = "", showWordmark = true, size = "md" }: Props) {
+export function TolwexLogo({
+  className = "",
+  showMark = false,
+  showWordmark = true,
+  size = "md",
+}: Props) {
   const s = SIZES[size];
   const wordW = Math.round(s.wordH * 5.9);
 
   return (
     <span className={`tolwex-logo ${className}`} data-brand="TOLWEX">
-      <TolwexMark size={s.mark} className="tolwex-mark" />
+      {showMark ? <TolwexMark size={s.mark} className="tolwex-mark" /> : null}
       {showWordmark ? (
         <Image
           src="/brand/tolwex-wordmark.png"
