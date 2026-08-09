@@ -65,6 +65,7 @@ export default function MaintenanceGate({ children }: { children: React.ReactNod
   if (!isAdmin && state?.active) {
     return (
       <MaintenanceScene
+        key={state.until || "maint"}
         remainingMs={state.remainingMs}
         message={state.message || DEFAULT_MSG}
         until={state.until}
