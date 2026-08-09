@@ -35,6 +35,10 @@ const NAV_GROUPS: Array<{
     ],
   },
   {
+    label: "İçerik",
+    items: [{ href: "/admin61/blog", label: "Blog" }],
+  },
+  {
     label: "Sistem",
     items: [
       { href: "/admin61/api", label: "API Ayarları" },
@@ -56,6 +60,7 @@ const TITLE_BY_PATH: Record<string, string> = {
   "/admin61/support": "Destek",
   "/admin61/api": "API Ayarları",
   "/admin61/settings": "Ayarlar",
+  "/admin61/blog": "Blog",
   "/admin61/logs": "Loglar",
 };
 

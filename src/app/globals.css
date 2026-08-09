@@ -3171,3 +3171,207 @@ a.sp-user:hover {
   box-shadow: 0 0 0 3px rgba(251, 191, 36, 0.2);
 }
 
+
+/* —— Blog —— */
+.blog-page {
+  padding-bottom: 4rem;
+  background:
+    radial-gradient(90% 50% at 10% 0%, rgba(255, 255, 255, 0.06), transparent 55%),
+    var(--bg);
+}
+.blog-hero {
+  padding-top: 3.5rem;
+  padding-bottom: 1.5rem;
+}
+.blog-list {
+  display: grid;
+  gap: 1.25rem;
+  padding-bottom: 2rem;
+}
+.blog-card {
+  padding: 1.35rem 0;
+  border-bottom: 1px solid var(--line);
+}
+.blog-card h2 {
+  font-family: var(--font-display);
+  font-size: clamp(1.25rem, 3vw, 1.65rem);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  margin: 0.35rem 0 0.5rem;
+  line-height: 1.25;
+}
+.blog-card h2 a:hover {
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+}
+.blog-card p {
+  color: var(--ink-muted);
+  max-width: 42rem;
+  line-height: 1.6;
+  margin: 0;
+}
+.blog-card-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+  align-items: center;
+  font-size: 0.78rem;
+  color: var(--ink-dim);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.blog-tag {
+  display: inline-block;
+  font-size: 0.72rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  padding: 0.15rem 0.45rem;
+  border: 1px solid var(--line);
+  color: var(--ink-muted);
+}
+.blog-read {
+  display: inline-block;
+  margin-top: 0.75rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+}
+.blog-cta {
+  padding-top: 1rem;
+  display: grid;
+  gap: 0.85rem;
+}
+.blog-article-head {
+  padding-top: 2.75rem;
+  padding-bottom: 1.25rem;
+}
+.blog-breadcrumb {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  font-size: 0.8rem;
+  color: var(--ink-dim);
+  margin-bottom: 1.25rem;
+}
+.blog-breadcrumb a:hover {
+  color: var(--ink);
+}
+.blog-article-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  color: var(--ink-muted);
+  font-size: 0.9rem;
+  margin: 0.75rem 0 0;
+}
+.blog-article-dek {
+  margin-top: 1rem;
+  max-width: 40rem;
+  font-size: 1.1rem;
+  line-height: 1.55;
+  color: var(--ink-muted);
+}
+.blog-prose {
+  max-width: 42rem;
+  padding-top: 0.5rem;
+  padding-bottom: 2rem;
+  font-size: 1.05rem;
+  line-height: 1.75;
+  color: rgba(244, 244, 245, 0.92);
+}
+.blog-prose h2 {
+  font-family: var(--font-display);
+  font-size: 1.45rem;
+  font-weight: 700;
+  margin: 2rem 0 0.75rem;
+  letter-spacing: -0.02em;
+}
+.blog-prose h3 {
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+  font-weight: 650;
+  margin: 1.5rem 0 0.55rem;
+}
+.blog-prose p {
+  margin: 0 0 1rem;
+}
+.blog-prose ul {
+  margin: 0 0 1rem 1.15rem;
+  display: grid;
+  gap: 0.35rem;
+}
+.blog-prose a {
+  text-decoration: underline;
+  text-underline-offset: 0.18em;
+}
+.blog-prose strong {
+  color: #fff;
+  font-weight: 650;
+}
+.blog-prose code {
+  font-size: 0.9em;
+  padding: 0.1em 0.35em;
+  border: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.04);
+}
+.blog-prose table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1rem 0 1.5rem;
+  font-size: 0.92rem;
+}
+.blog-prose th,
+.blog-prose td {
+  border: 1px solid var(--line);
+  padding: 0.55rem 0.65rem;
+  text-align: left;
+}
+.blog-prose th {
+  background: rgba(255, 255, 255, 0.04);
+  font-weight: 600;
+}
+.blog-article-foot {
+  padding-bottom: 2rem;
+}
+.blog-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+}
+.blog-related {
+  padding-top: 1rem;
+  padding-bottom: 3rem;
+  border-top: 1px solid var(--line);
+}
+.blog-related h2 {
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+}
+.blog-related-grid {
+  display: grid;
+  gap: 1rem;
+}
+@media (min-width: 768px) {
+  .blog-related-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+.blog-related-item {
+  display: grid;
+  gap: 0.4rem;
+  padding: 1rem 0;
+  border-top: 1px solid var(--line);
+}
+.blog-related-item strong {
+  font-family: var(--font-display);
+  font-size: 1rem;
+  line-height: 1.3;
+}
+.blog-related-item span {
+  font-size: 0.88rem;
+  color: var(--ink-muted);
+  line-height: 1.45;
+}

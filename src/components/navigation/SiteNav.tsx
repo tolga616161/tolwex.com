@@ -10,6 +10,7 @@ import { whatsappUrl } from "@/lib/contact";
 const NAV = [
   { label: "Ana Sayfa", href: "/" },
   { label: "Servisler", href: "/hizmetler" },
+  { label: "Blog", href: "/blog" },
   { label: "İade Koşulları", href: "/sss" },
   { label: "Üye Ol", href: "/uye/kayit" },
   { label: "Giriş", href: "/uye/giris" },

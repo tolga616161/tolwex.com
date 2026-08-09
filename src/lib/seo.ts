@@ -20,6 +20,9 @@ export const SEO_KEYWORDS = [
   "TOLWEX",
   "sosyal medya paneli",
   "PerfectPanel",
+  "SMM blog",
+  "Instagram takipçi nasıl artırılır",
+  "güvenilir SMM panel",
 ];
 
 export function absoluteUrl(path = "/"): string {

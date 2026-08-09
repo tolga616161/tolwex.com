@@ -137,6 +137,10 @@ export default function AdminDashboardPage() {
               <Link href="/admin61/settings">Ayarla</Link>
             </li>
             <li>
+              <span>Blog yazıları (SEO)</span>
+              <Link href="/admin61/blog">Yönet</Link>
+            </li>
+            <li>
               <span>Trafik / ziyaretçi IP</span>
               <Link href="/admin61/trafik">Aç</Link>
             </li>

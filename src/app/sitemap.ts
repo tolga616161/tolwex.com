@@ -1,7 +1,10 @@
 import type { MetadataRoute } from "next";
+import { listPublishedPosts } from "@/lib/blog";
 import { siteUrl } from "@/lib/seo";
 
-export default function sitemap(): MetadataRoute.Sitemap {
+export const dynamic = "force-dynamic";
+
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const base = siteUrl();
   const now = new Date();
 
@@ -12,6 +15,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
   }> = [
     { path: "/", changeFrequency: "daily", priority: 1 },
     { path: "/hizmetler", changeFrequency: "hourly", priority: 0.95 },
+    { path: "/blog", changeFrequency: "daily", priority: 0.9 },
     { path: "/uye/kayit", changeFrequency: "weekly", priority: 0.85 },
     { path: "/uye/giris", changeFrequency: "weekly", priority: 0.8 },
     { path: "/sss", changeFrequency: "monthly", priority: 0.7 },
@@ -19,10 +23,25 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { path: "/privacy", changeFrequency: "monthly", priority: 0.5 },
   ];
 
-  return routes.map((r) => ({
+  const staticEntries = routes.map((r) => ({
     url: `${base}${r.path}`,
     lastModified: now,
     changeFrequency: r.changeFrequency,
     priority: r.priority,
   }));
+
+  let blogEntries: MetadataRoute.Sitemap = [];
+  try {
+    const posts = await listPublishedPosts();
+    blogEntries = posts.map((p) => ({
+      url: `${base}/blog/${p.slug}`,
+      lastModified: new Date(p.updatedAt || p.publishedAt || p.createdAt),
+      changeFrequency: "weekly" as const,
+      priority: 0.75,
+    }));
+  } catch {
+    blogEntries = [];
+  }
+
+  return [...staticEntries, ...blogEntries];
 }
