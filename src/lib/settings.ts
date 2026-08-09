@@ -7,6 +7,8 @@ export type PanelSettings = {
   min_deposit: string;
   announcement: string;
   announcement_enabled: string;
+  /** mono | accent */
+  announcement_style: string;
   bank_name: string;
   bank_iban: string;
   bank_holder: string;
@@ -19,6 +21,7 @@ export const DEFAULT_SETTINGS: PanelSettings = {
   min_deposit: "50",
   announcement: "Hoş geldiniz — bakiye yükleyip anında sipariş verebilirsiniz.",
   announcement_enabled: "1",
+  announcement_style: "mono",
   bank_name: "İş Bankası",
   bank_iban: "TR920006400000168090093279",
   bank_holder: "Tolga Mazlum",

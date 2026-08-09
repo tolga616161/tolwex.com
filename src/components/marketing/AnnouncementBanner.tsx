@@ -14,6 +14,7 @@ function hideOnPath(path: string) {
 export function AnnouncementBanner() {
   const pathname = usePathname() || "/";
   const [text, setText] = useState<string | null>(null);
+  const [style, setStyle] = useState<"mono" | "accent">("mono");
 
   useEffect(() => {
     if (hideOnPath(pathname)) {
@@ -27,6 +28,7 @@ export function AnnouncementBanner() {
         if (!alive) return;
         if (d?.announcement_enabled && d?.announcement?.trim()) {
           setText(String(d.announcement).trim());
+          setStyle(d.announcement_style === "accent" ? "accent" : "mono");
         } else {
           setText(null);
         }
@@ -42,7 +44,7 @@ export function AnnouncementBanner() {
   if (!text) return null;
 
   return (
-    <div className="announce-banner" role="status">
+    <div className={`announce-banner style-${style}`} role="status">
       <div className="site-shell announce-banner-inner">
         <span className="announce-badge">Duyuru</span>
         <p className="announce-text">{text}</p>

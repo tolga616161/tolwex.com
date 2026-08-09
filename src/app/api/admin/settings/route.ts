@@ -45,6 +45,10 @@ export async function PUT(request: NextRequest) {
       body.announcement_enabled !== undefined
         ? String(body.announcement_enabled)
         : current.announcement_enabled,
+    announcement_style:
+      body.announcement_style === "accent" || body.announcement_style === "mono"
+        ? body.announcement_style
+        : current.announcement_style || DEFAULT_SETTINGS.announcement_style,
     bank_name: body.bank_name?.trim() || current.bank_name || DEFAULT_SETTINGS.bank_name,
     bank_iban: (body.bank_iban?.trim() || current.bank_iban || DEFAULT_SETTINGS.bank_iban)
       .replace(/\s+/g, "")

@@ -8,7 +8,8 @@ import { prisma, ensureDbHydrated } from "@/lib/db";
 export const dynamic = "force-dynamic";
 
 export default async function HomePage() {
-  await ensureDbHydrated();
+  // Non-blocking hydrate — don't stall first paint on gist pulls
+  void ensureDbHydrated(false);
   const [serviceCount, orderCount, ticketCount] = await Promise.all([
     prisma.smmService.count({ where: { active: true } }).catch(() => 0),
     prisma.smmOrder.count().catch(() => 0),

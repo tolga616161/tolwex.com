@@ -21,6 +21,7 @@ export async function GET() {
     site_name: s.site_name,
     announcement: s.announcement,
     announcement_enabled: s.announcement_enabled === "1" || s.announcement_enabled === "true",
+    announcement_style: s.announcement_style === "accent" ? "accent" : "mono",
     min_deposit: Number(s.min_deposit) || 50,
     support_whatsapp: s.support_whatsapp,
     shopier_enabled: shopierConfigured(),
