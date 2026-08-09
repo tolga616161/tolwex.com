@@ -70,17 +70,16 @@ export async function POST(req: NextRequest) {
       },
     });
 
-    // Merge this member into gist (never wipe other accounts)
+    // Persist to durable gist (retries inside). Don't block signup on transient 409.
     const synced = await upsertMemberInGist(member);
     if (!synced.ok) {
-      await prisma.member.delete({ where: { id: member.id } }).catch(() => null);
-      return NextResponse.json(
-        {
-          error: "Kayıt kaydedilemedi. Lütfen tekrar deneyin.",
-          detail: synced.error || "sync failed",
-        },
-        { status: 503 }
-      );
+      console.error("member_gist_sync_failed", synced.error);
+      // One more full merge push — often recovers after conflict
+      const { pushMembersToGist } = await import("@/lib/members-durable");
+      const pushed = await pushMembersToGist().catch(() => ({ ok: false as const }));
+      if (!pushed.ok) {
+        console.error("member_gist_push_failed", "ok" in pushed ? undefined : pushed);
+      }
     }
 
     const session = await getSession();
@@ -92,7 +91,11 @@ export async function POST(req: NextRequest) {
       action: "member.register",
       actorType: "visitor",
       actorId: member.id,
-      metadata: { email: member.email, username: member.username },
+      metadata: {
+        email: member.email,
+        username: member.username,
+        gistSynced: synced.ok,
+      },
     });
 
     return NextResponse.json({
@@ -103,6 +106,7 @@ export async function POST(req: NextRequest) {
         name: member.name,
         username: member.username,
       },
+      durable: synced.ok,
     });
   } catch (e) {
     const message = e instanceof Error ? e.message : "Kayıt hatası";

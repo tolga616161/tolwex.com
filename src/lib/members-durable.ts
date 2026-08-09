@@ -81,23 +81,60 @@ async function writeMembersToGist(
   token: string,
   list: DurableMember[]
 ): Promise<{ ok: boolean; count: number; error?: string }> {
-  const res = await fetch(`https://api.github.com/gists/${gistId}`, {
-    method: "PATCH",
-    headers: {
-      ...gistHeaders(token),
-      "Content-Type": "application/json",
+  const body = JSON.stringify({
+    files: {
+      [MEMBERS_FILE]: { content: JSON.stringify(list) },
     },
-    body: JSON.stringify({
-      files: {
-        [MEMBERS_FILE]: { content: JSON.stringify(list) },
-      },
-    }),
   });
-  if (!res.ok) {
+
+  let lastError = "";
+  for (let attempt = 0; attempt < 4; attempt++) {
+    if (attempt > 0) {
+      await new Promise((r) => setTimeout(r, 250 * attempt * attempt));
+    }
+    const res = await fetch(`https://api.github.com/gists/${gistId}`, {
+      method: "PATCH",
+      headers: {
+        ...gistHeaders(token),
+        "Content-Type": "application/json",
+        "X-GitHub-Api-Version": "2022-11-28",
+      },
+      body,
+    });
+    if (res.ok) return { ok: true, count: list.length };
+
     const t = await res.text().catch(() => "");
-    return { ok: false, count: list.length, error: `gist ${res.status} ${t.slice(0, 160)}` };
+    lastError = `gist ${res.status} ${t.slice(0, 160)}`;
+    // Last attempt on 409: delete+recreate file (GitHub conflict recovery)
+    if (res.status === 409 && attempt === 2) {
+      await fetch(`https://api.github.com/gists/${gistId}`, {
+        method: "PATCH",
+        headers: {
+          ...gistHeaders(token),
+          "Content-Type": "application/json",
+          "X-GitHub-Api-Version": "2022-11-28",
+        },
+        body: JSON.stringify({ files: { [MEMBERS_FILE]: null } }),
+      }).catch(() => null);
+      await new Promise((r) => setTimeout(r, 400));
+      const recreate = await fetch(`https://api.github.com/gists/${gistId}`, {
+        method: "PATCH",
+        headers: {
+          ...gistHeaders(token),
+          "Content-Type": "application/json",
+          "X-GitHub-Api-Version": "2022-11-28",
+        },
+        body,
+      });
+      if (recreate.ok) return { ok: true, count: list.length };
+      lastError = `gist recreate ${recreate.status}`;
+    }
+    // 409 / 502 / 503 / 429 are often transient — retry with backoff
+    if (res.status !== 409 && res.status !== 502 && res.status !== 503 && res.status !== 429) {
+      break;
+    }
   }
-  return { ok: true, count: list.length };
+  return { ok: false, count: list.length, error: lastError };
 }
 
 function toDurable(m: {
@@ -149,29 +186,39 @@ export async function upsertMemberInGist(member: {
   if (!enabled) return { ok: false, count: 0, error: "DB sync env eksik" };
 
   try {
-    const remote = await readMembersFromGist(gistId, token);
-    if (!remote.ok) return { ok: false, count: 0, error: remote.error };
-
-    const next = toDurable(member);
-    const list = [...remote.list];
-    const idx = list.findIndex(
-      (m) =>
-        m.id === next.id ||
-        m.username.toLowerCase() === next.username.toLowerCase() ||
-        m.email.toLowerCase() === next.email.toLowerCase()
-    );
-    if (idx >= 0) {
-      const prev = list[idx];
-      const prevTs = prev.updatedAt ? new Date(prev.updatedAt).getTime() : 0;
-      const nextTs = next.updatedAt ? new Date(next.updatedAt).getTime() : Date.now();
-      // Newest write wins (debits must stick — never Math.max balance)
-      if (nextTs >= prevTs) {
-        list[idx] = { ...prev, ...next };
+    let lastError = "";
+    for (let attempt = 0; attempt < 3; attempt++) {
+      const remote = await readMembersFromGist(gistId, token);
+      if (!remote.ok) {
+        lastError = remote.error;
+        continue;
       }
-    } else {
-      list.push(next);
+
+      const next = toDurable(member);
+      const list = [...remote.list];
+      const idx = list.findIndex(
+        (m) =>
+          m.id === next.id ||
+          m.username.toLowerCase() === next.username.toLowerCase() ||
+          m.email.toLowerCase() === next.email.toLowerCase()
+      );
+      if (idx >= 0) {
+        const prev = list[idx];
+        const prevTs = prev.updatedAt ? new Date(prev.updatedAt).getTime() : 0;
+        const nextTs = next.updatedAt ? new Date(next.updatedAt).getTime() : Date.now();
+        // Newest write wins (debits must stick — never Math.max balance)
+        if (nextTs >= prevTs) {
+          list[idx] = { ...prev, ...next };
+        }
+      } else {
+        list.push(next);
+      }
+
+      const written = await writeMembersToGist(gistId, token, list);
+      if (written.ok) return written;
+      lastError = written.error || "gist yazılamadı";
     }
-    return writeMembersToGist(gistId, token, list);
+    return { ok: false, count: 0, error: lastError || "gist upsert başarısız" };
   } catch (e) {
     return { ok: false, count: 0, error: e instanceof Error ? e.message : "upsert hata" };
   }
