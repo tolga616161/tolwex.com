@@ -423,6 +423,13 @@ export function NewOrderForm() {
             <div className="sp-charge">
               Tutar: <strong>{charge}</strong>
             </div>
+            <p className="muted text-xs">
+              Sipariş vererek{" "}
+              <a href="/uye/sss" className="underline underline-offset-2">
+                iade koşullarını
+              </a>{" "}
+              kabul etmiş olursunuz.
+            </p>
 
             {err ? <p className="sp-err">{err}</p> : null}
             {msg ? <p className="sp-ok">{msg}</p> : null}
