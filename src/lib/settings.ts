@@ -12,6 +12,13 @@ export type PanelSettings = {
   bank_name: string;
   bank_iban: string;
   bank_holder: string;
+  /** "0" | "1" */
+  maintenance_enabled: string;
+  /** ISO end time while maintenance is on */
+  maintenance_until: string;
+  /** hours when enabling (default 24) */
+  maintenance_hours: string;
+  maintenance_message: string;
 };
 
 export const DEFAULT_SETTINGS: PanelSettings = {
@@ -25,7 +32,60 @@ export const DEFAULT_SETTINGS: PanelSettings = {
   bank_name: "İş Bankası",
   bank_iban: "TR920006400000168090093279",
   bank_holder: "Tolga Mazlum",
+  maintenance_enabled: "0",
+  maintenance_until: "",
+  maintenance_hours: "24",
+  maintenance_message: "Kısa bir bakımdayız. Çok yakında döneceğiz.",
 };
+
+export type MaintenancePublic = {
+  active: boolean;
+  until: string | null;
+  remainingMs: number;
+  hours: number;
+  message: string;
+};
+
+export function resolveMaintenance(s: PanelSettings): MaintenancePublic {
+  const hours = Math.max(1, Math.min(168, Number(s.maintenance_hours) || 24));
+  const enabled = s.maintenance_enabled === "1" || s.maintenance_enabled === "true";
+  const untilMs = s.maintenance_until ? Date.parse(s.maintenance_until) : NaN;
+  const message =
+    (s.maintenance_message || "").trim() || DEFAULT_SETTINGS.maintenance_message;
+
+  if (!enabled || !Number.isFinite(untilMs)) {
+    return { active: false, until: null, remainingMs: 0, hours, message };
+  }
+
+  const remainingMs = untilMs - Date.now();
+  if (remainingMs <= 0) {
+    return { active: false, until: null, remainingMs: 0, hours, message };
+  }
+
+  return {
+    active: true,
+    until: new Date(untilMs).toISOString(),
+    remainingMs,
+    hours,
+    message,
+  };
+}
+
+/** If maintenance expired, clear flags in DB (best-effort). */
+export async function clearExpiredMaintenance(s: PanelSettings): Promise<PanelSettings> {
+  const enabled = s.maintenance_enabled === "1" || s.maintenance_enabled === "true";
+  if (!enabled || !s.maintenance_until) return s;
+  const untilMs = Date.parse(s.maintenance_until);
+  if (!Number.isFinite(untilMs) || untilMs > Date.now()) return s;
+
+  const next: PanelSettings = {
+    ...s,
+    maintenance_enabled: "0",
+    maintenance_until: "",
+  };
+  await writePanelSettings(next);
+  return next;
+}
 
 export async function readPanelSettings(): Promise<PanelSettings> {
   const row = await prisma.panelSetting.findUnique({ where: { id: "main" } });

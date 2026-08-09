@@ -133,6 +133,10 @@ export default function AdminDashboardPage() {
               <Link href="/admin61/settings">Aç</Link>
             </li>
             <li>
+              <span>3D Bakım Modu (24 saat)</span>
+              <Link href="/admin61/settings">Ayarla</Link>
+            </li>
+            <li>
               <span>Trafik / ziyaretçi IP</span>
               <Link href="/admin61/trafik">Aç</Link>
             </li>

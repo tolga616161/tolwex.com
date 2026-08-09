@@ -8,6 +8,7 @@ import { PageAtmosphere } from "@/components/fx/PageAtmosphere";
 import { AnnouncementBanner } from "@/components/marketing/AnnouncementBanner";
 import { JsonLd } from "@/components/seo/JsonLd";
 import { VisitTracker } from "@/components/analytics/VisitTracker";
+import MaintenanceGate from "@/components/MaintenanceGate";
 import { SEO_KEYWORDS, SITE_NAME, SITE_TAGLINE, absoluteUrl, siteUrl } from "@/lib/seo";
 
 const display = Syne({
@@ -105,14 +106,16 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="tr" className={`${display.variable} ${body.variable} h-full`}>
       <body className="min-h-full flex flex-col antialiased site-body">
-        <JsonLd />
-        <PageAtmosphere />
-        <AnnouncementBanner />
-        <SiteNav />
-        <main className="flex-1 site-main">{children}</main>
-        <SiteFooter />
-        <WhatsAppFab />
-        <VisitTracker />
+        <MaintenanceGate>
+          <JsonLd />
+          <PageAtmosphere />
+          <AnnouncementBanner />
+          <SiteNav />
+          <main className="flex-1 site-main">{children}</main>
+          <SiteFooter />
+          <WhatsAppFab />
+          <VisitTracker />
+        </MaintenanceGate>
       </body>
     </html>
   );

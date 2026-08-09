@@ -3,7 +3,9 @@ import { requireAdminApi } from "@/lib/admin/auth";
 import { smmConfig } from "@/lib/smm/client";
 import {
   DEFAULT_SETTINGS,
+  clearExpiredMaintenance,
   readPanelSettings,
+  resolveMaintenance,
   writePanelSettings,
   type PanelSettings,
 } from "@/lib/settings";
@@ -14,7 +16,8 @@ export async function GET() {
   const gate = await requireAdminApi();
   if (!gate.ok) return gate.response;
 
-  const settings = await readPanelSettings();
+  let settings = await readPanelSettings();
+  settings = await clearExpiredMaintenance(settings);
   const cfg = smmConfig();
 
   return NextResponse.json({
@@ -25,6 +28,7 @@ export async function GET() {
       smm_api_url: cfg.url,
       smm_api_configured: Boolean(cfg.key),
     },
+    maintenance: resolveMaintenance(settings),
   });
 }
 
@@ -32,8 +36,42 @@ export async function PUT(request: NextRequest) {
   const gate = await requireAdminApi();
   if (!gate.ok) return gate.response;
 
-  const body = (await request.json().catch(() => ({}))) as Partial<PanelSettings>;
+  const body = (await request.json().catch(() => ({}))) as Partial<PanelSettings> & {
+    /** When true with enable, force-reset the 24h window from now */
+    maintenance_restart?: boolean | string;
+  };
   const current = await readPanelSettings();
+
+  const hoursRaw = body.maintenance_hours ?? current.maintenance_hours;
+  const hours = Math.max(1, Math.min(168, Number(hoursRaw) || 24));
+
+  let maintenance_enabled =
+    body.maintenance_enabled !== undefined
+      ? String(body.maintenance_enabled)
+      : current.maintenance_enabled;
+  const turningOn =
+    (maintenance_enabled === "1" || maintenance_enabled === "true") &&
+    !(current.maintenance_enabled === "1" || current.maintenance_enabled === "true");
+  const turningOff =
+    (maintenance_enabled === "0" || maintenance_enabled === "false") &&
+    (current.maintenance_enabled === "1" || current.maintenance_enabled === "true");
+  const restart =
+    body.maintenance_restart === true || body.maintenance_restart === "1";
+
+  let maintenance_until = current.maintenance_until || "";
+  if (turningOff || maintenance_enabled === "0" || maintenance_enabled === "false") {
+    maintenance_enabled = "0";
+    maintenance_until = "";
+  } else if (turningOn || restart) {
+    maintenance_enabled = "1";
+    maintenance_until = new Date(Date.now() + hours * 60 * 60 * 1000).toISOString();
+  } else if (maintenance_enabled === "1" || maintenance_enabled === "true") {
+    // Keep existing until unless empty
+    if (!maintenance_until) {
+      maintenance_until = new Date(Date.now() + hours * 60 * 60 * 1000).toISOString();
+    }
+  }
+
   const next: PanelSettings = {
     site_name: body.site_name?.trim() || current.site_name,
     support_whatsapp: body.support_whatsapp?.trim() || current.support_whatsapp,
@@ -54,8 +92,19 @@ export async function PUT(request: NextRequest) {
       .replace(/\s+/g, "")
       .toUpperCase(),
     bank_holder: body.bank_holder?.trim() || current.bank_holder || DEFAULT_SETTINGS.bank_holder,
+    maintenance_enabled,
+    maintenance_until,
+    maintenance_hours: String(hours),
+    maintenance_message:
+      body.maintenance_message !== undefined
+        ? String(body.maintenance_message).slice(0, 280)
+        : current.maintenance_message || DEFAULT_SETTINGS.maintenance_message,
   };
 
   await writePanelSettings(next);
-  return NextResponse.json({ ok: true, settings: next });
+  return NextResponse.json({
+    ok: true,
+    settings: next,
+    maintenance: resolveMaintenance(next),
+  });
 }
