@@ -1,8 +1,10 @@
 import { NextResponse } from "next/server";
 import { requireAdminApi } from "@/lib/admin/auth";
 import { prisma, ensureDbHydrated } from "@/lib/db";
+import { ensureSmmCatalogFresh } from "@/lib/smm/sync";
 
 export const dynamic = "force-dynamic";
+export const maxDuration = 60;
 
 export async function GET() {
   const gate = await requireAdminApi();
@@ -10,6 +12,12 @@ export async function GET() {
 
   try {
     await ensureDbHydrated();
+    // Cold /tmp instances often have members (gist) but empty service catalog
+    const warmCount = await prisma.smmService.count({ where: { active: true } }).catch(() => 0);
+    if (warmCount < 50) {
+      await ensureSmmCatalogFresh(0).catch(() => null);
+    }
+
     const [
       members,
       orders,
@@ -36,7 +44,10 @@ export async function GET() {
             OR: [
               { status: "pending" },
               { status: "awaiting" },
-              { providerOrderId: null, status: { notIn: ["refunded", "error", "canceled", "cancelled"] } },
+              {
+                providerOrderId: null,
+                status: { notIn: ["refunded", "error", "canceled", "cancelled"] },
+              },
             ],
           },
         })
