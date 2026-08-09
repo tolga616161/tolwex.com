@@ -6,10 +6,19 @@ type Ticket = {
   id: string;
   subject: string;
   message: string;
+  kind?: string;
+  imageData?: string;
   status: string;
   reply: string;
   createdAt: string;
   member: { username: string; email: string } | null;
+};
+
+const KIND_LABEL: Record<string, string> = {
+  closed: "Kapanan hesap",
+  fake: "Fake hesap",
+  stolen: "Çalınan hesap",
+  general: "Genel",
 };
 
 export default function AdminSupportPage() {
@@ -51,8 +60,25 @@ export default function AdminSupportPage() {
             </div>
             <p className="muted text-xs mb-2">
               {t.member?.username || "—"} · {t.member?.email || ""}
+              {t.kind ? ` · ${KIND_LABEL[t.kind] || t.kind}` : ""}
             </p>
-            <p className="text-sm mb-3">{t.message}</p>
+            <p className="text-sm mb-3" style={{ whiteSpace: "pre-wrap" }}>
+              {t.message}
+            </p>
+            {t.imageData ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={t.imageData}
+                alt="Ek görsel"
+                style={{
+                  maxWidth: "100%",
+                  maxHeight: 280,
+                  borderRadius: 12,
+                  marginBottom: 12,
+                  border: "1px solid rgba(255,255,255,0.12)",
+                }}
+              />
+            ) : null}
             <textarea
               rows={3}
               placeholder="Yanıt"

@@ -1,37 +1,41 @@
 "use client";
 
-import { FormEvent, useEffect, useState } from "react";
-import { MemberPanelShell } from "@/components/smm/MemberPanelShell";
+import { FormEvent, Suspense, useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
+import Link from "next/link";
+import { MemberGate } from "@/components/smm/MemberGate";
 
-type Me = { username: string; email: string; balance: number };
 type Ticket = {
   id: string;
   subject: string;
   message: string;
+  kind?: string;
   status: string;
   reply: string;
   createdAt: string;
+  hasImage?: boolean;
 };
 
-export default function MemberSupportPage() {
-  const [me, setMe] = useState<Me | null>(null);
+const KIND_LABEL: Record<string, string> = {
+  closed: "Kapanan hesap",
+  fake: "Fake hesap",
+  stolen: "Çalınan hesap",
+  general: "Genel",
+};
+
+function SupportInner() {
+  const search = useSearchParams();
+  const fromHelp = search.get("from") === "hesap-yardim" && search.get("ok") === "1";
   const [tickets, setTickets] = useState<Ticket[]>([]);
   const [subject, setSubject] = useState("");
   const [message, setMessage] = useState("");
   const [err, setErr] = useState<string | null>(null);
+  const [okBanner, setOkBanner] = useState(fromHelp);
 
   async function load() {
-    const [p, t] = await Promise.all([
-      fetch("/api/member/profile").then((r) => (r.ok ? r.json() : null)),
-      fetch("/api/member/support").then((r) => (r.ok ? r.json() : null)),
-    ]);
-    if (p?.member) {
-      setMe({
-        username: p.member.username,
-        email: p.member.email,
-        balance: p.member.balance,
-      });
-    }
+    const t = await fetch("/api/member/support", { credentials: "same-origin" }).then((r) =>
+      r.ok ? r.json() : null
+    );
     setTickets(t?.tickets || []);
   }
 
@@ -45,7 +49,8 @@ export default function MemberSupportPage() {
     const res = await fetch("/api/member/support", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ subject, message }),
+      credentials: "same-origin",
+      body: JSON.stringify({ subject, message, kind: "general" }),
     });
     const data = await res.json().catch(() => ({}));
     if (!res.ok) {
@@ -57,52 +62,90 @@ export default function MemberSupportPage() {
     load();
   }
 
-  if (!me) return <div className="site-shell py-16 muted">Yükleniyor…</div>;
-
   return (
-    <MemberPanelShell username={me.username} email={me.email} balance={me.balance}>
-      <div className="member-page">
-        <div className="section-head mb-6">
-          <p className="section-kicker">Destek</p>
-          <h1 className="section-title">Destek talepleri</h1>
-        </div>
+    <div className="sp-page">
+      <div className="sp-page-title">
+        <h1>Yardım Merkezi</h1>
+        <p>Destek taleplerin burada. Hesap sorunları için görsel menüyü kullan.</p>
+      </div>
 
-        <form onSubmit={submit} className="glass-panel rounded-2xl p-5 grid gap-3 mb-6">
+      {okBanner ? (
+        <div className="account-help-success">
+          <strong>Talebin alındı.</strong> Görsel kaydın yardım merkezine düştü — ekibimiz
+          inceleyecek.
+          <button type="button" className="btn btn-ghost" onClick={() => setOkBanner(false)}>
+            Kapat
+          </button>
+        </div>
+      ) : null}
+
+      <div className="account-help-mini-nav">
+        <Link href="/uye/hesap-yardim/kapanan">Kapanan hesap</Link>
+        <Link href="/uye/hesap-yardim/fake">Fake hesap</Link>
+        <Link href="/uye/hesap-yardim/calinan">Çalınan hesap</Link>
+      </div>
+
+      <form onSubmit={submit} className="sp-card sp-form mb-6">
+        <label>
+          <span>Konu</span>
           <input
             placeholder="Konu"
             value={subject}
             onChange={(e) => setSubject(e.target.value)}
             required
+            minLength={3}
           />
+        </label>
+        <label>
+          <span>Mesaj</span>
           <textarea
             placeholder="Mesajınız"
             value={message}
             onChange={(e) => setMessage(e.target.value)}
             rows={4}
             required
+            minLength={5}
           />
-          {err ? <p style={{ color: "#f87171" }}>{err}</p> : null}
-          <button type="submit" className="btn btn-primary">
-            Gönder
-          </button>
-        </form>
+        </label>
+        {err ? <p className="sp-err">{err}</p> : null}
+        <button type="submit" className="btn btn-primary">
+          Gönder
+        </button>
+      </form>
 
-        <div className="grid gap-3">
-          {tickets.map((t) => (
-            <article key={t.id} className="glass-panel rounded-2xl p-4">
-              <div className="flex justify-between gap-3 mb-2">
-                <strong>{t.subject}</strong>
-                <span className="muted text-xs">{t.status}</span>
-              </div>
-              <p className="text-sm mb-2">{t.message}</p>
-              {t.reply ? (
-                <p className="text-sm muted">Yanıt: {t.reply}</p>
-              ) : null}
-            </article>
-          ))}
-          {tickets.length === 0 ? <p className="muted text-sm">Talep yok.</p> : null}
-        </div>
+      <div className="grid gap-3">
+        {tickets.map((t) => (
+          <article key={t.id} className="sp-card" style={{ padding: "1rem" }}>
+            <div className="flex justify-between gap-3 mb-2">
+              <strong>{t.subject}</strong>
+              <span className="muted text-xs">{t.status}</span>
+            </div>
+            {t.kind && t.kind !== "general" ? (
+              <p className="muted text-xs mb-2">
+                {KIND_LABEL[t.kind] || t.kind}
+                {t.hasImage ? " · görsel eklendi" : ""}
+              </p>
+            ) : null}
+            <p className="text-sm mb-2" style={{ whiteSpace: "pre-wrap" }}>
+              {t.message}
+            </p>
+            {t.reply ? <p className="text-sm muted">Yanıt: {t.reply}</p> : null}
+          </article>
+        ))}
+        {tickets.length === 0 ? <p className="muted text-sm">Talep yok.</p> : null}
       </div>
-    </MemberPanelShell>
+    </div>
+  );
+}
+
+export default function MemberSupportPage() {
+  return (
+    <MemberGate>
+      {() => (
+        <Suspense fallback={<p className="muted p-6">Yükleniyor…</p>}>
+          <SupportInner />
+        </Suspense>
+      )}
+    </MemberGate>
   );
 }

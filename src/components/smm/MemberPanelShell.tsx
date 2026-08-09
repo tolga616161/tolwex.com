@@ -9,10 +9,11 @@ const NAV = [
   { href: "/uye", label: "Yeni Sipariş", exact: true },
   { href: "/uye/siparisler", label: "Siparişlerim" },
   { href: "/uye/servisler", label: "Servisler" },
+  { href: "/uye/hesap-yardim", label: "Hesap Yardım" },
   { href: "/uye/bakiye", label: "Bakiye Yükle" },
   { href: "/uye/islemler", label: "İşlemler" },
   { href: "/uye/istatistik", label: "İstatistik" },
-  { href: "/uye/destek", label: "Destek" },
+  { href: "/uye/destek", label: "Yardım Merkezi" },
   { href: "/uye/api", label: "API" },
   { href: "/uye/profil", label: "Profil" },
 ];
