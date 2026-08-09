@@ -6,6 +6,7 @@ import {
   readPanelSettings,
   writePanelSettings,
 } from "@/lib/settings";
+import { shopierConfigured } from "@/lib/shopier";
 
 export const dynamic = "force-dynamic";
 
@@ -22,6 +23,7 @@ export async function GET() {
     announcement_enabled: s.announcement_enabled === "1" || s.announcement_enabled === "true",
     min_deposit: Number(s.min_deposit) || 50,
     support_whatsapp: s.support_whatsapp,
+    shopier_enabled: shopierConfigured(),
     bank: {
       name: s.bank_name,
       iban: s.bank_iban,

@@ -57,7 +57,8 @@ export async function PATCH(req: NextRequest) {
       balance: true,
     },
   });
-  const { pushMembersToGist } = await import("@/lib/members-durable");
-  await pushMembersToGist();
+  const full = await prisma.member.findUniqueOrThrow({ where: { id: member.id } });
+  const { upsertMemberInGist } = await import("@/lib/members-durable");
+  await upsertMemberInGist(full);
   return NextResponse.json({ ok: true, member: updated });
 }

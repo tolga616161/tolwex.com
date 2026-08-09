@@ -51,11 +51,19 @@ export function MemberAuthForm({
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) {
+        const detail =
+          typeof data.detail === "string" && data.detail.length < 120
+            ? ` (${data.detail})`
+            : "";
         setError(
-          data.error ||
-            (res.status >= 500
-              ? "Sunucu hatası — lütfen birkaç saniye sonra tekrar deneyin"
-              : "İşlem başarısız")
+          (data.error ||
+            (res.status === 401
+              ? "Kullanıcı adı/e-posta veya şifre hatalı"
+              : res.status === 409
+                ? "Bu kullanıcı adı veya e-posta zaten kayıtlı"
+                : res.status >= 500
+                  ? "Sunucu hatası — lütfen birkaç saniye sonra tekrar deneyin"
+                  : "İşlem başarısız")) + detail
         );
         return;
       }

@@ -1,6 +1,6 @@
 import { ensureDbHydrated, prisma } from "@/lib/db";
 import { getSession } from "@/lib/session";
-import { pullMembersFromGist, pushMembersToGist } from "@/lib/members-durable";
+import { pullMembersFromGist, upsertMemberInGist } from "@/lib/members-durable";
 import { pullPaymentsFromGist } from "@/lib/payments-durable";
 
 export async function requireMember() {
@@ -9,9 +9,16 @@ export async function requireMember() {
   await pullPaymentsFromGist();
   const session = await getSession();
   if (!session.memberId) return null;
-  return prisma.member.findFirst({
+  let member = await prisma.member.findFirst({
     where: { id: session.memberId, active: true },
   });
+  if (!member) {
+    await pullMembersFromGist();
+    member = await prisma.member.findFirst({
+      where: { id: session.memberId, active: true },
+    });
+  }
+  return member;
 }
 
 export async function adjustBalance(
@@ -35,6 +42,6 @@ export async function adjustBalance(
       refId,
     },
   });
-  await pushMembersToGist();
+  await upsertMemberInGist(member);
   return member;
 }

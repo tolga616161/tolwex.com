@@ -1,14 +1,16 @@
 import { NextResponse } from "next/server";
 import { ensureDbHydrated, prisma } from "@/lib/db";
 import { getSession } from "@/lib/session";
+import { pullMembersFromGist } from "@/lib/members-durable";
 
 export async function GET() {
-  await ensureDbHydrated();
+  await ensureDbHydrated(true);
+  await pullMembersFromGist();
   const session = await getSession();
   if (!session.memberId) {
     return NextResponse.json({ member: null });
   }
-  const member = await prisma.member.findFirst({
+  let member = await prisma.member.findFirst({
     where: { id: session.memberId, active: true },
     select: {
       id: true,
@@ -16,9 +18,28 @@ export async function GET() {
       name: true,
       username: true,
       phone: true,
+      balance: true,
+      spent: true,
       createdAt: true,
     },
   });
+  if (!member) {
+    // Cold instance: pull again then retry once
+    await pullMembersFromGist();
+    member = await prisma.member.findFirst({
+      where: { id: session.memberId, active: true },
+      select: {
+        id: true,
+        email: true,
+        name: true,
+        username: true,
+        phone: true,
+        balance: true,
+        spent: true,
+        createdAt: true,
+      },
+    });
+  }
   if (!member) {
     session.memberId = undefined;
     session.memberEmail = undefined;

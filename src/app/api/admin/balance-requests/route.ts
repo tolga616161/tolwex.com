@@ -3,11 +3,13 @@ import { ensureDbHydrated, prisma } from "@/lib/db";
 import { requireAdminApi } from "@/lib/admin/auth";
 import { adjustBalance } from "@/lib/member";
 import { pullPaymentsFromGist, pushPaymentsToGist } from "@/lib/payments-durable";
+import { pullMembersFromGist } from "@/lib/members-durable";
 
 export const dynamic = "force-dynamic";
 
 export async function GET() {
   await ensureDbHydrated(true);
+  await pullMembersFromGist();
   await pullPaymentsFromGist();
   const gate = await requireAdminApi();
   if (!gate.ok) return gate.response;

@@ -21,6 +21,12 @@ const STATUS_TR: Record<string, string> = {
   rejected: "Reddedildi",
 };
 
+const METHOD_TR: Record<string, string> = {
+  bank_transfer: "Havale",
+  shopier: "Shopier",
+  whatsapp: "WhatsApp",
+};
+
 export default function MemberBalancePage() {
   return (
     <MemberGate>
@@ -51,7 +57,9 @@ function BalanceInner({
   const [err, setErr] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
   const [busy, setBusy] = useState(false);
+  const [shopierBusy, setShopierBusy] = useState(false);
   const [couponBusy, setCouponBusy] = useState(false);
+  const [shopierEnabled, setShopierEnabled] = useState(false);
 
   const loadRequests = useCallback(async () => {
     const res = await fetch("/api/member/balance", { credentials: "same-origin" });
@@ -70,9 +78,18 @@ function BalanceInner({
       .then((s) => {
         if (s?.bank?.iban) setBank(s.bank);
         if (s?.min_deposit) setMinDeposit(Number(s.min_deposit) || 50);
+        setShopierEnabled(Boolean(s?.shopier_enabled));
       });
     loadRequests();
-  }, [loadRequests]);
+    const q = new URLSearchParams(window.location.search);
+    const shopier = q.get("shopier");
+    if (shopier === "ok") {
+      setMsg("Shopier ödemesi alındı — bakiyeniz güncellendi.");
+      refreshMe().catch(() => undefined);
+    } else if (shopier === "fail") {
+      setErr("Shopier ödemesi tamamlanamadı veya iptal edildi.");
+    }
+  }, [loadRequests, refreshMe]);
 
   async function copyIban() {
     if (!bank?.iban) return;
@@ -130,6 +147,53 @@ function BalanceInner({
     }
   }
 
+  async function payWithShopier(e: FormEvent) {
+    e.preventDefault();
+    setMsg(null);
+    setErr(null);
+    const value = Number(amount);
+    if (!Number.isFinite(value) || value < minDeposit) {
+      setErr(`Minimum yükleme tutarı ${minDeposit} ₺`);
+      return;
+    }
+    setShopierBusy(true);
+    try {
+      const res = await fetch("/api/member/shopier/create", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "same-origin",
+        body: JSON.stringify({ amount: value }),
+      });
+      if (res.status === 401) {
+        router.replace("/uye/giris");
+        return;
+      }
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        setErr(data.error || "Shopier başlatılamadı");
+        return;
+      }
+      const form = document.createElement("form");
+      form.method = "POST";
+      form.action = String(data.action);
+      form.acceptCharset = "UTF-8";
+      const fields = (data.fields || {}) as Record<string, string | number>;
+      for (const [key, val] of Object.entries(fields)) {
+        const input = document.createElement("input");
+        input.type = "hidden";
+        input.name = key;
+        input.value = String(val);
+        form.appendChild(input);
+      }
+      document.body.appendChild(form);
+      form.submit();
+    } catch {
+      setErr("Ağ hatası — tekrar deneyin");
+    } finally {
+      setShopierBusy(false);
+    }
+  }
+
   async function redeemCoupon(e: FormEvent) {
     e.preventDefault();
     setMsg(null);
@@ -182,10 +246,35 @@ function BalanceInner({
 
       <div className="pay-grid">
         <div className="pay-col">
+          {shopierEnabled ? (
+            <form onSubmit={payWithShopier} className="sp-card sp-form mb-4">
+              <div className="sp-card-head">
+                <h2>Shopier ile öde</h2>
+              </div>
+              <p className="muted text-sm" style={{ marginTop: "-0.35rem" }}>
+                Kart / Shopier güvenli ödeme — tutar anında bakiyeye geçer.
+              </p>
+              <label>
+                <span>Yükleme tutarı (₺)</span>
+                <input
+                  type="number"
+                  min={minDeposit}
+                  step="1"
+                  value={amount}
+                  onChange={(e) => setAmount(e.target.value)}
+                  required
+                />
+              </label>
+              <button type="submit" className="btn btn-primary" disabled={shopierBusy}>
+                {shopierBusy ? "Shopier’a yönlendiriliyor…" : "Shopier ile öde"}
+              </button>
+            </form>
+          ) : null}
+
           {bank ? (
             <div className="sp-card bank-card mb-4">
               <div className="sp-card-head">
-                <h2>1 · Havale / EFT</h2>
+                <h2>{shopierEnabled ? "Havale / EFT" : "1 · Havale / EFT"}</h2>
               </div>
               <div className="bank-rows" style={{ padding: "0 1.1rem 1.1rem" }}>
                 <div>
@@ -216,7 +305,7 @@ function BalanceInner({
 
           <form onSubmit={submitRequest} className="sp-card sp-form mb-4">
             <div className="sp-card-head">
-              <h2>2 · Ödeme bildirimi</h2>
+              <h2>Havale ödeme bildirimi</h2>
             </div>
             <p className="muted text-sm" style={{ marginTop: "-0.35rem" }}>
               Havale yaptıktan sonra tutarı bildirin — onayda bakiye otomatik yüklenir.
@@ -295,6 +384,9 @@ function BalanceInner({
                     <tr key={r.id}>
                       <td>
                         <strong>{r.amount.toFixed(2)} ₺</strong>
+                        <div className="muted text-xs">
+                          {METHOD_TR[r.method] || r.method}
+                        </div>
                         {r.note ? (
                           <div className="muted text-xs" style={{ maxWidth: 200 }}>
                             {r.note}

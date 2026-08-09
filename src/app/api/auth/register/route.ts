@@ -6,7 +6,7 @@ import { getSession } from "@/lib/session";
 import { rateLimit } from "@/lib/rate-limit";
 import { writeAuditLog } from "@/lib/audit";
 import { generateApiKey } from "@/lib/api-key";
-import { pullMembersFromGist, pushMembersToGist } from "@/lib/members-durable";
+import { pullMembersFromGist, upsertMemberInGist } from "@/lib/members-durable";
 
 const schema = z
   .object({
@@ -71,7 +71,8 @@ export async function POST(req: NextRequest) {
       },
     });
 
-    const synced = await pushMembersToGist();
+    // Merge this member into gist (never wipe other accounts)
+    const synced = await upsertMemberInGist(member);
     if (!synced.ok) {
       await prisma.member.delete({ where: { id: member.id } }).catch(() => null);
       return NextResponse.json(
