@@ -182,3 +182,22 @@ model PanelSetting {
   data      String   @default("{}")
   updatedAt DateTime @updatedAt
 }
+
+/** Lightweight visitor analytics (IP, path, enter/exit). */
+model SiteVisit {
+  id        String    @id @default(cuid())
+  sessionId String
+  ip        String    @default("")
+  path      String    @default("/")
+  referrer  String    @default("")
+  userAgent String    @default("")
+  country   String    @default("")
+  enteredAt DateTime  @default(now())
+  leftAt    DateTime?
+  hitCount  Int       @default(1)
+
+  @@index([enteredAt])
+  @@index([ip, enteredAt])
+  @@index([sessionId])
+  @@index([path, enteredAt])
+}

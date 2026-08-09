@@ -6,6 +6,9 @@ import { SiteFooter } from "@/components/SiteFooter";
 import { WhatsAppFab } from "@/components/contact/WhatsAppFab";
 import { PageAtmosphere } from "@/components/fx/PageAtmosphere";
 import { AnnouncementBanner } from "@/components/marketing/AnnouncementBanner";
+import { JsonLd } from "@/components/seo/JsonLd";
+import { VisitTracker } from "@/components/analytics/VisitTracker";
+import { SEO_KEYWORDS, SITE_NAME, SITE_TAGLINE, absoluteUrl, siteUrl } from "@/lib/seo";
 
 const display = Syne({
   variable: "--font-display-face",
@@ -20,12 +23,54 @@ const body = IBM_Plex_Sans({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(siteUrl()),
   title: {
-    default: "TOLWEX | SMM Panel",
-    template: "%s | TOLWEX",
+    default: `${SITE_NAME} | SMM Panel Türkiye — Takipçi, Beğeni, İzlenme`,
+    template: `%s | ${SITE_NAME}`,
   },
-  description:
-    "TOLWEX — dijitalde karşınıza çıkan sorunları birlikte çözüyoruz. Takipçi, beğeni, izlenme; üye hesabı, bakiye ve otomatik sipariş.",
+  description: `${SITE_TAGLINE}. Instagram, TikTok, YouTube SMM paneli — ucuz takipçi, beğeni, izlenme. Üye ol, bakiye yükle, anında sipariş ver.`,
+  keywords: SEO_KEYWORDS,
+  authors: [{ name: SITE_NAME, url: siteUrl() }],
+  creator: SITE_NAME,
+  publisher: SITE_NAME,
+  alternates: {
+    canonical: "/",
+    languages: {
+      "tr-TR": "/",
+    },
+  },
+  openGraph: {
+    type: "website",
+    locale: "tr_TR",
+    url: siteUrl(),
+    siteName: SITE_NAME,
+    title: `${SITE_NAME} | Profesyonel SMM Panel`,
+    description: SITE_TAGLINE,
+    images: [
+      {
+        url: absoluteUrl("/icon.png"),
+        width: 512,
+        height: 512,
+        alt: SITE_NAME,
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: `${SITE_NAME} | SMM Panel`,
+    description: SITE_TAGLINE,
+    images: [absoluteUrl("/icon.png")],
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
+  },
   icons: {
     icon: [
       { url: "/favicon.svg", type: "image/svg+xml" },
@@ -39,10 +84,10 @@ export const metadata: Metadata = {
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
-    title: "TOLWEX",
+    title: SITE_NAME,
   },
   manifest: "/site.webmanifest",
-
+  category: "technology",
   formatDetection: {
     telephone: false,
   },
@@ -60,12 +105,14 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="tr" className={`${display.variable} ${body.variable} h-full`}>
       <body className="min-h-full flex flex-col antialiased site-body">
+        <JsonLd />
         <PageAtmosphere />
         <AnnouncementBanner />
         <SiteNav />
         <main className="flex-1 site-main">{children}</main>
         <SiteFooter />
         <WhatsAppFab />
+        <VisitTracker />
       </body>
     </html>
   );

@@ -11,6 +11,7 @@ const LINKS = [
   { label: "Kayıt Ol", href: "/uye/kayit" },
   { label: "Gizlilik", href: "/privacy" },
   { label: "Kullanım Koşulları", href: "/terms" },
+  { label: "Sitemap", href: "/sitemap.xml" },
 ];
 
 export function SiteFooter() {

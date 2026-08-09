@@ -2,8 +2,15 @@ import { ServiceCatalog } from "@/components/smm/ServiceCatalog";
 import Link from "next/link";
 
 export const metadata = {
-  title: "Hizmetler",
-  description: "TOLWEX SMM hizmet listesi — Instagram, TikTok, YouTube ve daha fazlası.",
+  title: "SMM Hizmetleri — Instagram TikTok YouTube",
+  description:
+    "TOLWEX SMM hizmet listesi: Instagram takipçi, TikTok izlenme, YouTube beğeni ve yüzlerce servis. Güncel fiyatlar, anında sipariş.",
+  alternates: { canonical: "/hizmetler" },
+  openGraph: {
+    title: "TOLWEX SMM Hizmetleri",
+    description: "Instagram, TikTok, YouTube SMM servis kataloğu.",
+    url: "/hizmetler",
+  },
 };
 
 export default function HizmetlerPage() {

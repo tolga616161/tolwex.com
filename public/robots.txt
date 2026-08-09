@@ -3,3 +3,9 @@ Allow: /
 Disallow: /admin61
 Disallow: /admin
 Disallow: /api/
+Disallow: /uye/siparisler
+Disallow: /uye/bakiye
+Disallow: /uye/profil
+
+Sitemap: https://tolwex.com/sitemap.xml
+Sitemap: https://www.tolwex.com/sitemap.xml

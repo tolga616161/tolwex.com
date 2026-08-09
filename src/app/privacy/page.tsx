@@ -15,6 +15,12 @@ export default function PrivacyPage() {
           Siparişin yerine getirilmesi için gerekli bilgiler yalnızca TOLWEX altyapısı
           içinde işlenir.
         </p>
+        <h2 className="display text-xl text-white">Ziyaret istatistikleri</h2>
+        <p>
+          Site performansı ve güvenlik için sayfa ziyaretleri (IP, tarayıcı, sayfa yolu,
+          giriş–çıkış zamanı) kısa süreli olarak kaydedilebilir. Bu veriler yalnızca
+          yönetim panelinde kullanılır.
+        </p>
         <h2 className="display text-xl text-white">İletişim</h2>
         <p>Destek için WhatsApp veya panel içi Destek bölümünü kullanabilirsiniz.</p>
       </div>

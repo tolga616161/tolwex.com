@@ -12,7 +12,10 @@ const NAV_GROUPS: Array<{
 }> = [
   {
     label: "Genel",
-    items: [{ href: "/admin61", label: "Dashboard" }],
+    items: [
+      { href: "/admin61", label: "Dashboard" },
+      { href: "/admin61/trafik", label: "Trafik / IP" },
+    ],
   },
   {
     label: "Operasyon",
@@ -43,6 +46,7 @@ const NAV_GROUPS: Array<{
 
 const TITLE_BY_PATH: Record<string, string> = {
   "/admin61": "Dashboard",
+  "/admin61/trafik": "Trafik / IP",
   "/admin61/users": "Kullanıcılar",
   "/admin61/orders": "Sipariş Onay",
   "/admin61/services": "Servisler",

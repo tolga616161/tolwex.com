@@ -132,6 +132,10 @@ export default function AdminDashboardPage() {
               <span>Duyuru & banka ayarları</span>
               <Link href="/admin61/settings">Aç</Link>
             </li>
+            <li>
+              <span>Trafik / ziyaretçi IP</span>
+              <Link href="/admin61/trafik">Aç</Link>
+            </li>
           </ul>
         </div>
         <div className="admin-panel">

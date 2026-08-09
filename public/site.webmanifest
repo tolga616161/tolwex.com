@@ -1,9 +1,10 @@
 {
   "name": "TOLWEX SMM Panel",
   "short_name": "TOLWEX",
-  "description": "Profesyonel SMM paneli",
+  "description": "Dijitalde karşınıza çıkan sorunları birlikte çözüyoruz. Instagram, TikTok, YouTube SMM paneli.",
   "start_url": "/",
   "display": "standalone",
+  "lang": "tr-TR",
   "background_color": "#000000",
   "theme_color": "#000000",
   "icons": [
