@@ -76,68 +76,73 @@ function MonoPlate({
 
 function seedFloaters(reduce: boolean): Floater[] {
   const kinds: SocialKind[] = ["ig", "fb", "tt"];
-  const n = reduce ? 14 : 28;
+  const n = reduce ? 12 : 22;
   const out: Floater[] = [];
 
   for (let i = 0; i < n; i++) {
     const kind = kinds[i % 3];
-    // Mix near / mid / far depths
     const depthBand = i % 3;
     const z =
       depthBand === 0
-        ? -1.2 - Math.random() * 1.6
+        ? -1.4 - Math.random() * 1.4
         : depthBand === 1
-          ? -3.2 - Math.random() * 2.4
-          : -6.2 - Math.random() * 3.5;
+          ? -3.0 - Math.random() * 2.0
+          : -5.5 - Math.random() * 2.8;
 
-    const near = z > -2.5;
-    const far = z < -6;
+    const near = z > -2.6;
+    const far = z < -5.8;
     const scale = near
-      ? 0.95 + Math.random() * 0.55
+      ? 0.85 + Math.random() * 0.45
       : far
-        ? 0.28 + Math.random() * 0.35
-        : 0.5 + Math.random() * 0.45;
+        ? 0.35 + Math.random() * 0.3
+        : 0.55 + Math.random() * 0.4;
+
+    // Bias floaters to the right / upper so left copy stays clear
+    const xBias = 1.2 + Math.random() * 5.5 * (Math.random() > 0.35 ? 1 : -0.4);
 
     out.push({
       kind,
       pos: new THREE.Vector3(
-        (Math.random() - 0.5) * (near ? 10 : 14),
-        (Math.random() - 0.5) * (near ? 6 : 8),
+        xBias * (Math.random() > 0.5 ? 1 : -0.55),
+        (Math.random() - 0.35) * (near ? 5 : 7),
         z
       ),
       rot: new THREE.Euler(
-        (Math.random() - 0.5) * 0.9,
-        (Math.random() - 0.5) * Math.PI,
-        (Math.random() - 0.5) * 0.55
+        (Math.random() - 0.5) * 0.7,
+        (Math.random() - 0.5) * 1.2,
+        (Math.random() - 0.5) * 0.45
       ),
       spin: new THREE.Vector3(
-        (Math.random() - 0.5) * 0.25,
-        (Math.random() - 0.5) * 0.45,
-        (Math.random() - 0.5) * 0.15
+        (Math.random() - 0.5) * 0.18,
+        (Math.random() - 0.5) * 0.35,
+        (Math.random() - 0.5) * 0.12
       ),
       scale,
-      opacity: far ? 0.28 + Math.random() * 0.22 : near ? 0.78 + Math.random() * 0.18 : 0.5 + Math.random() * 0.25,
-      drift: 0.12 + Math.random() * 0.28,
+      opacity: far ? 0.45 + Math.random() * 0.2 : near ? 0.92 : 0.7 + Math.random() * 0.18,
+      drift: 0.1 + Math.random() * 0.22,
       phase: Math.random() * Math.PI * 2,
     });
   }
 
-  // Guaranteed large hero trio (readable brand marks)
-  const hero: Array<[SocialKind, THREE.Vector3, number]> = [
-    ["ig", new THREE.Vector3(-3.2, 1.35, -2.1), 1.35],
-    ["fb", new THREE.Vector3(3.4, 0.55, -2.4), 1.2],
-    ["tt", new THREE.Vector3(0.4, -1.7, -1.8), 1.15],
+  // Guaranteed large, readable hero marks (right / mid field)
+  const hero: Array<[SocialKind, THREE.Vector3, number, THREE.Euler]> = [
+    ["ig", new THREE.Vector3(2.6, 1.55, -2.0), 1.55, new THREE.Euler(-0.18, -0.45, 0.12)],
+    ["fb", new THREE.Vector3(4.1, -0.15, -2.6), 1.35, new THREE.Euler(0.22, 0.55, -0.1)],
+    ["tt", new THREE.Vector3(1.5, -1.55, -1.7), 1.3, new THREE.Euler(0.1, -0.3, 0.18)],
+    ["ig", new THREE.Vector3(-4.2, -2.0, -3.4), 0.85, new THREE.Euler(0.3, 0.8, -0.2)],
+    ["fb", new THREE.Vector3(-3.6, 2.1, -4.2), 0.7, new THREE.Euler(-0.25, -0.6, 0.15)],
+    ["tt", new THREE.Vector3(5.0, 1.9, -4.8), 0.75, new THREE.Euler(0.4, 0.2, -0.25)],
   ];
-  hero.forEach(([kind, pos, scale], i) => {
+  hero.forEach(([kind, pos, scale, rot], i) => {
     out.push({
       kind,
       pos,
-      rot: new THREE.Euler(0.15 * (i - 1), 0.35 * (i - 1), -0.08 * i),
-      spin: new THREE.Vector3(0.05, 0.18 + i * 0.04, 0.03),
+      rot,
+      spin: new THREE.Vector3(0.04, 0.14 + i * 0.02, 0.025),
       scale,
-      opacity: 0.88,
-      drift: 0.16,
-      phase: i * 1.1,
+      opacity: i < 3 ? 0.95 : 0.65,
+      drift: 0.12,
+      phase: i * 0.9,
     });
   });
 
@@ -350,12 +355,12 @@ function SceneRig({ reduce }: { reduce: boolean }) {
 
   return (
     <group ref={root}>
-      {/* Depth blur for far icons — keeps foreground copy readable */}
-      <fog attach="fog" args={["#050505", 7.5, 18]} />
-      <ambientLight intensity={0.55} color="#d8d8d8" />
-      <directionalLight position={[4, 6, 5]} intensity={1.05} color="#ffffff" />
-      <directionalLight position={[-5, 1, 2]} intensity={0.35} color="#b0b0b0" />
-      <pointLight position={[0, 2, 3]} intensity={0.4} color="#ffffff" distance={14} />
+      {/* Soft depth fade — far icons blur into dark without washing logos */}
+      <fog attach="fog" args={["#050505", 9, 20]} />
+      <ambientLight intensity={0.75} color="#eaeaea" />
+      <directionalLight position={[4, 6, 5]} intensity={1.35} color="#ffffff" />
+      <directionalLight position={[-4, 2, 3]} intensity={0.45} color="#c8c8c8" />
+      <pointLight position={[3, 1.5, 2]} intensity={0.7} color="#ffffff" distance={16} />
 
       <SoftWireSphere reduce={reduce} />
       <DigitalLattice reduce={reduce} />
