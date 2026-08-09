@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/db";
 import { requireMember } from "@/lib/member";
+import { caseNumberFromTicket, type AccountHelpKind } from "@/lib/account-help";
 
 export async function GET() {
   const member = await requireMember();
@@ -22,16 +23,24 @@ export async function GET() {
     },
   });
   return NextResponse.json({
-    tickets: tickets.map((t) => ({
-      id: t.id,
-      subject: t.subject,
-      message: t.message,
-      kind: t.kind,
-      status: t.status,
-      reply: t.reply,
-      createdAt: t.createdAt,
-      hasImage: Boolean(t.imageData),
-    })),
+    tickets: tickets.map((t) => {
+      const kind = (t.kind || "general") as AccountHelpKind | "general";
+      const caseNumber =
+        kind === "closed" || kind === "fake" || kind === "stolen"
+          ? caseNumberFromTicket(kind, t.id)
+          : null;
+      return {
+        id: t.id,
+        subject: t.subject,
+        message: t.message,
+        kind: t.kind,
+        status: t.status,
+        reply: t.reply,
+        createdAt: t.createdAt,
+        hasImage: Boolean(t.imageData),
+        caseNumber,
+      };
+    }),
   });
 }
 
@@ -40,21 +49,22 @@ const schema = z.object({
   message: z.string().min(1).max(4000).optional(),
   kind: z.enum(["general", "closed", "fake", "stolen"]).optional(),
   username: z.string().max(80).optional(),
+  email: z.string().max(160).optional(),
   whenStolen: z.string().max(200).optional(),
   note: z.string().max(2000).optional(),
+  analysisSummary: z.string().max(1000).optional(),
+  analysisPoints: z.array(z.string().max(300)).max(12).optional(),
+  closureGuess: z.string().max(300).optional(),
   imageData: z
     .string()
     .max(2_500_000)
     .optional()
-    .refine(
-      (v) => !v || v.startsWith("data:image/"),
-      "Görsel formatı geçersiz"
-    ),
+    .refine((v) => !v || v.startsWith("data:image/"), "Görsel formatı geçersiz"),
 });
 
 const KIND_SUBJECT: Record<string, string> = {
   closed: "Kapanan hesap sorgulama",
-  fake: "Adıma açılan fake hesap",
+  fake: "Adınıza açılan fake hesap",
   stolen: "Çalınan hesap başvurusu",
   general: "Destek talebi",
 };
@@ -72,33 +82,45 @@ export async function POST(req: NextRequest) {
   const kind = parsed.data.kind || "general";
   const isHelp = kind === "closed" || kind === "fake" || kind === "stolen";
 
-  if (isHelp && !parsed.data.imageData) {
-    return NextResponse.json({ error: "Görsel gerekli" }, { status: 400 });
-  }
-  if (kind === "fake" || kind === "stolen") {
+  if (isHelp) {
+    if (!parsed.data.imageData) {
+      return NextResponse.json({ error: "Görsel gerekli" }, { status: 400 });
+    }
+    if (!parsed.data.username?.trim()) {
+      return NextResponse.json({ error: "Kullanıcı adı gerekli" }, { status: 400 });
+    }
     if (!parsed.data.whenStolen?.trim()) {
-      return NextResponse.json(
-        { error: kind === "stolen" ? "Ne zaman çalındı alanını doldur" : "Tarih / zaman alanını doldur" },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "Zaman bilgisini doldur" }, { status: 400 });
+    }
+    if (!parsed.data.note?.trim() || parsed.data.note.trim().length < 10) {
+      return NextResponse.json({ error: "Detaylı açıklama yaz (en az 10 karakter)" }, { status: 400 });
     }
   }
 
   const subject =
-    parsed.data.subject?.trim() ||
-    KIND_SUBJECT[kind] ||
-    "Destek talebi";
+    parsed.data.subject?.trim() || KIND_SUBJECT[kind] || "Destek talebi";
 
   const lines = [
+    parsed.data.analysisSummary ? `ANALİZ: ${parsed.data.analysisSummary}` : "",
+    parsed.data.closureGuess ? `Tahmini durum: ${parsed.data.closureGuess}` : "",
+    ...(parsed.data.analysisPoints || []).map((p) => `• ${p}`),
     parsed.data.message?.trim() || "",
     parsed.data.username ? `Hesap: ${parsed.data.username.trim()}` : "",
+    parsed.data.email ? `E-posta: ${parsed.data.email.trim()}` : "",
     parsed.data.whenStolen
       ? kind === "stolen"
         ? `Çalınma zamanı: ${parsed.data.whenStolen.trim()}`
-        : `Fark edilme / açılma: ${parsed.data.whenStolen.trim()}`
+        : kind === "closed"
+          ? `Kapanma zamanı: ${parsed.data.whenStolen.trim()}`
+          : `Fark edilme: ${parsed.data.whenStolen.trim()}`
       : "",
-    parsed.data.note ? `Not: ${parsed.data.note.trim()}` : "",
+    parsed.data.note
+      ? kind === "closed"
+        ? `Kapanma nedeni / açıklama:\n${parsed.data.note.trim()}`
+        : `Detay:\n${parsed.data.note.trim()}`
+      : "",
     parsed.data.imageData ? "[Ekran görüntüsü eklendi]" : "",
+    isHelp ? "Meta yardım formuna yönlendirildi." : "",
   ].filter(Boolean);
 
   const message = lines.join("\n") || subject;
@@ -113,16 +135,31 @@ export async function POST(req: NextRequest) {
         imageData: parsed.data.imageData || "",
       },
     });
+    const caseNumber =
+      kind === "closed" || kind === "fake" || kind === "stolen"
+        ? caseNumberFromTicket(kind, ticket.id)
+        : null;
+
     return NextResponse.json({
       ok: true,
+      caseNumber,
       ticket: {
         id: ticket.id,
         subject: ticket.subject,
         kind: ticket.kind,
         status: ticket.status,
         createdAt: ticket.createdAt,
+        caseNumber,
       },
       redirect: "/uye/destek",
+      metaHelp:
+        kind === "closed"
+          ? "https://www.facebook.com/help/instagram/contact/606967319425038"
+          : kind === "stolen"
+            ? "https://www.facebook.com/hacked"
+            : kind === "fake"
+              ? "https://www.facebook.com/help/instagram/contact/636276399721841"
+              : null,
     });
   } catch (e) {
     console.error("support_create_failed", e instanceof Error ? e.message : e);

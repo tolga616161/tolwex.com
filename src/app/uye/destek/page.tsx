@@ -14,11 +14,12 @@ type Ticket = {
   reply: string;
   createdAt: string;
   hasImage?: boolean;
+  caseNumber?: string | null;
 };
 
 const KIND_LABEL: Record<string, string> = {
   closed: "Kapanan hesap",
-  fake: "Fake hesap",
+  fake: "Adınıza açılan fake hesap",
   stolen: "Çalınan hesap",
   general: "Genel",
 };
@@ -80,9 +81,10 @@ function SupportInner() {
       ) : null}
 
       <div className="account-help-mini-nav">
+        <Link href="/uye/hesap-yardim">3 hesap servisi</Link>
         <Link href="/uye/hesap-yardim/kapanan">Kapanan hesap</Link>
-        <Link href="/uye/hesap-yardim/fake">Fake hesap</Link>
         <Link href="/uye/hesap-yardim/calinan">Çalınan hesap</Link>
+        <Link href="/uye/hesap-yardim/fake">Fake hesap</Link>
       </div>
 
       <form onSubmit={submit} className="sp-card sp-form mb-6">
@@ -120,6 +122,11 @@ function SupportInner() {
               <strong>{t.subject}</strong>
               <span className="muted text-xs">{t.status}</span>
             </div>
+            {t.caseNumber ? (
+              <p className="text-sm mb-1">
+                Başvuru no: <strong>{t.caseNumber}</strong>
+              </p>
+            ) : null}
             {t.kind && t.kind !== "general" ? (
               <p className="muted text-xs mb-2">
                 {KIND_LABEL[t.kind] || t.kind}

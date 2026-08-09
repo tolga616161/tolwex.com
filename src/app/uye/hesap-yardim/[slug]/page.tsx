@@ -17,11 +17,11 @@ export default function AccountHelpToolPage() {
         {() => (
           <div className="sp-page">
             <div className="sp-page-title">
-              <h1>Sayfa bulunamadı</h1>
-              <p>Bu kategori yok.</p>
+              <h1>Servis bulunamadı</h1>
+              <p>Bu hesap yardım servisi yok.</p>
             </div>
             <Link href="/uye/hesap-yardim" className="btn btn-primary">
-              Hesap Yardım menüsüne dön
+              3 servise dön
             </Link>
           </div>
         )}
