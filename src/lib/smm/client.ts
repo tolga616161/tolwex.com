@@ -43,14 +43,28 @@ export function smmConfig() {
 
 /**
  * Customer sell price = provider rate + markup%.
- * Default +50%. Always ceil to 2 decimals (no tiny 4–5 digit fractions).
+ * Default +50% on normal rates.
+ * Ultra-cheap rates (≈0.10 band) get a lighter commission so 2-decimal
+ * rounding doesn't inflate tiny prices too much.
  * Floor 0.01 so listing never shows 0,00.
  */
 export function applyMarkup(rate: number, markupPercent = 50): number {
   const raw = Number(rate) || 0;
-  const sell = raw * (1 + markupPercent / 100);
-  const ceiled = Math.ceil((sell - Number.EPSILON) * 100) / 100;
-  return Math.max(0.01, ceiled);
+  if (raw <= 0) return 0.01;
+
+  // Soften commission on very low provider rates
+  let pct = markupPercent;
+  if (raw < 0.2) pct = Math.min(markupPercent, 20); // ~0.10 band
+  else if (raw < 0.5) pct = Math.min(markupPercent, 30);
+  else if (raw < 1) pct = Math.min(markupPercent, 40);
+
+  const sell = raw * (1 + pct / 100);
+  // Cheap: round (avoid ceil jump). Normal: ceil to protect margin.
+  const rounded =
+    raw < 1
+      ? Math.round(sell * 100) / 100
+      : Math.ceil((sell - Number.EPSILON) * 100) / 100;
+  return Math.max(0.01, rounded);
 }
 
 async function smmPost(body: Record<string, string | number>) {
