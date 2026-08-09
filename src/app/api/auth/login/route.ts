@@ -5,7 +5,6 @@ import { verifyPassword } from "@/lib/auth/password";
 import { getSession } from "@/lib/session";
 import { rateLimit } from "@/lib/rate-limit";
 import { writeAuditLog } from "@/lib/audit";
-import { pullMembersFromGist } from "@/lib/members-durable";
 
 const schema = z.object({
   login: z.string().min(1).max(160),
@@ -15,7 +14,6 @@ const schema = z.object({
 export async function POST(req: NextRequest) {
   try {
     await ensureDbHydrated(true);
-    await pullMembersFromGist();
 
     const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "local";
     const rl = rateLimit(`login:${ip}`, 20, 60_000);

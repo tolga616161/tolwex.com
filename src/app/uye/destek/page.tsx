@@ -71,7 +71,7 @@ function SupportInner() {
 
       {okBanner ? (
         <div className="account-help-success">
-          <strong>Talebin alındı.</strong> Görsel kaydın yardım merkezine düştü — ekibimiz
+          <strong>Talebin alındı.</strong> Kaydın yardım merkezine iletildi — ekibimiz
           inceleyecek.
           <button type="button" className="btn btn-ghost" onClick={() => setOkBanner(false)}>
             Kapat

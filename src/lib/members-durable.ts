@@ -1,6 +1,8 @@
 import { PrismaClient } from "@prisma/client";
+import { createTtlGate } from "@/lib/ttl-cache";
 
 const MEMBERS_FILE = "members.json";
+const membersPullGate = createTtlGate(45_000);
 
 export type DurableMember = {
   id: string;
@@ -176,73 +178,82 @@ export async function upsertMemberInGist(member: {
 }
 
 /** Pull members.json from gist and upsert into local SQLite. */
-export async function pullMembersFromGist(): Promise<{ ok: boolean; count: number; error?: string }> {
+export async function pullMembersFromGist(
+  opts?: { force?: boolean }
+): Promise<{ ok: boolean; count: number; error?: string; cached?: boolean }> {
   const { gistId, token, enabled } = syncConfig();
   if (!enabled) return { ok: false, count: 0, error: "DB sync env eksik" };
 
-  const db = newClient();
-  try {
-    const remote = await readMembersFromGist(gistId, token);
-    if (!remote.ok) return { ok: false, count: 0, error: remote.error };
-    const list = remote.list;
+  const gated = await membersPullGate.run(async () => {
+    const db = newClient();
+    try {
+      const remote = await readMembersFromGist(gistId, token);
+      if (!remote.ok) return { ok: false as const, count: 0, error: remote.error };
+      const list = remote.list;
 
-    for (const m of list) {
-      if (!m?.id || !m.username || !m.email || !m.passwordHash) continue;
-      const existing = await db.member.findUnique({ where: { id: m.id } });
-      const remoteUpdated = m.updatedAt ? new Date(m.updatedAt).getTime() : 0;
+      for (const m of list) {
+        if (!m?.id || !m.username || !m.email || !m.passwordHash) continue;
+        const existing = await db.member.findUnique({ where: { id: m.id } });
+        const remoteUpdated = m.updatedAt ? new Date(m.updatedAt).getTime() : 0;
 
-      // Prefer newer local wallet numbers so concurrent deposits are not wiped
-      if (existing && existing.updatedAt.getTime() > remoteUpdated) {
-        await db.member.update({
+        // Prefer newer local wallet numbers so concurrent deposits are not wiped
+        if (existing && existing.updatedAt.getTime() > remoteUpdated) {
+          await db.member.update({
+            where: { id: m.id },
+            data: {
+              username: m.username.toLowerCase(),
+              email: m.email.toLowerCase(),
+              passwordHash: m.passwordHash,
+              name: m.name || m.username,
+              phone: m.phone || "",
+              apiKey: m.apiKey || existing.apiKey || randomKey(),
+              active: m.active !== false,
+            },
+          });
+          continue;
+        }
+        await db.member.upsert({
           where: { id: m.id },
-          data: {
+          create: {
+            id: m.id,
             username: m.username.toLowerCase(),
             email: m.email.toLowerCase(),
             passwordHash: m.passwordHash,
             name: m.name || m.username,
             phone: m.phone || "",
-            apiKey: m.apiKey || existing.apiKey || randomKey(),
+            balance: Number(m.balance) || 0,
+            spent: Number(m.spent) || 0,
+            apiKey: m.apiKey || randomKey(),
             active: m.active !== false,
+            createdAt: m.createdAt ? new Date(m.createdAt) : new Date(),
+            updatedAt: m.updatedAt ? new Date(m.updatedAt) : new Date(),
+          },
+          update: {
+            username: m.username.toLowerCase(),
+            email: m.email.toLowerCase(),
+            passwordHash: m.passwordHash,
+            name: m.name || m.username,
+            phone: m.phone || "",
+            balance: Number(m.balance) || 0,
+            spent: Number(m.spent) || 0,
+            apiKey: m.apiKey || randomKey(),
+            active: m.active !== false,
+            updatedAt: m.updatedAt ? new Date(m.updatedAt) : new Date(),
           },
         });
-        continue;
       }
-      await db.member.upsert({
-        where: { id: m.id },
-        create: {
-          id: m.id,
-          username: m.username.toLowerCase(),
-          email: m.email.toLowerCase(),
-          passwordHash: m.passwordHash,
-          name: m.name || m.username,
-          phone: m.phone || "",
-          balance: Number(m.balance) || 0,
-          spent: Number(m.spent) || 0,
-          apiKey: m.apiKey || randomKey(),
-          active: m.active !== false,
-          createdAt: m.createdAt ? new Date(m.createdAt) : new Date(),
-          updatedAt: m.updatedAt ? new Date(m.updatedAt) : new Date(),
-        },
-        update: {
-          username: m.username.toLowerCase(),
-          email: m.email.toLowerCase(),
-          passwordHash: m.passwordHash,
-          name: m.name || m.username,
-          phone: m.phone || "",
-          balance: Number(m.balance) || 0,
-          spent: Number(m.spent) || 0,
-          apiKey: m.apiKey || randomKey(),
-          active: m.active !== false,
-          updatedAt: m.updatedAt ? new Date(m.updatedAt) : new Date(),
-        },
-      });
+      return { ok: true as const, count: list.length };
+    } catch (e) {
+      return { ok: false as const, count: 0, error: e instanceof Error ? e.message : "pull hata" };
+    } finally {
+      await db.$disconnect().catch(() => undefined);
     }
-    return { ok: true, count: list.length };
-  } catch (e) {
-    return { ok: false, count: 0, error: e instanceof Error ? e.message : "pull hata" };
-  } finally {
-    await db.$disconnect().catch(() => undefined);
+  }, opts?.force);
+
+  if ("cached" in gated && gated.cached) {
+    return { ok: true, count: 0, cached: true };
   }
+  return gated as { ok: boolean; count: number; error?: string };
 }
 
 /**

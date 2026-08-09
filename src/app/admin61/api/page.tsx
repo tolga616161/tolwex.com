@@ -79,7 +79,7 @@ export default function AdminApiPage() {
           </button>
         </p>
         <p className="muted text-sm">
-          Üye siparişi bakiyesi yeterliyse anında <code>action=add</code> ile smmapi paneline düşer.
+          Üye siparişi bakiyesi yeterliyse anında sağlayıcıya iletilir ve onaylanır.
           Anahtar: <code>SMM_API_KEY</code> · URL: <code>SMM_API_URL</code>.
         </p>
         <div className="flex flex-wrap gap-2">

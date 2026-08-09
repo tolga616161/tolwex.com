@@ -70,8 +70,8 @@ async function resolveService(input: PlaceOrderRequest) {
 }
 
 export async function placeMemberOrder(input: PlaceOrderRequest) {
-  // Fresh member row (Vercel /tmp + gist)
-  await pullMembersFromGist().catch(() => null);
+  // Fresh member wallet before debit (bypass TTL)
+  await pullMembersFromGist({ force: true }).catch(() => null);
 
   let member = await prisma.member.findFirst({
     where: { id: input.memberId, active: true },

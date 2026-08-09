@@ -4,8 +4,7 @@ import { getSession } from "@/lib/session";
 import { pullMembersFromGist } from "@/lib/members-durable";
 
 export async function GET() {
-  await ensureDbHydrated(true);
-  await pullMembersFromGist();
+  await ensureDbHydrated(false);
   const session = await getSession();
   if (!session.memberId) {
     return NextResponse.json({ member: null });
@@ -24,8 +23,7 @@ export async function GET() {
     },
   });
   if (!member) {
-    // Cold instance: pull again then retry once
-    await pullMembersFromGist();
+    await pullMembersFromGist({ force: true });
     member = await prisma.member.findFirst({
       where: { id: session.memberId, active: true },
       select: {

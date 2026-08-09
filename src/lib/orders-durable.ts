@@ -1,6 +1,8 @@
 import { PrismaClient } from "@prisma/client";
+import { createTtlGate } from "@/lib/ttl-cache";
 
 const ORDERS_FILE = "orders.json";
+const ordersPullGate = createTtlGate(45_000);
 
 export type DurableOrder = {
   id: string;
@@ -154,81 +156,88 @@ function toDurable(o: {
 }
 
 /** Pull durable orders into local SQLite (members must exist). */
-export async function pullOrdersFromGist(): Promise<{ ok: boolean; count: number; error?: string }> {
+export async function pullOrdersFromGist(
+  opts?: { force?: boolean }
+): Promise<{ ok: boolean; count: number; error?: string; cached?: boolean }> {
   const { gistId, token, enabled } = syncConfig();
   if (!enabled) return { ok: false, count: 0, error: "DB sync env eksik" };
 
-  const db = newClient();
-  try {
-    const remote = await readOrdersFromGist(gistId, token);
-    if (!remote.ok) return { ok: false, count: 0, error: remote.error };
+  const gated = await ordersPullGate.run(async () => {
+    const db = newClient();
+    try {
+      const remote = await readOrdersFromGist(gistId, token);
+      if (!remote.ok) return { ok: false as const, count: 0, error: remote.error };
 
-    let count = 0;
-    for (const o of remote.list) {
-      if (!o?.id || !o.memberId || !Number.isFinite(Number(o.providerServiceId))) continue;
-      const member = await db.member.findUnique({ where: { id: o.memberId }, select: { id: true } });
-      if (!member) continue;
+      let count = 0;
+      for (const o of remote.list) {
+        if (!o?.id || !o.memberId || !Number.isFinite(Number(o.providerServiceId))) continue;
+        const member = await db.member.findUnique({ where: { id: o.memberId }, select: { id: true } });
+        if (!member) continue;
 
-      const existing = await db.smmOrder.findUnique({ where: { id: o.id } });
-      const remoteUpdated = o.updatedAt ? new Date(o.updatedAt).getTime() : 0;
-      if (existing && existing.updatedAt.getTime() > remoteUpdated) continue;
+        const existing = await db.smmOrder.findUnique({ where: { id: o.id } });
+        const remoteUpdated = o.updatedAt ? new Date(o.updatedAt).getTime() : 0;
+        if (existing && existing.updatedAt.getTime() > remoteUpdated) continue;
 
-      const service =
-        o.serviceId != null
-          ? await db.smmService.findUnique({ where: { id: o.serviceId }, select: { id: true } })
-          : null;
+        const service =
+          o.serviceId != null
+            ? await db.smmService.findUnique({ where: { id: o.serviceId }, select: { id: true } })
+            : null;
 
-      await db.smmOrder.upsert({
-        where: { id: o.id },
-        create: {
-          id: o.id,
-          memberId: o.memberId,
-          serviceId: service?.id || null,
-          providerServiceId: Number(o.providerServiceId),
-          serviceName: o.serviceName || "",
-          serviceType: o.serviceType || "Default",
-          link: o.link || "",
-          quantity: Number(o.quantity) || 0,
-          charge: Number(o.charge) || 0,
-          cost: Number(o.cost) || 0,
-          status: o.status || "pending",
-          providerOrderId: o.providerOrderId || null,
-          startCounter: o.startCounter,
-          remains: o.remains,
-          comments: o.comments || "",
-          dripfeedRuns: o.dripfeedRuns,
-          dripfeedInterval: o.dripfeedInterval,
-          errorMessage: o.errorMessage,
-          createdAt: o.createdAt ? new Date(o.createdAt) : new Date(),
-          updatedAt: o.updatedAt ? new Date(o.updatedAt) : new Date(),
-        },
-        update: {
-          serviceId: service?.id || existing?.serviceId || null,
-          serviceName: o.serviceName || "",
-          serviceType: o.serviceType || "Default",
-          link: o.link || "",
-          quantity: Number(o.quantity) || 0,
-          charge: Number(o.charge) || 0,
-          cost: Number(o.cost) || 0,
-          status: o.status || "pending",
-          providerOrderId: o.providerOrderId || null,
-          startCounter: o.startCounter,
-          remains: o.remains,
-          comments: o.comments || "",
-          dripfeedRuns: o.dripfeedRuns,
-          dripfeedInterval: o.dripfeedInterval,
-          errorMessage: o.errorMessage,
-          updatedAt: o.updatedAt ? new Date(o.updatedAt) : new Date(),
-        },
-      });
-      count += 1;
+        await db.smmOrder.upsert({
+          where: { id: o.id },
+          create: {
+            id: o.id,
+            memberId: o.memberId,
+            serviceId: service?.id || null,
+            providerServiceId: Number(o.providerServiceId),
+            serviceName: o.serviceName || "",
+            serviceType: o.serviceType || "Default",
+            link: o.link || "",
+            quantity: Number(o.quantity) || 0,
+            charge: Number(o.charge) || 0,
+            cost: Number(o.cost) || 0,
+            status: o.status || "pending",
+            providerOrderId: o.providerOrderId || null,
+            startCounter: o.startCounter,
+            remains: o.remains,
+            comments: o.comments || "",
+            dripfeedRuns: o.dripfeedRuns,
+            dripfeedInterval: o.dripfeedInterval,
+            errorMessage: o.errorMessage,
+            createdAt: o.createdAt ? new Date(o.createdAt) : new Date(),
+            updatedAt: o.updatedAt ? new Date(o.updatedAt) : new Date(),
+          },
+          update: {
+            serviceId: service?.id || existing?.serviceId || null,
+            serviceName: o.serviceName || "",
+            serviceType: o.serviceType || "Default",
+            link: o.link || "",
+            quantity: Number(o.quantity) || 0,
+            charge: Number(o.charge) || 0,
+            cost: Number(o.cost) || 0,
+            status: o.status || "pending",
+            providerOrderId: o.providerOrderId || null,
+            startCounter: o.startCounter,
+            remains: o.remains,
+            comments: o.comments || "",
+            dripfeedRuns: o.dripfeedRuns,
+            dripfeedInterval: o.dripfeedInterval,
+            errorMessage: o.errorMessage,
+            updatedAt: o.updatedAt ? new Date(o.updatedAt) : new Date(),
+          },
+        });
+        count += 1;
+      }
+      return { ok: true as const, count };
+    } catch (e) {
+      return { ok: false as const, count: 0, error: e instanceof Error ? e.message : "pull hata" };
+    } finally {
+      await db.$disconnect().catch(() => undefined);
     }
-    return { ok: true, count };
-  } catch (e) {
-    return { ok: false, count: 0, error: e instanceof Error ? e.message : "pull hata" };
-  } finally {
-    await db.$disconnect().catch(() => undefined);
-  }
+  }, opts?.force);
+
+  if ("cached" in gated && gated.cached) return { ok: true, count: 0, cached: true };
+  return gated as { ok: boolean; count: number; error?: string };
 }
 
 /** Union-merge local orders into gist (never wipe remote-only). */

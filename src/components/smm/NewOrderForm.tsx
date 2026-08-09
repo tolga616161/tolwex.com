@@ -63,16 +63,30 @@ export function NewOrderForm() {
   );
 
   useEffect(() => {
-    fetch("/api/smm/services?pageSize=10&sync=1")
+    fetch("/api/smm/services?pageSize=10&sync=0")
       .then((r) => r.json())
       .then((d) => {
         const cats: Cat[] = d.allCategories || d.categories || [];
         setCategories(cats);
         if (!cats.length && d.syncError) setErr(`Servis sync: ${d.syncError}`);
-        // Default = first category in smmapi order (same as provider panel)
+        // Default = first category in provider order
         if (cats[0] && !category) {
           setPlatform(detectPlatform(cats[0].name));
           setCategory(cats[0].name);
+        }
+        // Catalog empty on cold start — one sync, then stop
+        if (!cats.length) {
+          fetch("/api/smm/services?pageSize=10&sync=1")
+            .then((r) => r.json())
+            .then((d2) => {
+              const cats2: Cat[] = d2.allCategories || d2.categories || [];
+              setCategories(cats2);
+              if (cats2[0] && !category) {
+                setPlatform(detectPlatform(cats2[0].name));
+                setCategory(cats2[0].name);
+              }
+            })
+            .catch(() => null);
         }
       })
       .catch(() => null);
@@ -92,7 +106,7 @@ export function NewOrderForm() {
   useEffect(() => {
     if (!category) return;
     setLoadingServices(true);
-    const sp = new URLSearchParams({ category, pageSize: "500", page: "1", sync: "1" });
+    const sp = new URLSearchParams({ category, pageSize: "500", page: "1", sync: "0" });
     fetch(`/api/smm/services?${sp}`)
       .then((r) => r.json())
       .then((d) => {
@@ -195,8 +209,8 @@ export function NewOrderForm() {
       const pid = data.order?.providerOrderId;
       setMsg(
         pid
-          ? `Sipariş smmapi paneline düştü · Sipariş No: #${pid}`
-          : `Sipariş alındı · #${data.order?.id}`
+          ? `Siparişiniz onaylandı · No: #${pid}`
+          : "Siparişiniz onaylandı"
       );
       setLink("");
       setComments("");

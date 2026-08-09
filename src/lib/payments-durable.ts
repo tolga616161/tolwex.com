@@ -1,6 +1,8 @@
 import { PrismaClient } from "@prisma/client";
+import { createTtlGate } from "@/lib/ttl-cache";
 
 const PAYMENTS_FILE = "balance-requests.json";
+const paymentsPullGate = createTtlGate(60_000);
 
 type DurablePayment = {
   id: string;
@@ -57,55 +59,62 @@ async function readGistFile(gistId: string, token: string, file: string): Promis
 }
 
 /** Pull payment notifications into local SQLite. */
-export async function pullPaymentsFromGist(): Promise<{ ok: boolean; count: number; error?: string }> {
+export async function pullPaymentsFromGist(
+  opts?: { force?: boolean }
+): Promise<{ ok: boolean; count: number; error?: string; cached?: boolean }> {
   const { gistId, token, enabled } = syncConfig();
   if (!enabled) return { ok: false, count: 0, error: "DB sync env eksik" };
 
-  const db = newClient();
-  try {
-    const text = await readGistFile(gistId, token, PAYMENTS_FILE);
-    if (text == null) return { ok: false, count: 0, error: "gist okunamadı" };
-    const list = JSON.parse(text) as DurablePayment[];
-    if (!Array.isArray(list)) return { ok: false, count: 0, error: "payments json bozuk" };
+  const gated = await paymentsPullGate.run(async () => {
+    const db = newClient();
+    try {
+      const text = await readGistFile(gistId, token, PAYMENTS_FILE);
+      if (text == null) return { ok: false as const, count: 0, error: "gist okunamadı" };
+      const list = JSON.parse(text) as DurablePayment[];
+      if (!Array.isArray(list)) return { ok: false as const, count: 0, error: "payments json bozuk" };
 
-    for (const p of list) {
-      if (!p?.id || !p.memberId || !Number.isFinite(Number(p.amount))) continue;
-      const member = await db.member.findUnique({ where: { id: p.memberId }, select: { id: true } });
-      if (!member) continue; // member must exist first
+      for (const p of list) {
+        if (!p?.id || !p.memberId || !Number.isFinite(Number(p.amount))) continue;
+        const member = await db.member.findUnique({ where: { id: p.memberId }, select: { id: true } });
+        if (!member) continue;
 
-      const existing = await db.balanceRequest.findUnique({ where: { id: p.id } });
-      const remoteUpdated = p.updatedAt ? new Date(p.updatedAt).getTime() : 0;
-      if (existing && existing.updatedAt.getTime() > remoteUpdated) continue;
+        const existing = await db.balanceRequest.findUnique({ where: { id: p.id } });
+        const remoteUpdated = p.updatedAt ? new Date(p.updatedAt).getTime() : 0;
+        if (existing && existing.updatedAt.getTime() > remoteUpdated) continue;
 
-      await db.balanceRequest.upsert({
-        where: { id: p.id },
-        create: {
-          id: p.id,
-          memberId: p.memberId,
-          amount: Number(p.amount),
-          method: p.method || "bank_transfer",
-          note: p.note || "",
-          status: p.status || "pending",
-          adminNote: p.adminNote || "",
-          createdAt: p.createdAt ? new Date(p.createdAt) : new Date(),
-          updatedAt: p.updatedAt ? new Date(p.updatedAt) : new Date(),
-        },
-        update: {
-          amount: Number(p.amount),
-          method: p.method || "bank_transfer",
-          note: p.note || "",
-          status: p.status || "pending",
-          adminNote: p.adminNote || "",
-          updatedAt: p.updatedAt ? new Date(p.updatedAt) : new Date(),
-        },
-      });
+        await db.balanceRequest.upsert({
+          where: { id: p.id },
+          create: {
+            id: p.id,
+            memberId: p.memberId,
+            amount: Number(p.amount),
+            method: p.method || "bank_transfer",
+            note: p.note || "",
+            status: p.status || "pending",
+            adminNote: p.adminNote || "",
+            createdAt: p.createdAt ? new Date(p.createdAt) : new Date(),
+            updatedAt: p.updatedAt ? new Date(p.updatedAt) : new Date(),
+          },
+          update: {
+            amount: Number(p.amount),
+            method: p.method || "bank_transfer",
+            note: p.note || "",
+            status: p.status || "pending",
+            adminNote: p.adminNote || "",
+            updatedAt: p.updatedAt ? new Date(p.updatedAt) : new Date(),
+          },
+        });
+      }
+      return { ok: true as const, count: list.length };
+    } catch (e) {
+      return { ok: false as const, count: 0, error: e instanceof Error ? e.message : "pull hata" };
+    } finally {
+      await db.$disconnect().catch(() => undefined);
     }
-    return { ok: true, count: list.length };
-  } catch (e) {
-    return { ok: false, count: 0, error: e instanceof Error ? e.message : "pull hata" };
-  } finally {
-    await db.$disconnect().catch(() => undefined);
-  }
+  }, opts?.force);
+
+  if ("cached" in gated && gated.cached) return { ok: true, count: 0, cached: true };
+  return gated as { ok: boolean; count: number; error?: string };
 }
 
 /** Push all balance requests to gist. */

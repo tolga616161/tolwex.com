@@ -55,7 +55,7 @@ export function ServiceCatalog({ memberMode = false }: { memberMode?: boolean })
       const sp = new URLSearchParams({
         page: String(page),
         pageSize: "36",
-        sync: page === 1 && !q && !category && !platform ? "1" : "0",
+        sync: "0",
       });
       if (q.trim()) sp.set("q", q.trim());
       if (category) sp.set("category", category);
@@ -68,6 +68,24 @@ export function ServiceCatalog({ memberMode = false }: { memberMode?: boolean })
       setTotal(data.total || 0);
       setPages(data.pages || 1);
       setLoading(false);
+      // Cold start: catalog empty → one sync only
+      if (
+        page === 1 &&
+        !q &&
+        !category &&
+        !platform &&
+        !(data.allCategories || data.categories || []).length
+      ) {
+        fetch("/api/smm/services?pageSize=36&sync=1")
+          .then((r) => r.json())
+          .then((d2) => {
+            setItems(d2.items || []);
+            setCategories(d2.allCategories || d2.categories || []);
+            setTotal(d2.total || 0);
+            setPages(d2.pages || 1);
+          })
+          .catch(() => null);
+      }
     }, 220);
     return () => clearTimeout(t);
   }, [q, category, page, platform]);
@@ -226,7 +244,11 @@ function OrderModal({ item, onClose }: { item: Item; onClose: () => void }) {
       setMsg(data.error || "Sipariş başarısız");
       return;
     }
-    setMsg(`Sipariş alındı · #${data.order?.providerOrderId || data.order?.id}`);
+    setMsg(
+      data.order?.providerOrderId
+        ? `Siparişiniz onaylandı · No: #${data.order.providerOrderId}`
+        : "Siparişiniz onaylandı"
+    );
   }
 
   return (

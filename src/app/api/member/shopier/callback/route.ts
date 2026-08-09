@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma, ensureDbHydrated } from "@/lib/db";
 import { adjustBalance } from "@/lib/member";
 import { pullPaymentsFromGist, pushPaymentsToGist } from "@/lib/payments-durable";
-import { pullMembersFromGist } from "@/lib/members-durable";
 import { appBaseUrl } from "@/lib/session";
 import { parseShopierCallback, verifyShopierCallback } from "@/lib/shopier";
 
@@ -10,7 +9,6 @@ export const dynamic = "force-dynamic";
 
 async function handleCallback(req: NextRequest) {
   await ensureDbHydrated(true);
-  await pullMembersFromGist();
   await pullPaymentsFromGist();
 
   const base = appBaseUrl(req);

@@ -10,12 +10,9 @@ const nextConfig: NextConfig = {
         trailingSlash: true,
       }
     : {
-        // Ship prebuilt SQLite seed DB into serverless functions (copied to /tmp at runtime)
+        // Ship prebuilt SQLite seed (synced at build) into all serverless routes
         outputFileTracingIncludes: {
-          "/api/**/*": ["./prisma/data.db", "./prisma/runtime.db"],
-          "/admin61/**/*": ["./prisma/data.db", "./prisma/runtime.db"],
-          "/uye/**/*": ["./prisma/data.db", "./prisma/runtime.db"],
-          "/uye": ["./prisma/data.db", "./prisma/runtime.db"],
+          "/**/*": ["./prisma/data.db", "./prisma/runtime.db"],
         },
       }),
 };

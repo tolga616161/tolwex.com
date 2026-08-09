@@ -6,7 +6,7 @@ import { getSession } from "@/lib/session";
 import { rateLimit } from "@/lib/rate-limit";
 import { writeAuditLog } from "@/lib/audit";
 import { generateApiKey } from "@/lib/api-key";
-import { pullMembersFromGist, upsertMemberInGist } from "@/lib/members-durable";
+import { upsertMemberInGist } from "@/lib/members-durable";
 
 const schema = z
   .object({
@@ -32,7 +32,6 @@ const schema = z
 export async function POST(req: NextRequest) {
   try {
     await ensureDbHydrated(true);
-    await pullMembersFromGist();
 
     const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "local";
     const rl = rateLimit(`reg:${ip}`, 8, 60_000);

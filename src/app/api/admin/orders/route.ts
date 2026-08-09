@@ -4,7 +4,6 @@ import { requireAdminApi } from "@/lib/admin/auth";
 import { placeSmmOrder, fetchSmmOrderStatus } from "@/lib/smm/client";
 import { adjustBalance } from "@/lib/member";
 import { writeAuditLog } from "@/lib/audit";
-import { pullMembersFromGist } from "@/lib/members-durable";
 import { pullOrdersFromGist, upsertOrderInGist } from "@/lib/orders-durable";
 import { syncOpenOrderStatuses } from "@/lib/smm/sync-status";
 
@@ -16,7 +15,6 @@ export async function GET() {
   if (!gate.ok) return gate.response;
 
   await ensureDbHydrated(true);
-  await pullMembersFromGist();
   await pullOrdersFromGist();
 
   const orders = await prisma.smmOrder.findMany({

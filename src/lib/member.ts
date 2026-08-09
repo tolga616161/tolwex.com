@@ -1,19 +1,17 @@
 import { ensureDbHydrated, prisma } from "@/lib/db";
 import { getSession } from "@/lib/session";
 import { pullMembersFromGist, upsertMemberInGist } from "@/lib/members-durable";
-import { pullPaymentsFromGist } from "@/lib/payments-durable";
 
 export async function requireMember() {
-  await ensureDbHydrated(true);
-  await pullMembersFromGist();
-  await pullPaymentsFromGist();
+  // Warm path: cached hydrate. Cold / missing member: force pull once.
+  await ensureDbHydrated(false);
   const session = await getSession();
   if (!session.memberId) return null;
   let member = await prisma.member.findFirst({
     where: { id: session.memberId, active: true },
   });
   if (!member) {
-    await pullMembersFromGist();
+    await pullMembersFromGist({ force: true });
     member = await prisma.member.findFirst({
       where: { id: session.memberId, active: true },
     });

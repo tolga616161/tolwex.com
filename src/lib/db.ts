@@ -5,6 +5,7 @@ import { scheduleDurableDbPush } from "@/lib/db-sync";
 import { pullMembersFromGist } from "@/lib/members-durable";
 import { pullPaymentsFromGist } from "@/lib/payments-durable";
 import { pullOrdersFromGist } from "@/lib/orders-durable";
+import { createTtlGate } from "@/lib/ttl-cache";
 
 /**
  * On Vercel, filesystem is read-only except /tmp.
@@ -49,19 +50,28 @@ function resolveDatabaseUrl(): string {
 const dbUrl = resolveDatabaseUrl();
 export const dbFilePath = dbUrl.startsWith("file:") ? dbUrl.slice("file:".length) : "";
 
+const hydrateGate = createTtlGate(45_000);
 let hydratePromise: Promise<void> | null = null;
 
-/** Pull durable members into local SQLite (safe — no DB file replace). */
+/** Pull durable stores into local SQLite (TTL-cached — force only for auth/order). */
 export function ensureDbHydrated(force = false): Promise<void> {
+  if (!force && hydratePromise && !hydrateGate.shouldRun(false)) {
+    return hydratePromise;
+  }
   if (force) hydratePromise = null;
+
   if (!hydratePromise) {
     hydratePromise = (async () => {
       if (!process.env.DB_GIST_ID || !(process.env.DB_SYNC_TOKEN || process.env.GITHUB_TOKEN)) {
         return;
       }
-      await pullMembersFromGist();
-      await pullPaymentsFromGist();
-      await pullOrdersFromGist();
+      // Parallel gist pulls (each has its own TTL)
+      await Promise.all([
+        pullMembersFromGist({ force }),
+        pullPaymentsFromGist({ force }),
+        pullOrdersFromGist({ force }),
+      ]);
+      hydrateGate.mark();
     })().catch(() => undefined);
   }
   return hydratePromise;
@@ -90,7 +100,7 @@ function createClient() {
         async $allOperations({ model, operation, args, query }) {
           // Avoid re-entrancy deadlocks during member gist upserts
           if (model !== "Member" || !MUTATING.has(operation)) {
-            await ensureDbHydrated();
+            await ensureDbHydrated(false);
           }
           const result = await query(args);
           if (MUTATING.has(operation) && dbFilePath) {

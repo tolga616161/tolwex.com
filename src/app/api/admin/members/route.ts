@@ -2,14 +2,13 @@ import { NextRequest, NextResponse } from "next/server";
 import { requireAdminApi } from "@/lib/admin/auth";
 import { ensureDbHydrated, prisma } from "@/lib/db";
 import { adjustBalance } from "@/lib/member";
-import { pullMembersFromGist, pushMembersToGist } from "@/lib/members-durable";
+import { pushMembersToGist } from "@/lib/members-durable";
 import { z } from "zod";
 
 export async function GET() {
   const gate = await requireAdminApi();
   if (!gate.ok) return gate.response;
   await ensureDbHydrated(true);
-  await pullMembersFromGist();
   const members = await prisma.member.findMany({
     orderBy: { createdAt: "desc" },
     take: 200,
