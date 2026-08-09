@@ -159,13 +159,13 @@ export async function upsertMemberInGist(member: {
         m.email.toLowerCase() === next.email.toLowerCase()
     );
     if (idx >= 0) {
-      list[idx] = {
-        ...list[idx],
-        ...next,
-        // Keep higher balance if remote was credited elsewhere
-        balance: Math.max(Number(list[idx].balance) || 0, next.balance),
-        spent: Math.max(Number(list[idx].spent) || 0, next.spent),
-      };
+      const prev = list[idx];
+      const prevTs = prev.updatedAt ? new Date(prev.updatedAt).getTime() : 0;
+      const nextTs = next.updatedAt ? new Date(next.updatedAt).getTime() : Date.now();
+      // Newest write wins (debits must stick — never Math.max balance)
+      if (nextTs >= prevTs) {
+        list[idx] = { ...prev, ...next };
+      }
     } else {
       list.push(next);
     }
@@ -272,12 +272,8 @@ export async function pushMembersToGist(): Promise<{ ok: boolean; count: number;
       const prevTs = prev.updatedAt ? new Date(prev.updatedAt).getTime() : 0;
       const nextTs = m.updatedAt.getTime();
       if (nextTs >= prevTs) {
-        byId.set(m.id, {
-          ...prev,
-          ...next,
-          balance: Math.max(Number(prev.balance) || 0, next.balance),
-          spent: Math.max(Number(prev.spent) || 0, next.spent),
-        });
+        // Local row is newer — trust its wallet (orders debit, admin credit)
+        byId.set(m.id, { ...prev, ...next });
       }
     }
 
