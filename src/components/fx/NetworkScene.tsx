@@ -52,10 +52,13 @@ function MonoPlate({
           map={tex}
           transparent
           opacity={opacity}
-          metalness={0.35}
-          roughness={0.35}
-          clearcoat={0.4}
-          clearcoatRoughness={0.4}
+          metalness={0.25}
+          roughness={0.28}
+          clearcoat={0.55}
+          clearcoatRoughness={0.3}
+          emissive="#ffffff"
+          emissiveIntensity={0.12}
+          emissiveMap={tex}
           side={THREE.FrontSide}
         />
       </mesh>
