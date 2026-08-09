@@ -46,7 +46,7 @@ export default function AdminApiPage() {
       return;
     }
     setSyncMsg(
-      `Senkron tamam: ${data.upserted ?? "?"} servis · ${data.categories ?? "?"} kategori · markup %${data.markupPercent ?? ""}`
+      `Senkron tamam: ${data.upserted ?? "?"} servis · ${data.categories ?? "?"} kategori`
     );
   }
 
@@ -55,31 +55,28 @@ export default function AdminApiPage() {
       <div className="admin-page-head">
         <div>
           <h2>API Ayarları</h2>
-          <p className="muted">smmapi.com entegrasyonu</p>
+          <p className="muted">TOLWEX sistem API entegrasyonu</p>
         </div>
       </div>
 
       <div className="admin-panel grid gap-3 max-w-xl">
         <p>
-          <span className="muted">API URL: </span>
-          <code>{info?.smm_api_url || "—"}</code>
+          <span className="muted">Sistem API: </span>
+          {info?.smm_api_configured ? "bağlı (env)" : "yapılandırılmadı"}
         </p>
         <p>
           <span className="muted">API Key: </span>
           {info?.smm_api_configured ? "yapılandırıldı (env)" : "eksik"}
         </p>
         <p>
-          <span className="muted">Markup: </span>%{info?.markup_percent ?? "—"}
-        </p>
-        <p>
-          <span className="muted">smmapi bakiye: </span>
+          <span className="muted">Sistem bakiyesi: </span>
           {providerBal ? <strong>{providerBal}</strong> : providerErr || "…"}
           <button type="button" className="btn btn-ghost" style={{ marginLeft: 8 }} onClick={loadBalance}>
             Yenile
           </button>
         </p>
         <p className="muted text-sm">
-          Üye siparişi bakiyesi yeterliyse anında sağlayıcıya iletilir ve onaylanır.
+          Üye bakiyesi yeterliyse sipariş anında işleme alınır ve onaylanır.
           Anahtar: <code>SMM_API_KEY</code> · URL: <code>SMM_API_URL</code>.
         </p>
         <div className="flex flex-wrap gap-2">
@@ -98,12 +95,12 @@ export default function AdminApiPage() {
               setBusy(false);
               setSyncMsg(
                 res.ok
-                  ? `Fiyatlar yenilendi: ${data.updated ?? "?"} servis · %${data.markupPercent ?? 50} kâr · 2 ondalık`
+                  ? `Liste fiyatları yenilendi: ${data.updated ?? "?"} servis`
                   : data.error || "Fiyat güncellemesi başarısız"
               );
             }}
           >
-            Fiyatları %50 ile yuvarla
+            Liste fiyatlarını yenile
           </button>
         </div>
         {syncMsg ? <p className="text-sm">{syncMsg}</p> : null}

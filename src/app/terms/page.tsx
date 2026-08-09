@@ -6,8 +6,8 @@ export default function TermsPage() {
       <h1 className="display text-3xl mb-6">Kullanım Şartları</h1>
       <div className="grid gap-4 muted text-sm leading-relaxed">
         <p>
-          TOLWEX üzerinden verilen SMM siparişleri otomatik olarak tedarikçi API’sine
-          iletilir. Yanlış link veya hesap bilgisi kullanıcı sorumluluğundadır.
+          TOLWEX üzerinden verilen SMM siparişleri otomatik olarak işleme alınır.
+          Yanlış link veya hesap bilgisi kullanıcı sorumluluğundadır.
         </p>
         <h2 className="display text-xl text-white">Bakiye</h2>
         <p>

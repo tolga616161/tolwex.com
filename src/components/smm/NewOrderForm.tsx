@@ -68,7 +68,7 @@ export function NewOrderForm() {
       .then((d) => {
         const cats: Cat[] = d.allCategories || d.categories || [];
         setCategories(cats);
-        if (!cats.length && d.syncError) setErr(`Servis sync: ${d.syncError}`);
+        if (!cats.length && d.syncError) setErr(`Servisler yüklenemedi: ${d.syncError}`);
         // Default = first category in provider order
         if (cats[0] && !category) {
           setPlatform(detectPlatform(cats[0].name));
@@ -421,7 +421,7 @@ export function NewOrderForm() {
             ) : null}
 
             <div className="sp-charge">
-              Charge: <strong>{charge}</strong>
+              Tutar: <strong>{charge}</strong>
             </div>
 
             {err ? <p className="sp-err">{err}</p> : null}
@@ -435,7 +435,7 @@ export function NewOrderForm() {
           <form className="sp-form" onSubmit={submitMass}>
             <p className="muted text-sm">
               Her satır: <code>servis_id|adet|link</code> — örn.{" "}
-              <code>1234|1000|https://...</code> (provider servis ID)
+              <code>1234|1000|https://...</code> (servis ID)
             </p>
             <label>
               <span>Toplu sipariş listesi</span>

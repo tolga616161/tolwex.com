@@ -14,8 +14,8 @@ export default function HizmetlerPage() {
           <p className="section-kicker">SMM Katalog</p>
           <h1 className="display text-4xl md:text-5xl font-bold">Hizmetler</h1>
           <p className="muted mt-2 max-w-2xl">
-            smmapi.com üzerinden senkronize edilen tüm servisler. Satış fiyatı = tedarikçi
-            fiyatı + %50 kâr.
+            TOLWEX katalogundaki tüm SMM hizmetleri. Fiyatlar 1000 adet üzerinden listelenir;
+            sipariş için üye girişi yeterlidir.
           </p>
         </div>
         <Link href="/uye/giris" className="btn btn-primary">

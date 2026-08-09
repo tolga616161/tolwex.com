@@ -208,7 +208,7 @@ export async function placeMemberOrder(input: PlaceOrderRequest) {
       member.id,
       charge,
       "refund",
-      `İade · smmapi hata: ${errorMessage || "bilinmiyor"}`,
+      `İade · sipariş hatası: ${errorMessage || "bilinmiyor"}`,
       ""
     );
     const afterRefund = await prisma.member
@@ -245,7 +245,7 @@ export async function placeMemberOrder(input: PlaceOrderRequest) {
       actorId: member.id,
       metadata: { orderId: order.id, error: errorMessage },
     });
-    throw Object.assign(new Error(errorMessage || "Sipariş smmapi’ye iletilemedi"), {
+    throw Object.assign(new Error(errorMessage || "Sipariş sisteme iletilemedi"), {
       status: 502,
       order,
     });

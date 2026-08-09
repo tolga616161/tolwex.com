@@ -25,7 +25,7 @@ const DEFAULTS = [
   {
     question: "Sipariş durumu ne zaman güncellenir?",
     answer:
-      "Durumlar tedarikçi API’sinden periyodik olarak senkronize edilir. Siparişlerim ekranından takip edebilirsiniz.",
+      "Sipariş durumları panelde periyodik olarak güncellenir. Siparişlerim ekranından takip edebilirsiniz.",
     sort: 4,
   },
 ];
@@ -42,6 +42,29 @@ export async function GET() {
       where: { active: true },
       orderBy: { sort: "asc" },
     });
+  } else {
+    // Refresh outdated seeded copy that named third-party providers
+    const stale = faqs.filter(
+      (f) =>
+        /tedarikçi|smmapi|sağlayıcı/i.test(f.answer) ||
+        (f.question.includes("Sipariş durumu") &&
+          f.answer !== DEFAULTS[3].answer)
+    );
+    for (const f of stale) {
+      const fresh = DEFAULTS.find((d) => d.question === f.question);
+      if (fresh && fresh.answer !== f.answer) {
+        await prisma.faq.update({
+          where: { id: f.id },
+          data: { answer: fresh.answer },
+        });
+      }
+    }
+    if (stale.length) {
+      faqs = await prisma.faq.findMany({
+        where: { active: true },
+        orderBy: { sort: "asc" },
+      });
+    }
   }
 
   return NextResponse.json({ faqs });

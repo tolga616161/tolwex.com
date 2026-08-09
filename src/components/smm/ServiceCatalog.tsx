@@ -18,7 +18,6 @@ type Item = {
   description?: string;
   category: string;
   sellRate: number;
-  rate: number;
   min: number;
   max: number;
 };

@@ -88,10 +88,10 @@ async function smmPost(body: Record<string, string | number>) {
     // Keep provider text but make common cases clearer in TR
     if (/invalid api key/i.test(raw)) throw new Error("SMM API anahtarı geçersiz");
     if (/not enough funds|insufficient/i.test(raw)) {
-      throw new Error("SMM sağlayıcı bakiyesi yetersiz");
+      throw new Error("Sistem bakiyesi sipariş için yetersiz. Destek ile iletişime geçin.");
     }
     if (/incorrect|invalid.*(link|order|service)/i.test(raw)) {
-      throw new Error(`Sağlayıcı reddetti: ${raw}`);
+      throw new Error(`Sipariş reddedildi: ${raw}`);
     }
     throw new Error(raw);
   }

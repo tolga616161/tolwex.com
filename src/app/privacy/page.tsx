@@ -12,8 +12,8 @@ export default function PrivacyPage() {
         <h2 className="display text-xl text-white">Veri kullanımı</h2>
         <p>
           Sipariş linkleri ve işlem kayıtları hizmetin sunulması amacıyla tutulur.
-          Veriler üçüncü taraf SMM tedarikçisine yalnızca siparişin yerine getirilmesi
-          için iletilir.
+          Siparişin yerine getirilmesi için gerekli bilgiler yalnızca TOLWEX altyapısı
+          içinde işlenir.
         </p>
         <h2 className="display text-xl text-white">İletişim</h2>
         <p>Destek için WhatsApp veya panel içi Destek bölümünü kullanabilirsiniz.</p>

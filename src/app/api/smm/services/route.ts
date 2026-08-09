@@ -122,7 +122,6 @@ export async function GET(req: NextRequest) {
     pageSize,
     total,
     pages: Math.max(1, Math.ceil(total / pageSize)),
-    markupPercent: markup,
     syncError,
     platform: platform || null,
     categories: filteredCats.map(({ name, count, sortOrder }) => ({
@@ -136,10 +135,10 @@ export async function GET(req: NextRequest) {
       count,
       sortOrder,
     })),
-    items: items.map((item) => ({
+    items: items.map(({ rate, ...item }) => ({
       ...item,
       platform: detectPlatform(item.category || item.name),
-      sellRate: applyMarkup(item.rate, markup),
+      sellRate: applyMarkup(rate, markup),
     })),
   });
 }

@@ -75,7 +75,7 @@ export default async function HomePage() {
             },
             {
               t: "Reseller API",
-              d: "PerfectPanel uyumlu /api/v1 ile kendi yazılımını bağla.",
+              d: "PerfectPanel uyumlu /api/v1 ile kendi yazılımını bağlayın.",
             },
           ].map((x) => (
             <article key={x.t} className="why-card glass-panel rounded-2xl p-5">

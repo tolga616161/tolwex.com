@@ -128,8 +128,8 @@ export default function AdminOrdersPage() {
         <div>
           <h2>Sipariş Onay / Takip</h2>
           <p className="muted">
-            Üye siparişleri burada listelenir. Gönderim API’ye gider; durumları smmapi’den
-            senkronlayın.
+            Üye siparişleri burada listelenir. Gönderim sistem API’sine gider; durumları
+            buradan senkronlayın.
           </p>
         </div>
         <div className="flex flex-wrap gap-2">

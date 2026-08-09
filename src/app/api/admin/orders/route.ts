@@ -129,7 +129,7 @@ export async function PATCH(request: NextRequest) {
   if (body.action === "approve_retry") {
     if (order.providerOrderId && order.status !== "error" && order.status !== "pending") {
       return NextResponse.json(
-        { error: "Bu sipariş zaten provider'a gönderilmiş" },
+        { error: "Bu sipariş zaten sisteme gönderilmiş" },
         { status: 400 }
       );
     }
