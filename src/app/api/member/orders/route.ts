@@ -13,23 +13,42 @@ function normalizeLink(raw: string): string {
   return `https://${t}`;
 }
 
+const optionalInt = (min: number, max: number) =>
+  z.preprocess(
+    (v) => (v === null || v === "" || v === undefined ? undefined : v),
+    z.coerce.number().int().min(min).max(max).optional()
+  );
+
 const schema = z.object({
-  serviceId: z.string().min(1),
+  serviceId: z.string().min(1, "Servis seçilmedi"),
   link: z
     .string()
-    .min(3)
+    .min(3, "Link gerekli")
     .max(500)
     .transform(normalizeLink)
     .refine((v) => /^https?:\/\//i.test(v), "Geçersiz link"),
-  quantity: z.number().int().positive(),
-  comments: z.string().max(5000).optional(),
-  dripfeedRuns: z.number().int().min(1).max(1000).optional(),
-  dripfeedInterval: z.number().int().min(1).max(1440).optional(),
+  // Forms / JSON sometimes send quantity as string — coerce before int check
+  quantity: z.coerce.number().int("Adet tam sayı olmalı").positive("Adet 0'dan büyük olmalı"),
+  comments: z.preprocess(
+    (v) => (v === null || v === undefined ? undefined : v),
+    z.string().max(5000).optional()
+  ),
+  dripfeedRuns: optionalInt(1, 1000),
+  dripfeedInterval: optionalInt(1, 1440),
 });
 
 const massSchema = z.object({
   lines: z.string().min(3).max(20000),
 });
+
+function zodErrorMessage(err: z.ZodError): string {
+  const issue = err.issues[0];
+  if (!issue) return "Geçersiz sipariş";
+  const msg = issue.message;
+  if (msg && !/^Invalid |^Expected |^Required$/i.test(msg)) return msg;
+  const path = issue.path.join(".") || "form";
+  return `Geçersiz sipariş (${path})`;
+}
 
 export async function GET() {
   const member = await requireMember();
@@ -102,7 +121,16 @@ export async function POST(req: NextRequest) {
 
   const parsed = schema.safeParse(json);
   if (!parsed.success) {
-    return NextResponse.json({ error: "Geçersiz sipariş" }, { status: 400 });
+    return NextResponse.json(
+      {
+        error: zodErrorMessage(parsed.error),
+        detail: parsed.error.issues.map((i) => ({
+          path: i.path.join("."),
+          message: i.message,
+        })),
+      },
+      { status: 400 }
+    );
   }
 
   try {
@@ -118,6 +146,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ ok: true, order });
   } catch (e) {
     const err = e as Error & { status?: number; order?: unknown };
+    // Surface provider / balance errors as-is (API was called or blocked before call)
     return NextResponse.json(
       { error: err.message || "Sipariş başarısız", order: err.order },
       { status: err.status || 500 }

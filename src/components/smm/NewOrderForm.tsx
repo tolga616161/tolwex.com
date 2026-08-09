@@ -154,27 +154,42 @@ export function NewOrderForm() {
 
   async function submitSingle(e: React.FormEvent) {
     e.preventDefault();
-    if (!selected) return;
+    if (!selected) {
+      setErr("Önce bir servis seç");
+      return;
+    }
+    const quantity = Math.floor(Number(qty));
+    if (!Number.isFinite(quantity) || quantity < 1) {
+      setErr("Geçerli bir adet gir");
+      return;
+    }
     setBusy(true);
     setErr(null);
     setMsg(null);
     try {
+      const payload: Record<string, string | number> = {
+        serviceId: selected.id,
+        link: normalizeLink(link),
+        quantity,
+      };
+      if (isComments && comments.trim()) payload.comments = comments.trim();
+      if (useDrip && selected.dripfeed) {
+        payload.dripfeedRuns = Math.floor(Number(runs)) || 2;
+        payload.dripfeedInterval = Math.floor(Number(interval)) || 10;
+      }
       const res = await fetch("/api/member/orders", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "same-origin",
-        body: JSON.stringify({
-          serviceId: selected.id,
-          link: normalizeLink(link),
-          quantity: qty,
-          comments: isComments ? comments : undefined,
-          dripfeedRuns: useDrip && selected.dripfeed ? runs : undefined,
-          dripfeedInterval: useDrip && selected.dripfeed ? interval : undefined,
-        }),
+        body: JSON.stringify(payload),
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) {
-        setErr(data.error || "Sipariş başarısız");
+        const detail =
+          Array.isArray(data.detail) && data.detail[0]?.message
+            ? ` — ${data.detail[0].message}`
+            : "";
+        setErr((data.error || "Sipariş başarısız") + detail);
         return;
       }
       setMsg(`Sipariş alındı · #${data.order?.providerOrderId || data.order?.id}`);

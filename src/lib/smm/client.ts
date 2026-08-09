@@ -56,28 +56,44 @@ export function applyMarkup(rate: number, markupPercent = 50): number {
 async function smmPost(body: Record<string, string | number>) {
   const { url, key } = smmConfig();
   if (!key) {
-    throw new Error("SMM_API_KEY tanımlı değil");
+    throw new Error("SMM_API_KEY tanımlı değil — Vercel ortam değişkenini kontrol et");
   }
   const form = new URLSearchParams();
   form.set("key", key);
   for (const [k, v] of Object.entries(body)) {
     form.set(k, String(v));
   }
-  const res = await fetch(url, {
-    method: "POST",
-    headers: { "Content-Type": "application/x-www-form-urlencoded" },
-    body: form.toString(),
-    cache: "no-store",
-  });
+  let res: Response;
+  try {
+    res = await fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: form.toString(),
+      cache: "no-store",
+    });
+  } catch (e) {
+    throw new Error(
+      `SMM API’ye bağlanılamadı: ${e instanceof Error ? e.message : "ağ hatası"}`
+    );
+  }
   const text = await res.text();
   let data: unknown;
   try {
     data = JSON.parse(text);
   } catch {
-    throw new Error(`SMM API geçersiz yanıt: ${text.slice(0, 180)}`);
+    throw new Error(`SMM API geçersiz yanıt (HTTP ${res.status}): ${text.slice(0, 180)}`);
   }
   if (data && typeof data === "object" && "error" in data) {
-    throw new Error(String((data as { error: string }).error));
+    const raw = String((data as { error: string }).error || "unknown");
+    // Keep provider text but make common cases clearer in TR
+    if (/invalid api key/i.test(raw)) throw new Error("SMM API anahtarı geçersiz");
+    if (/not enough funds|insufficient/i.test(raw)) {
+      throw new Error("SMM sağlayıcı bakiyesi yetersiz");
+    }
+    if (/incorrect|invalid.*(link|order|service)/i.test(raw)) {
+      throw new Error(`Sağlayıcı reddetti: ${raw}`);
+    }
+    throw new Error(raw);
   }
   return data;
 }

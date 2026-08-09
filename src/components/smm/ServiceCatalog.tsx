@@ -200,12 +200,19 @@ function OrderModal({ item, onClose }: { item: Item; onClose: () => void }) {
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
+    const quantity = Math.floor(Number(qty));
+    if (!Number.isFinite(quantity) || quantity < 1) {
+      setMsg("Geçerli bir adet gir");
+      return;
+    }
+    const normalized = /^https?:\/\//i.test(link.trim()) ? link.trim() : `https://${link.trim()}`;
     setBusy(true);
     setMsg(null);
     const res = await fetch("/api/member/orders", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ serviceId: item.id, link, quantity: qty }),
+      credentials: "same-origin",
+      body: JSON.stringify({ serviceId: item.id, link: normalized, quantity }),
     });
     const data = await res.json().catch(() => ({}));
     setBusy(false);
