@@ -251,9 +251,40 @@ function BalanceInner({
               <div className="sp-card-head">
                 <h2>Shopier ile öde</h2>
               </div>
-              <p className="muted text-sm" style={{ marginTop: "-0.35rem" }}>
-                Kart / Shopier güvenli ödeme — tutar anında bakiyeye geçer.
-              </p>
+              <div className="shopier-help muted text-sm" style={{ marginTop: "-0.2rem" }}>
+                <p>
+                  <strong>ÖNEMLİ:</strong> Lütfen birden fazla kez &quot;Öde&quot; butonuna
+                  basıp veya &quot;Sepete Ekle&quot; ile sepet şeklinde ödeme
+                  tamamlamayın. Sepet şeklinde tamamlanan ödemeler otomatik olarak
+                  hesabınıza tanımlanamaz!
+                </p>
+                <ol style={{ paddingLeft: "1.15rem", margin: "0.65rem 0 0.85rem" }}>
+                  <li>
+                    Tutarı girip <strong>Güvenli Ödeme Sayfasına Git</strong> butonuna
+                    tıklayın.
+                  </li>
+                  <li>
+                    Açılan sayfada <strong>Hemen al</strong> butonuna tıklayın.
+                  </li>
+                  <li>
+                    Tüm bilgilerinizi doğru girip <strong>Ödemeye geç</strong>{" "}
+                    butonuna tıklayın.
+                  </li>
+                  <li>
+                    <strong>ÖNEMLİ:</strong> Ödemenizin Shopier tarafından şüpheli
+                    işaretlenmemesi için lütfen <strong>doğru isim, adres ve telefon</strong>{" "}
+                    bilgilerinizi girin.
+                  </li>
+                  <li>
+                    Kart bilgilerinizi girip <strong>Siparişi tamamla</strong>{" "}
+                    butonuna tıklayın.
+                  </li>
+                  <li>
+                    Ödeme başarılı olunca <strong>PANELE DÖNMEK İÇİN TIKLAYIN</strong>{" "}
+                    yazısına tıklayın ve panele dönün.
+                  </li>
+                </ol>
+              </div>
               <label>
                 <span>Yükleme tutarı (₺)</span>
                 <input
@@ -266,7 +297,7 @@ function BalanceInner({
                 />
               </label>
               <button type="submit" className="btn btn-primary" disabled={shopierBusy}>
-                {shopierBusy ? "Shopier’a yönlendiriliyor…" : "Shopier ile öde"}
+                {shopierBusy ? "Yönlendiriliyor…" : "Güvenli Ödeme Sayfasına Git"}
               </button>
             </form>
           ) : null}
