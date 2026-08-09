@@ -1,8 +1,9 @@
 export const metadata = {
-  title: "SSS",
-  description: "TOLWEX SMM paneli hakkında sık sorulan sorular.",
+  title: "İade Koşulları",
+  description:
+    "TOLWEX sipariş iptal, iade, telafi ve bakiye kuralları. Sipariş vermeden önce okuyunuz.",
 };
 
-export default function FaqLayout({ children }: { children: React.ReactNode }) {
+export default function IadeLayout({ children }: { children: React.ReactNode }) {
   return children;
 }

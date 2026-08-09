@@ -14,6 +14,7 @@ const NAV = [
   { href: "/uye/islemler", label: "İşlemler" },
   { href: "/uye/istatistik", label: "İstatistik" },
   { href: "/uye/destek", label: "Yardım Merkezi" },
+  { href: "/uye/sss", label: "İade Koşulları" },
   { href: "/uye/api", label: "API" },
   { href: "/uye/profil", label: "Profil" },
 ];

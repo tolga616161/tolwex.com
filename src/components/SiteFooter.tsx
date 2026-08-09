@@ -6,7 +6,7 @@ import { TolwexLogo } from "@/components/brand/TolwexLogo";
 
 const LINKS = [
   { label: "Hizmetler", href: "/hizmetler" },
-  { label: "SSS", href: "/sss" },
+  { label: "İade Koşulları", href: "/sss" },
   { label: "Üye Girişi", href: "/uye/giris" },
   { label: "Kayıt Ol", href: "/uye/kayit" },
   { label: "Gizlilik", href: "/privacy" },
