@@ -192,7 +192,12 @@ export function NewOrderForm() {
         setErr((data.error || "Sipariş başarısız") + detail);
         return;
       }
-      setMsg(`Sipariş alındı · #${data.order?.providerOrderId || data.order?.id}`);
+      const pid = data.order?.providerOrderId;
+      setMsg(
+        pid
+          ? `Sipariş smmapi paneline düştü · Sipariş No: #${pid}`
+          : `Sipariş alındı · #${data.order?.id}`
+      );
       setLink("");
       setComments("");
     } catch {

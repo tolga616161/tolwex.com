@@ -90,7 +90,15 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Çok fazla sipariş denemesi" }, { status: 429 });
   }
 
-  const json = await req.json().catch(() => null);
+  let json: unknown = null;
+  try {
+    json = await req.json();
+  } catch {
+    return NextResponse.json({ error: "Sipariş verisi okunamadı" }, { status: 400 });
+  }
+  if (!json || typeof json !== "object") {
+    return NextResponse.json({ error: "Sipariş verisi eksik" }, { status: 400 });
+  }
 
   // Mass order: serviceId|quantity|link per line (provider id or internal id)
   if (json && typeof json === "object" && "lines" in json) {

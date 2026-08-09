@@ -134,7 +134,11 @@ export async function placeSmmOrder(input: PlaceOrderInput): Promise<{ order: nu
     body.runs = input.runs;
     body.interval = input.interval;
   }
-  return (await smmPost(body)) as { order: number | string };
+  const data = (await smmPost(body)) as { order?: number | string };
+  if (data?.order === undefined || data?.order === null || data?.order === "") {
+    throw new Error("SMM API sipariş ID dönmedi — tekrar dene");
+  }
+  return { order: data.order };
 }
 
 export async function fetchSmmOrderStatus(orderId: string | number) {

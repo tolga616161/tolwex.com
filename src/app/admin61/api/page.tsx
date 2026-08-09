@@ -8,13 +8,31 @@ export default function AdminApiPage() {
     smm_api_configured?: boolean;
     markup_percent?: number;
   } | null>(null);
+  const [providerBal, setProviderBal] = useState<string | null>(null);
+  const [providerErr, setProviderErr] = useState<string | null>(null);
   const [syncMsg, setSyncMsg] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+
+  function loadBalance() {
+    fetch("/api/admin/smm/balance")
+      .then((r) => r.json())
+      .then((d) => {
+        if (d?.ok) {
+          setProviderBal(`${d.balance} ${d.currency || "TRY"}`);
+          setProviderErr(null);
+        } else {
+          setProviderBal(null);
+          setProviderErr(d?.error || "Bakiye alınamadı");
+        }
+      })
+      .catch(() => setProviderErr("Bakiye alınamadı"));
+  }
 
   useEffect(() => {
     fetch("/api/admin/settings")
       .then((r) => (r.ok ? r.json() : null))
       .then((d) => setInfo(d?.settings || null));
+    loadBalance();
   }, []);
 
   async function sync() {
@@ -53,10 +71,16 @@ export default function AdminApiPage() {
         <p>
           <span className="muted">Markup: </span>%{info?.markup_percent ?? "—"}
         </p>
+        <p>
+          <span className="muted">smmapi bakiye: </span>
+          {providerBal ? <strong>{providerBal}</strong> : providerErr || "…"}
+          <button type="button" className="btn btn-ghost" style={{ marginLeft: 8 }} onClick={loadBalance}>
+            Yenile
+          </button>
+        </p>
         <p className="muted text-sm">
-          Anahtar ve markup yalnızca ortam değişkenlerinden okunur:
-          <code> SMM_API_KEY</code>, <code> SMM_API_URL</code>,{" "}
-          <code> SMM_MARKUP_PERCENT</code>.
+          Üye siparişi bakiyesi yeterliyse anında <code>action=add</code> ile smmapi paneline düşer.
+          Anahtar: <code>SMM_API_KEY</code> · URL: <code>SMM_API_URL</code>.
         </p>
         <div className="flex flex-wrap gap-2">
           <button type="button" className="btn btn-primary" onClick={sync} disabled={busy}>
