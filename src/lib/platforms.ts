@@ -106,7 +106,7 @@ export function allPlatformsWithOther(): Platform[] {
   return [...PLATFORMS, OTHER];
 }
 
-export type CatCount = { name: string; count: number };
+export type CatCount = { name: string; count: number; sortOrder?: number };
 
 /** Sum service counts per platform from category list. */
 export function groupCategoriesByPlatform(categories: CatCount[]): Map<PlatformId, CatCount[]> {

@@ -52,6 +52,8 @@ model SmmService {
   sellRate          Float
   min               Int      @default(1)
   max               Int      @default(1000000)
+  /** Position in smmapi services[] response — keep panel order identical */
+  sortOrder         Int      @default(0)
   dripfeed          Boolean  @default(false)
   refill            Boolean  @default(false)
   cancel            Boolean  @default(false)
@@ -63,6 +65,8 @@ model SmmService {
 
   @@index([category, active])
   @@index([active, sellRate])
+  @@index([active, sortOrder])
+  @@index([category, sortOrder])
 }
 
 model SmmOrder {

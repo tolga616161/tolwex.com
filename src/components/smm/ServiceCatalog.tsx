@@ -63,7 +63,8 @@ export function ServiceCatalog({ memberMode = false }: { memberMode?: boolean })
       const res = await fetch(`/api/smm/services?${sp}`);
       const data = await res.json();
       setItems(data.items || []);
-      setCategories(data.categories || []);
+      // Full list keeps platform logos/counts stable; dropdown uses filtered cats
+      setCategories(data.allCategories || data.categories || []);
       setTotal(data.total || 0);
       setPages(data.pages || 1);
       setLoading(false);

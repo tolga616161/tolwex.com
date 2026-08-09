@@ -66,14 +66,13 @@ export function NewOrderForm() {
     fetch("/api/smm/services?pageSize=10&sync=1")
       .then((r) => r.json())
       .then((d) => {
-        const cats: Cat[] = d.categories || [];
+        const cats: Cat[] = d.allCategories || d.categories || [];
         setCategories(cats);
         if (!cats.length && d.syncError) setErr(`Servis sync: ${d.syncError}`);
+        // Default = first category in smmapi order (same as provider panel)
         if (cats[0] && !category) {
-          const firstIg = cats.find((c) => detectPlatform(c.name) === "ig");
-          const pick = firstIg || cats[0];
-          setPlatform(detectPlatform(pick.name));
-          setCategory(pick.name);
+          setPlatform(detectPlatform(cats[0].name));
+          setCategory(cats[0].name);
         }
       })
       .catch(() => null);

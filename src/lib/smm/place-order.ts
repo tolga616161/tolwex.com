@@ -2,7 +2,7 @@ import { prisma } from "@/lib/db";
 import { adjustBalance } from "@/lib/member";
 import { placeSmmOrder } from "@/lib/smm/client";
 import { writeAuditLog } from "@/lib/audit";
-import { ensureSmmCatalogFresh } from "@/lib/smm/sync";
+import { ensureProviderService, ensureSmmCatalogFresh } from "@/lib/smm/sync";
 import { upsertOrderInGist } from "@/lib/orders-durable";
 
 export type PlaceOrderRequest = {
@@ -16,11 +16,23 @@ export type PlaceOrderRequest = {
   dripfeedInterval?: number;
 };
 
+function providerIdFromInput(input: PlaceOrderRequest): number | null {
+  if (input.providerServiceId != null && Number.isFinite(input.providerServiceId)) {
+    return Number(input.providerServiceId);
+  }
+  if (input.serviceId) {
+    const asNum = Number(input.serviceId);
+    if (Number.isFinite(asNum) && String(asNum) === input.serviceId.trim()) return asNum;
+  }
+  return null;
+}
+
 async function findService(input: PlaceOrderRequest) {
   // providerServiceId is stable across Vercel /tmp SQLite instances; cuid is not
-  if (input.providerServiceId != null && Number.isFinite(input.providerServiceId)) {
+  const pid = providerIdFromInput(input);
+  if (pid != null) {
     const byProvider = await prisma.smmService.findFirst({
-      where: { providerServiceId: input.providerServiceId, active: true },
+      where: { providerServiceId: pid, active: true },
     });
     if (byProvider) return byProvider;
   }
@@ -29,13 +41,6 @@ async function findService(input: PlaceOrderRequest) {
       where: { id: input.serviceId, active: true },
     });
     if (byId) return byId;
-    // Legacy: some clients may send provider id as serviceId string
-    const asNum = Number(input.serviceId);
-    if (Number.isFinite(asNum) && String(asNum) === input.serviceId.trim()) {
-      return prisma.smmService.findFirst({
-        where: { providerServiceId: asNum, active: true },
-      });
-    }
   }
   return null;
 }
@@ -47,22 +52,32 @@ export async function placeMemberOrder(input: PlaceOrderRequest) {
   if (!member) throw Object.assign(new Error("Üye bulunamadı"), { status: 401 });
 
   let service = await findService(input);
+  const pid = providerIdFromInput(input) ?? service?.providerServiceId ?? null;
 
   if (!service) {
     try {
       await ensureSmmCatalogFresh(0);
     } catch {
-      // ignore — will 404 below
+      // continue — try live provider lookup below
     }
     service = await findService(input);
+  }
+
+  // Cold Vercel instance: pull this exact service from smmapi and upsert
+  if (!service && pid != null) {
+    try {
+      service = await ensureProviderService(pid);
+    } catch (e) {
+      console.error("ensure_provider_service_failed", e instanceof Error ? e.message : e);
+    }
   }
 
   if (!service) {
     throw Object.assign(
       new Error(
-        input.providerServiceId
-          ? `Servis bulunamadı (API #${input.providerServiceId}) — katalog senkronu gerekli`
-          : "Servis bulunamadı — sayfayı yenileyip tekrar seç"
+        pid
+          ? `Servis bulunamadı (API #${pid}) — smmapi’de yok veya senkron başarısız`
+          : "Servis bulunamadı — sayfayı yenileyip servisi tekrar seç"
       ),
       { status: 404 }
     );

@@ -42,24 +42,25 @@ export async function GET(req: NextRequest) {
   const page = Math.max(1, Number(sp.get("page") || 1));
   const pageSize = Math.min(500, Math.max(10, Number(sp.get("pageSize") || 40)));
 
-  const allCats = await prisma.smmService.groupBy({
+  // Category order = first appearance in smmapi list (min sortOrder)
+  const catAgg = await prisma.smmService.groupBy({
     by: ["category"],
     where: { active: true },
     _count: { _all: true },
-    orderBy: { category: "asc" },
+    _min: { sortOrder: true },
   });
-  const categoryRows = allCats.map((c) => ({
-    name: c.category,
-    count: c._count._all,
-  }));
+  const categoryRows = catAgg
+    .map((c) => ({
+      name: c.category,
+      count: c._count._all,
+      sortOrder: c._min.sortOrder ?? 0,
+    }))
+    .sort((a, b) => a.sortOrder - b.sortOrder || a.name.localeCompare(b.name, "tr"));
 
   let categoryFilter: string | { in: string[] } | undefined = category || undefined;
   if (!category && platform) {
     const names = filterCategoriesForPlatform(categoryRows, platform).map((c) => c.name);
-    if (platform === "other") {
-      // "other" = categories that don't match a known platform
-      categoryFilter = names.length ? { in: names } : { in: ["__none__"] };
-    } else if (names.length) {
+    if (names.length) {
       categoryFilter = { in: names };
     } else {
       categoryFilter = { in: ["__none__"] };
@@ -88,7 +89,8 @@ export async function GET(req: NextRequest) {
     prisma.smmService.count({ where }),
     prisma.smmService.findMany({
       where,
-      orderBy: [{ category: "asc" }, { sellRate: "asc" }],
+      // Exact smmapi services[] order
+      orderBy: [{ sortOrder: "asc" }, { providerServiceId: "asc" }],
       skip: (page - 1) * pageSize,
       take: pageSize,
       select: {
@@ -102,6 +104,7 @@ export async function GET(req: NextRequest) {
         sellRate: true,
         min: true,
         max: true,
+        sortOrder: true,
         dripfeed: true,
         refill: true,
         cancel: true,
@@ -110,6 +113,10 @@ export async function GET(req: NextRequest) {
   ]);
 
   const markup = smmConfig().markupPercent;
+  const filteredCats = platform
+    ? filterCategoriesForPlatform(categoryRows, platform)
+    : categoryRows;
+
   return NextResponse.json({
     page,
     pageSize,
@@ -118,11 +125,20 @@ export async function GET(req: NextRequest) {
     markupPercent: markup,
     syncError,
     platform: platform || null,
-    categories: categoryRows,
+    categories: filteredCats.map(({ name, count, sortOrder }) => ({
+      name,
+      count,
+      sortOrder,
+    })),
+    // Always expose full category list for platform picker counts
+    allCategories: categoryRows.map(({ name, count, sortOrder }) => ({
+      name,
+      count,
+      sortOrder,
+    })),
     items: items.map((item) => ({
       ...item,
       platform: detectPlatform(item.category || item.name),
-      // Always expose clean 2-decimal sell price (+%50)
       sellRate: applyMarkup(item.rate, markup),
     })),
   });
