@@ -398,6 +398,15 @@ h3,
   margin: 0 0 1rem;
   font-weight: 600;
 }
+.hero-brand {
+  margin: 0 0 0.85rem;
+  font-size: clamp(2.8rem, 9vw, 4.8rem);
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  line-height: 0.92;
+  color: #fff;
+  text-shadow: 0 0 48px rgba(255, 255, 255, 0.14);
+}
 .hero-title {
   margin: 0;
   display: flex;
@@ -406,6 +415,15 @@ h3,
   line-height: 0.95;
   font-size: clamp(2.5rem, 9vw, 4.6rem);
   font-weight: 800;
+}
+.hero-title-statement {
+  gap: 0.2rem;
+  line-height: 1.12;
+  font-size: clamp(1.45rem, 3.6vw, 2.15rem);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  max-width: 22ch;
+  color: #e8e8e8;
 }
 .title-line {
   display: block;
@@ -1715,9 +1733,22 @@ body:has(.admin-saas) main { padding: 0; }
   padding: 1.1rem 1.5rem; border-bottom: 1px solid var(--admin-line);
   background: rgba(0,0,0,0.35); backdrop-filter: blur(10px);
   position: sticky; top: 0; z-index: 20;
+  display: flex; justify-content: space-between; align-items: center; gap: 1rem;
 }
 .admin-topbar-kicker { font-size: 0.7rem; letter-spacing: 0.14em; text-transform: uppercase; color: #888; }
 .admin-topbar-title { font-family: var(--font-display-face), Syne, sans-serif; font-size: 1.35rem; font-weight: 700; }
+.admin-topbar-meta { display: flex; flex-wrap: wrap; gap: 0.45rem; align-items: center; }
+.admin-nav-group { display: grid; gap: 0.12rem; margin-bottom: 0.65rem; }
+.admin-nav-group-label {
+  margin: 0.35rem 0.55rem 0.2rem;
+  font-size: 0.62rem; letter-spacing: 0.14em; text-transform: uppercase; color: #666;
+}
+.admin-nav-link { justify-content: space-between; }
+.admin-nav-badge {
+  min-width: 1.25rem; height: 1.25rem; padding: 0 0.35rem; border-radius: 999px;
+  background: rgba(220, 180, 80, 0.2); color: #e0c97a; font-size: 0.68rem;
+  display: inline-grid; place-items: center; font-weight: 700;
+}
 .admin-content { padding: 1.25rem 1.5rem 3rem; }
 .admin-page-head { display: flex; justify-content: space-between; gap: 1rem; align-items: flex-start; margin-bottom: 1.25rem; flex-wrap: wrap; }
 .admin-page-head h2 { font-family: var(--font-display-face), Syne, sans-serif; font-size: 1.6rem; font-weight: 700; }

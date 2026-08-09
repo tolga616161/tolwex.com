@@ -8,10 +8,10 @@ export function HeroSection() {
     <section className="hero-stage panel-hero">
       <div className="site-shell panel-hero-grid">
         <div className="hero-copy panel-hero-copy">
-          <p className="hero-kicker">TOLWEX</p>
-          <h1 className="hero-title display">
-            <span className="title-line">Profesyonel</span>
-            <span className="title-line hero-title-accent">SMM Paneli</span>
+          <p className="hero-brand display">TOLWEX</p>
+          <h1 className="hero-title hero-title-statement display">
+            <span className="title-line">Dijitalde Karşınıza Çıkan</span>
+            <span className="title-line hero-title-accent">Sorunları Birlikte Çözüyoruz</span>
           </h1>
           <p className="hero-sub">
             Binlerce servis, üye paneli, bakiye ve otomatik sipariş — tek yerden yönetin.

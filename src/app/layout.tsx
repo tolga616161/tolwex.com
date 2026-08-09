@@ -25,7 +25,7 @@ export const metadata: Metadata = {
     template: "%s | TOLWEX",
   },
   description:
-    "TOLWEX profesyonel SMM paneli. Takipçi, beğeni, izlenme ve daha fazlası — üye hesabı, bakiye ve otomatik sipariş.",
+    "TOLWEX — dijitalde karşınıza çıkan sorunları birlikte çözüyoruz. Takipçi, beğeni, izlenme; üye hesabı, bakiye ve otomatik sipariş.",
   icons: {
     icon: [
       { url: "/favicon.svg", type: "image/svg+xml" },
