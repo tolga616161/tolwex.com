@@ -3,6 +3,7 @@ import { adjustBalance } from "@/lib/member";
 import { placeSmmOrder } from "@/lib/smm/client";
 import { writeAuditLog } from "@/lib/audit";
 import { ensureSmmCatalogFresh } from "@/lib/smm/sync";
+import { upsertOrderInGist } from "@/lib/orders-durable";
 
 export type PlaceOrderRequest = {
   memberId: string;
@@ -112,6 +113,7 @@ export async function placeMemberOrder(input: PlaceOrderRequest) {
         errorMessage: errorMessage || undefined,
       },
     });
+    await upsertOrderInGist(order.id).catch(() => null);
     await writeAuditLog({
       action: "smm.order_error",
       actorType: "visitor",
@@ -154,6 +156,7 @@ export async function placeMemberOrder(input: PlaceOrderRequest) {
     data: { refId: order.id },
   });
 
+  await upsertOrderInGist(order.id).catch(() => null);
   await writeAuditLog({
     action: "smm.order",
     actorType: "visitor",

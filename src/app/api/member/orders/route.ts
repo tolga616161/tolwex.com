@@ -4,6 +4,7 @@ import { prisma } from "@/lib/db";
 import { requireMember } from "@/lib/member";
 import { placeMemberOrder } from "@/lib/smm/place-order";
 import { rateLimit } from "@/lib/rate-limit";
+import { pullOrdersFromGist } from "@/lib/orders-durable";
 
 function normalizeLink(raw: string): string {
   const t = raw.trim();
@@ -33,6 +34,8 @@ const massSchema = z.object({
 export async function GET() {
   const member = await requireMember();
   if (!member) return NextResponse.json({ error: "Giriş gerekli" }, { status: 401 });
+
+  await pullOrdersFromGist().catch(() => null);
 
   const orders = await prisma.smmOrder.findMany({
     where: { memberId: member.id },

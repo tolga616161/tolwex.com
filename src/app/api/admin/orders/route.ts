@@ -1,15 +1,23 @@
 import { NextRequest, NextResponse } from "next/server";
-import { prisma } from "@/lib/db";
+import { ensureDbHydrated, prisma } from "@/lib/db";
 import { requireAdminApi } from "@/lib/admin/auth";
 import { placeSmmOrder, fetchSmmOrderStatus } from "@/lib/smm/client";
 import { adjustBalance } from "@/lib/member";
 import { writeAuditLog } from "@/lib/audit";
+import { pullMembersFromGist } from "@/lib/members-durable";
+import { pullOrdersFromGist, upsertOrderInGist } from "@/lib/orders-durable";
+import { syncOpenOrderStatuses } from "@/lib/smm/sync-status";
 
 export const dynamic = "force-dynamic";
+export const maxDuration = 60;
 
 export async function GET() {
   const gate = await requireAdminApi();
   if (!gate.ok) return gate.response;
+
+  await ensureDbHydrated(true);
+  await pullMembersFromGist();
+  await pullOrdersFromGist();
 
   const orders = await prisma.smmOrder.findMany({
     orderBy: { createdAt: "desc" },
@@ -27,11 +35,24 @@ export async function PATCH(request: NextRequest) {
   const gate = await requireAdminApi();
   if (!gate.ok) return gate.response;
 
+  await ensureDbHydrated(true);
+  await pullOrdersFromGist();
+
   const body = (await request.json().catch(() => ({}))) as {
     id?: string;
-    action?: "approve_retry" | "sync" | "set_status" | "refund";
+    action?: "approve_retry" | "sync" | "sync_all" | "set_status" | "refund";
     status?: string;
   };
+
+  if (body.action === "sync_all") {
+    const result = await syncOpenOrderStatuses(150);
+    await writeAuditLog({
+      action: "admin.orders_sync_all",
+      actorType: "admin",
+      metadata: result,
+    });
+    return NextResponse.json({ ok: true, ...result });
+  }
 
   if (!body.id || !body.action) {
     return NextResponse.json({ error: "id ve action gerekli" }, { status: 400 });
@@ -51,6 +72,7 @@ export async function PATCH(request: NextRequest) {
       where: { id: order.id },
       data: { status },
     });
+    await upsertOrderInGist(order.id);
     await writeAuditLog({
       action: "admin.order_status",
       actorType: "admin",
@@ -68,7 +90,7 @@ export async function PATCH(request: NextRequest) {
       start_count?: string | number;
       remains?: string | number;
     };
-    const status = String(remote.status || order.status).toLowerCase();
+    const status = String(remote.status || order.status).toLowerCase().replace(/\s+/g, "");
     const updated = await prisma.smmOrder.update({
       where: { id: order.id },
       data: {
@@ -78,6 +100,7 @@ export async function PATCH(request: NextRequest) {
         remains: remote.remains != null ? Number(remote.remains) : order.remains,
       },
     });
+    await upsertOrderInGist(order.id);
     return NextResponse.json({ ok: true, order: updated });
   }
 
@@ -96,6 +119,7 @@ export async function PATCH(request: NextRequest) {
       where: { id: order.id },
       data: { status: "refunded" },
     });
+    await upsertOrderInGist(order.id);
     await writeAuditLog({
       action: "admin.order_refund",
       actorType: "admin",
@@ -112,9 +136,10 @@ export async function PATCH(request: NextRequest) {
       );
     }
     try {
-      const qty = order.dripfeedRuns && order.dripfeedRuns > 1
-        ? Math.round(order.quantity / order.dripfeedRuns)
-        : order.quantity;
+      const qty =
+        order.dripfeedRuns && order.dripfeedRuns > 1
+          ? Math.round(order.quantity / order.dripfeedRuns)
+          : order.quantity;
       const placed = await placeSmmOrder({
         service: order.providerServiceId,
         link: order.link,
@@ -131,6 +156,7 @@ export async function PATCH(request: NextRequest) {
           errorMessage: null,
         },
       });
+      await upsertOrderInGist(order.id);
       await writeAuditLog({
         action: "admin.order_approve",
         actorType: "admin",
@@ -143,6 +169,7 @@ export async function PATCH(request: NextRequest) {
         where: { id: order.id },
         data: { status: "error", errorMessage: message },
       });
+      await upsertOrderInGist(order.id);
       return NextResponse.json({ error: message, order: updated }, { status: 502 });
     }
   }

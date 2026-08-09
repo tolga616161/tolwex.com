@@ -16,6 +16,20 @@ type Order = {
   createdAt: string;
 };
 
+const STATUS_TR: Record<string, string> = {
+  pending: "Bekliyor",
+  awaiting: "Onay bekliyor",
+  processing: "İşleniyor",
+  inprogress: "İşleniyor",
+  "in progress": "İşleniyor",
+  completed: "Tamamlandı",
+  partial: "Kısmi",
+  canceled: "İptal",
+  cancelled: "İptal",
+  refunded: "İade",
+  error: "Hata",
+};
+
 export default function MemberOrdersPage() {
   const [orders, setOrders] = useState<Order[]>([]);
 
@@ -63,7 +77,11 @@ export default function MemberOrdersPage() {
                       <td>{o.remains ?? "—"}</td>
                       <td>{o.charge.toFixed(2)} ₺</td>
                       <td>
-                        <span className={`sp-badge status-${o.status}`}>{o.status}</span>
+                        <span className={`sp-badge status-${o.status.replace(/\s+/g, "")}`}>
+                          {STATUS_TR[o.status] ||
+                            STATUS_TR[o.status.toLowerCase().replace(/\s+/g, "")] ||
+                            o.status}
+                        </span>
                       </td>
                       <td className="muted text-xs">
                         {new Date(o.createdAt).toLocaleString("tr-TR")}
