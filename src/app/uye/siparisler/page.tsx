@@ -55,8 +55,8 @@ export default function MemberOrdersPage() {
                     <th>ID</th>
                     <th>Servis</th>
                     <th>Adet</th>
-                    <th>Start</th>
-                    <th>Remains</th>
+                    <th>Başlangıç</th>
+                    <th>Kalan</th>
                     <th>Tutar</th>
                     <th>Durum</th>
                     <th>Tarih</th>
