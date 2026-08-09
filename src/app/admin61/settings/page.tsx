@@ -14,26 +14,55 @@ type Settings = {
   bank_holder: string;
 };
 
+const FALLBACK: Settings = {
+  site_name: "TOLWEX",
+  support_whatsapp: "",
+  support_email: "",
+  min_deposit: "100",
+  announcement: "",
+  announcement_enabled: "0",
+  bank_name: "",
+  bank_iban: "",
+  bank_holder: "",
+};
+
 export default function AdminSettingsPage() {
   const [settings, setSettings] = useState<Settings | null>(null);
   const [msg, setMsg] = useState<string | null>(null);
+  const [loadError, setLoadError] = useState<string | null>(null);
 
   useEffect(() => {
     fetch("/api/admin/settings")
       .then((r) => (r.ok ? r.json() : null))
-      .then((d) => setSettings(d?.settings || null));
+      .then((d) => {
+        if (d?.settings) {
+          setSettings({ ...FALLBACK, ...d.settings });
+          setLoadError(null);
+        } else {
+          setSettings(FALLBACK);
+          setLoadError("Ayarlar alınamadı — varsayılan form açıldı");
+        }
+      })
+      .catch(() => {
+        setSettings(FALLBACK);
+        setLoadError("Bağlantı hatası — varsayılan form açıldı");
+      });
   }, []);
 
   async function save(e: FormEvent) {
     e.preventDefault();
     if (!settings) return;
     setMsg(null);
-    const res = await fetch("/api/admin/settings", {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(settings),
-    });
-    setMsg(res.ok ? "Kaydedildi" : "Hata");
+    try {
+      const res = await fetch("/api/admin/settings", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(settings),
+      });
+      setMsg(res.ok ? "Kaydedildi" : "Kaydederken hata oluştu");
+    } catch {
+      setMsg("Bağlantı hatası");
+    }
   }
 
   if (!settings) return <p className="muted">Yükleniyor…</p>;
@@ -46,6 +75,7 @@ export default function AdminSettingsPage() {
           <p className="muted">Duyuru, banka hesabı ve panel genel ayarları</p>
         </div>
       </div>
+      {loadError ? <div className="admin-banner">{loadError}</div> : null}
       <form onSubmit={save} className="admin-panel grid gap-4 max-w-xl">
         <div className="grid gap-3">
           <h3 className="text-sm font-semibold">Genel</h3>
