@@ -8,7 +8,6 @@ export function HeroSection() {
     <section className="hero-stage panel-hero">
       <div className="site-shell panel-hero-grid">
         <div className="hero-copy panel-hero-copy">
-          <p className="hero-brand display">TOLWEX</p>
           <h1 className="hero-title hero-title-statement display">
             <span className="title-line">Dijitalde Karşınıza Çıkan</span>
             <span className="title-line hero-title-accent">Sorunları Birlikte Çözüyoruz</span>
