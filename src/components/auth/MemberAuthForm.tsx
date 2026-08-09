@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { TolwexLogo } from "@/components/brand/TolwexLogo";
 
 export function MemberAuthForm({
   mode,
@@ -68,7 +69,6 @@ export function MemberAuthForm({
         return;
       }
 
-      // Confirm session cookie before entering panel
       const me = await fetch("/api/auth/me", { credentials: "same-origin" }).then((r) =>
         r.ok ? r.json() : null
       );
@@ -77,7 +77,6 @@ export function MemberAuthForm({
         return;
       }
 
-      // Full navigation so SSR panel sees the cookie reliably
       window.location.href = "/uye";
     } catch {
       setError("Ağ hatası — tekrar deneyin");
@@ -88,103 +87,118 @@ export function MemberAuthForm({
 
   return (
     <form
-      className={`member-auth-card glass-panel ${compact ? "is-compact" : "rounded-3xl p-6 md:p-8"}`}
+      className={`member-auth-card ${compact ? "is-compact" : "is-full"}`}
       onSubmit={submit}
     >
-      <p className="section-kicker">{mode === "login" ? "Üye girişi" : "Üye kayıt"}</p>
-      <h1 className={`display font-bold mb-2 ${compact ? "text-2xl" : "text-3xl"}`}>
-        {mode === "login" ? "Panele giriş yap" : "Hesap oluştur"}
-      </h1>
-      <p className="muted text-sm mb-5">
-        TOLWEX SMM paneli · kategoriden servis seç · sipariş ver
-      </p>
+      {!compact ? (
+        <div className="member-auth-brand">
+          <TolwexLogo size="md" />
+        </div>
+      ) : null}
 
-      {mode === "register" ? (
-        <>
-          <label className="recovery-field mb-3">
-            <span>Kullanıcı adı</span>
-            <input
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              placeholder="ornek_kullanici"
-              required
-              minLength={3}
-              autoComplete="username"
-            />
-          </label>
-          <label className="recovery-field mb-3">
-            <span>E-posta</span>
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-              autoComplete="email"
-            />
-          </label>
-          <label className="recovery-field mb-3">
-            <span>Ad Soyad (opsiyonel)</span>
-            <input value={name} onChange={(e) => setName(e.target.value)} />
-          </label>
-          <label className="recovery-field mb-3">
-            <span>Telefon (opsiyonel)</span>
-            <input value={phone} onChange={(e) => setPhone(e.target.value)} />
-          </label>
-          <label className="recovery-field mb-3">
-            <span>Şifre</span>
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              minLength={6}
-              autoComplete="new-password"
-            />
-          </label>
-          <label className="recovery-field mb-4">
-            <span>Şifre tekrar</span>
-            <input
-              type="password"
-              value={passwordAgain}
-              onChange={(e) => setPasswordAgain(e.target.value)}
-              required
-              minLength={6}
-              autoComplete="new-password"
-            />
-          </label>
-        </>
-      ) : (
-        <>
-          <label className="recovery-field mb-3">
-            <span>Kullanıcı adı veya e-posta</span>
-            <input
-              value={login}
-              onChange={(e) => setLogin(e.target.value)}
-              required
-              autoComplete="username"
-              placeholder="kullanici veya e-posta"
-            />
-          </label>
-          <label className="recovery-field mb-4">
-            <span>Şifre</span>
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              autoComplete="current-password"
-            />
-          </label>
-        </>
-      )}
+      <div className="member-auth-head">
+        <h1>{mode === "login" ? "Giriş yap" : "Hesap oluştur"}</h1>
+        <p>
+          {compact
+            ? "Panele hızlı giriş"
+            : mode === "login"
+              ? "Kullanıcı adın veya e-postan ile giriş yap"
+              : "Birkaç saniyede üye ol, sipariş vermeye başla"}
+        </p>
+      </div>
 
-      {error ? <p style={{ color: "#ff8a8a" }} className="text-sm mb-3">{error}</p> : null}
+      <div className="member-auth-fields">
+        {mode === "register" ? (
+          <>
+            <label className="member-field">
+              <span>Kullanıcı adı</span>
+              <input
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                placeholder="ornek_kullanici"
+                required
+                minLength={3}
+                autoComplete="username"
+              />
+            </label>
+            <label className="member-field">
+              <span>E-posta</span>
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+                autoComplete="email"
+              />
+            </label>
+            {!compact ? (
+              <>
+                <label className="member-field">
+                  <span>Ad Soyad <em>(opsiyonel)</em></span>
+                  <input value={name} onChange={(e) => setName(e.target.value)} />
+                </label>
+                <label className="member-field">
+                  <span>Telefon <em>(opsiyonel)</em></span>
+                  <input value={phone} onChange={(e) => setPhone(e.target.value)} />
+                </label>
+              </>
+            ) : null}
+            <label className="member-field">
+              <span>Şifre</span>
+              <input
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                minLength={6}
+                autoComplete="new-password"
+              />
+            </label>
+            <label className="member-field">
+              <span>Şifre tekrar</span>
+              <input
+                type="password"
+                value={passwordAgain}
+                onChange={(e) => setPasswordAgain(e.target.value)}
+                required
+                minLength={6}
+                autoComplete="new-password"
+              />
+            </label>
+          </>
+        ) : (
+          <>
+            <label className="member-field">
+              <span>Kullanıcı adı veya e-posta</span>
+              <input
+                value={login}
+                onChange={(e) => setLogin(e.target.value)}
+                required
+                autoComplete="username"
+                placeholder="kullanici veya e-posta"
+              />
+            </label>
+            <label className="member-field">
+              <span>Şifre</span>
+              <input
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                autoComplete="current-password"
+              />
+            </label>
+          </>
+        )}
+      </div>
 
-      <button type="submit" className="btn btn-primary w-full" disabled={busy}>
+      {error ? <p className="member-auth-error">{error}</p> : null}
+
+      <button type="submit" className="btn btn-primary member-auth-submit" disabled={busy}>
         {busy ? "…" : mode === "login" ? "Giriş yap" : "Kayıt ol"}
       </button>
 
-      <p className="muted text-sm mt-4 text-center">
+      <p className="member-auth-switch">
         {mode === "login" ? (
           <>
             Hesabın yok mu? <Link href="/uye/kayit">Üye ol</Link>

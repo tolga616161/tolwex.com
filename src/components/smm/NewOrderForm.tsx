@@ -3,6 +3,12 @@
 import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { formatMoney } from "@/lib/money";
+import {
+  detectPlatform,
+  filterCategoriesForPlatform,
+  type PlatformId,
+} from "@/lib/platforms";
+import { PlatformPicker } from "@/components/smm/PlatformPicker";
 
 type Item = {
   id: string;
@@ -35,6 +41,7 @@ export function NewOrderForm() {
   const [tab, setTab] = useState<"single" | "mass">("single");
   const [categories, setCategories] = useState<Cat[]>([]);
   const [items, setItems] = useState<Item[]>([]);
+  const [platform, setPlatform] = useState<PlatformId | "">("");
   const [category, setCategory] = useState("");
   const [serviceId, setServiceId] = useState("");
   const [serviceQuery, setServiceQuery] = useState("");
@@ -50,18 +57,38 @@ export function NewOrderForm() {
   const [err, setErr] = useState<string | null>(null);
   const [loadingServices, setLoadingServices] = useState(false);
 
+  const visibleCats = useMemo(
+    () => filterCategoriesForPlatform(categories, platform),
+    [categories, platform]
+  );
+
   useEffect(() => {
     fetch("/api/smm/services?pageSize=10&sync=1")
       .then((r) => r.json())
       .then((d) => {
         const cats: Cat[] = d.categories || [];
         setCategories(cats);
-        if (cats[0] && !category) setCategory(cats[0].name);
         if (!cats.length && d.syncError) setErr(`Servis sync: ${d.syncError}`);
+        if (cats[0] && !category) {
+          const firstIg = cats.find((c) => detectPlatform(c.name) === "ig");
+          const pick = firstIg || cats[0];
+          setPlatform(detectPlatform(pick.name));
+          setCategory(pick.name);
+        }
       })
       .catch(() => null);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  useEffect(() => {
+    if (!visibleCats.length) {
+      setCategory("");
+      return;
+    }
+    if (!visibleCats.some((c) => c.name === category)) {
+      setCategory(visibleCats[0].name);
+    }
+  }, [visibleCats, category]);
 
   useEffect(() => {
     if (!category) return;
@@ -118,6 +145,11 @@ export function NewOrderForm() {
     setUseDrip(false);
     setErr(null);
     setMsg(null);
+  }
+
+  function onPlatformChange(id: PlatformId | "") {
+    setPlatform(id);
+    setServiceQuery("");
   }
 
   async function submitSingle(e: React.FormEvent) {
@@ -207,10 +239,18 @@ export function NewOrderForm() {
 
         {tab === "single" ? (
           <form className="sp-form" onSubmit={submitSingle}>
+            <PlatformPicker
+              categories={categories}
+              value={platform}
+              onChange={onPlatformChange}
+              showAll={false}
+              label="1 · Platform seç"
+            />
+
             <label>
-              <span>Kategori</span>
+              <span>2 · Kategori</span>
               <select value={category} onChange={(e) => setCategory(e.target.value)} required>
-                {categories.map((c) => (
+                {visibleCats.map((c) => (
                   <option key={c.name} value={c.name}>
                     {c.name} ({c.count})
                   </option>
@@ -228,7 +268,7 @@ export function NewOrderForm() {
             </label>
 
             <label>
-              <span>Servis</span>
+              <span>3 · Servis</span>
               <select
                 value={serviceId}
                 onChange={(e) => pickService(e.target.value)}

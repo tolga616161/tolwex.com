@@ -28,18 +28,18 @@ export default async function HomePage() {
               <span className="title-line hero-title-accent">SMM Paneli</span>
             </h1>
             <p className="hero-sub">
-              Instagram, TikTok, YouTube ve daha fazlası için takipçi, beğeni ve izlenme. Üye ol,
-              bakiye yükle, listeden servis seçip sipariş ver.
+              Instagram, TikTok, YouTube ve daha fazlası — takipçi, beğeni, izlenme. Üye ol, bakiye
+              yükle, platformdan servis seç.
             </p>
             <SocialLogos className="hero-socials" />
             <div className="smm-stats-row">
               <div>
                 <strong>{serviceCount.toLocaleString("tr-TR")}</strong>
-                <span>Toplam servis</span>
+                <span>Servis</span>
               </div>
               <div>
                 <strong>{Math.max(orderCount, 1).toLocaleString("tr-TR")}</strong>
-                <span>Toplam sipariş</span>
+                <span>Sipariş</span>
               </div>
               <div>
                 <strong>{Math.max(ticketCount, 1).toLocaleString("tr-TR")}</strong>
@@ -47,11 +47,8 @@ export default async function HomePage() {
               </div>
             </div>
             <div className="hero-actions">
-              <Link href="/uye/kayit" className="btn btn-primary">
-                Üye Ol
-              </Link>
               <Link href="/hizmetler" className="btn btn-ghost">
-                Servisler
+                Servislere bak
               </Link>
             </div>
           </div>

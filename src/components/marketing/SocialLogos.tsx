@@ -1,13 +1,8 @@
-const PLATFORMS = [
-  { id: "ig", name: "Instagram", src: "/brand/social/ig.png" },
-  { id: "yt", name: "YouTube", src: "/brand/social/yt.png" },
-  { id: "tw", name: "X / Twitter", src: "/brand/social/tw.png" },
-  { id: "fb", name: "Facebook", src: "/brand/social/fb.png" },
-  { id: "sc", name: "Snapchat", src: "/brand/social/sc.png" },
-  { id: "tt", name: "TikTok", src: "/brand/social/tt.svg" },
-  { id: "in", name: "LinkedIn", src: "/brand/social/in.png" },
-  { id: "pt", name: "Pinterest", src: "/brand/social/pt.png" },
-] as const;
+import { PLATFORMS as CORE } from "@/lib/platforms";
+
+const PLATFORMS = CORE.filter((p) =>
+  ["ig", "tt", "yt", "tw", "fb", "tg", "sc", "in"].includes(p.id)
+);
 
 export function SocialLogos({ className = "" }: { className?: string }) {
   return (

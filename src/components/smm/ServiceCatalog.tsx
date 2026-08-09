@@ -3,6 +3,13 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { formatMoney } from "@/lib/money";
+import {
+  detectPlatform,
+  filterCategoriesForPlatform,
+  getPlatform,
+  type PlatformId,
+} from "@/lib/platforms";
+import { PlatformPicker } from "@/components/smm/PlatformPicker";
 
 type Item = {
   id: string;
@@ -20,6 +27,7 @@ type Cat = { name: string; count: number };
 
 export function ServiceCatalog({ memberMode = false }: { memberMode?: boolean }) {
   const [q, setQ] = useState("");
+  const [platform, setPlatform] = useState<PlatformId | "">("");
   const [category, setCategory] = useState("");
   const [page, setPage] = useState(1);
   const [items, setItems] = useState<Item[]>([]);
@@ -29,16 +37,29 @@ export function ServiceCatalog({ memberMode = false }: { memberMode?: boolean })
   const [loading, setLoading] = useState(true);
   const [selected, setSelected] = useState<Item | null>(null);
 
+  const visibleCats = useMemo(
+    () => filterCategoriesForPlatform(categories, platform),
+    [categories, platform]
+  );
+
+  useEffect(() => {
+    if (category && platform && !visibleCats.some((c) => c.name === category)) {
+      setCategory("");
+      setPage(1);
+    }
+  }, [platform, visibleCats, category]);
+
   useEffect(() => {
     const t = setTimeout(async () => {
       setLoading(true);
       const sp = new URLSearchParams({
         page: String(page),
         pageSize: "36",
-        sync: page === 1 && !q && !category ? "1" : "0",
+        sync: page === 1 && !q && !category && !platform ? "1" : "0",
       });
       if (q.trim()) sp.set("q", q.trim());
       if (category) sp.set("category", category);
+      else if (platform) sp.set("platform", platform);
       const res = await fetch(`/api/smm/services?${sp}`);
       const data = await res.json();
       setItems(data.items || []);
@@ -48,12 +69,21 @@ export function ServiceCatalog({ memberMode = false }: { memberMode?: boolean })
       setLoading(false);
     }, 220);
     return () => clearTimeout(t);
-  }, [q, category, page]);
-
-  const topCats = useMemo(() => categories.slice(0, 40), [categories]);
+  }, [q, category, page, platform]);
 
   return (
     <div className="smm-catalog">
+      <PlatformPicker
+        categories={categories}
+        value={platform}
+        onChange={(id) => {
+          setPlatform(id);
+          setCategory("");
+          setPage(1);
+        }}
+        label="Platforma göre filtrele"
+      />
+
       <div className="smm-toolbar">
         <input
           value={q}
@@ -61,7 +91,7 @@ export function ServiceCatalog({ memberMode = false }: { memberMode?: boolean })
             setPage(1);
             setQ(e.target.value);
           }}
-          placeholder="Servis ara (Instagram, TikTok…)"
+          placeholder="Servis ara…"
           aria-label="Ara"
         />
         <select
@@ -72,8 +102,12 @@ export function ServiceCatalog({ memberMode = false }: { memberMode?: boolean })
           }}
           aria-label="Kategori"
         >
-          <option value="">Tüm kategoriler ({total})</option>
-          {topCats.map((c) => (
+          <option value="">
+            {platform
+              ? `${getPlatform(platform).name} kategorileri (${visibleCats.reduce((s, c) => s + c.count, 0)})`
+              : `Tüm kategoriler (${categories.reduce((s, c) => s + c.count, 0)})`}
+          </option>
+          {visibleCats.map((c) => (
             <option key={c.name} value={c.name}>
               {c.name} ({c.count})
             </option>
@@ -84,37 +118,44 @@ export function ServiceCatalog({ memberMode = false }: { memberMode?: boolean })
       {loading ? <p className="muted">Servisler yükleniyor…</p> : null}
 
       <div className="smm-grid">
-        {items.map((item) => (
-          <article key={item.id} className="smm-card">
-            <p className="smm-cat">{item.category}</p>
-            <h3>{item.name}</h3>
-            {item.description ? <p className="muted text-xs">{item.description}</p> : null}
-            <div className="smm-meta">
-              <span>#{item.providerServiceId}</span>
-              <span>
-                {item.min.toLocaleString("tr-TR")} – {item.max.toLocaleString("tr-TR")}
-              </span>
-            </div>
-            <p className="smm-price">
-              <strong>{formatMoney(item.sellRate)}</strong>
-              <span>/ 1000</span>
-            </p>
-            {memberMode ? (
-              <div className="flex flex-wrap gap-2">
-                <Link href={`/uye?service=${item.id}`} className="btn btn-primary">
-                  Seç / Sipariş
-                </Link>
-                <button type="button" className="btn btn-ghost" onClick={() => setSelected(item)}>
-                  Hızlı
-                </button>
+        {items.map((item) => {
+          const plat = getPlatform(detectPlatform(item.category || item.name));
+          return (
+            <article key={item.id} className="smm-card">
+              <div className="smm-card-top">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={plat.src} alt="" width={28} height={28} className="smm-card-plat" />
+                <p className="smm-cat">{item.category}</p>
               </div>
-            ) : (
-              <Link href="/uye/giris" className="btn btn-ghost">
-                Üye girişi ile al
-              </Link>
-            )}
-          </article>
-        ))}
+              <h3>{item.name}</h3>
+              {item.description ? <p className="muted text-xs">{item.description}</p> : null}
+              <div className="smm-meta">
+                <span>#{item.providerServiceId}</span>
+                <span>
+                  {item.min.toLocaleString("tr-TR")} – {item.max.toLocaleString("tr-TR")}
+                </span>
+              </div>
+              <p className="smm-price">
+                <strong>{formatMoney(item.sellRate)}</strong>
+                <span>/ 1000</span>
+              </p>
+              {memberMode ? (
+                <div className="flex flex-wrap gap-2">
+                  <Link href={`/uye?service=${item.id}`} className="btn btn-primary">
+                    Seç / Sipariş
+                  </Link>
+                  <button type="button" className="btn btn-ghost" onClick={() => setSelected(item)}>
+                    Hızlı
+                  </button>
+                </div>
+              ) : (
+                <Link href="/uye/giris" className="btn btn-ghost">
+                  Üye girişi ile al
+                </Link>
+              )}
+            </article>
+          );
+        })}
       </div>
 
       {!loading && !items.length ? (
@@ -131,7 +172,7 @@ export function ServiceCatalog({ memberMode = false }: { memberMode?: boolean })
           Önceki
         </button>
         <span className="muted">
-          {page} / {pages}
+          {page} / {pages} · {total.toLocaleString("tr-TR")} servis
         </span>
         <button
           type="button"

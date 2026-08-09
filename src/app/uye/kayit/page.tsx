@@ -4,8 +4,11 @@ export const metadata = { title: "Üye Ol" };
 
 export default function MemberRegisterPage() {
   return (
-    <div className="site-shell py-12 pb-24 max-w-lg mx-auto">
-      <MemberAuthForm mode="register" />
+    <div className="auth-shell">
+      <div className="auth-shell-bg" aria-hidden />
+      <div className="auth-shell-inner">
+        <MemberAuthForm mode="register" />
+      </div>
     </div>
   );
 }

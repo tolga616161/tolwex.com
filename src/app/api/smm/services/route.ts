@@ -2,9 +2,28 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { applyMarkup, smmConfig } from "@/lib/smm/client";
 import { ensureSmmCatalogFresh } from "@/lib/smm/sync";
+import {
+  detectPlatform,
+  filterCategoriesForPlatform,
+  type PlatformId,
+} from "@/lib/platforms";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 60;
+
+const PLATFORM_IDS = new Set([
+  "ig",
+  "tt",
+  "yt",
+  "tw",
+  "fb",
+  "sc",
+  "in",
+  "pt",
+  "tg",
+  "web",
+  "other",
+]);
 
 export async function GET(req: NextRequest) {
   let syncError: string | undefined;
@@ -18,12 +37,42 @@ export async function GET(req: NextRequest) {
   const sp = req.nextUrl.searchParams;
   const q = (sp.get("q") || "").trim();
   const category = (sp.get("category") || "").trim();
+  const platformRaw = (sp.get("platform") || "").trim();
+  const platform = (PLATFORM_IDS.has(platformRaw) ? platformRaw : "") as PlatformId | "";
   const page = Math.max(1, Number(sp.get("page") || 1));
   const pageSize = Math.min(500, Math.max(10, Number(sp.get("pageSize") || 40)));
 
+  const allCats = await prisma.smmService.groupBy({
+    by: ["category"],
+    where: { active: true },
+    _count: { _all: true },
+    orderBy: { category: "asc" },
+  });
+  const categoryRows = allCats.map((c) => ({
+    name: c.category,
+    count: c._count._all,
+  }));
+
+  let categoryFilter: string | { in: string[] } | undefined = category || undefined;
+  if (!category && platform) {
+    const names = filterCategoriesForPlatform(categoryRows, platform).map((c) => c.name);
+    if (platform === "other") {
+      // "other" = categories that don't match a known platform
+      categoryFilter = names.length ? { in: names } : { in: ["__none__"] };
+    } else if (names.length) {
+      categoryFilter = { in: names };
+    } else {
+      categoryFilter = { in: ["__none__"] };
+    }
+  }
+
   const where = {
     active: true,
-    ...(category ? { category } : {}),
+    ...(categoryFilter
+      ? typeof categoryFilter === "string"
+        ? { category: categoryFilter }
+        : { category: categoryFilter }
+      : {}),
     ...(q
       ? {
           OR: [
@@ -35,7 +84,7 @@ export async function GET(req: NextRequest) {
       : {}),
   };
 
-  const [total, items, categories] = await Promise.all([
+  const [total, items] = await Promise.all([
     prisma.smmService.count({ where }),
     prisma.smmService.findMany({
       where,
@@ -58,12 +107,6 @@ export async function GET(req: NextRequest) {
         cancel: true,
       },
     }),
-    prisma.smmService.groupBy({
-      by: ["category"],
-      where: { active: true },
-      _count: { _all: true },
-      orderBy: { category: "asc" },
-    }),
   ]);
 
   const markup = smmConfig().markupPercent;
@@ -74,12 +117,11 @@ export async function GET(req: NextRequest) {
     pages: Math.max(1, Math.ceil(total / pageSize)),
     markupPercent: markup,
     syncError,
-    categories: categories.map((c) => ({
-      name: c.category,
-      count: c._count._all,
-    })),
+    platform: platform || null,
+    categories: categoryRows,
     items: items.map((item) => ({
       ...item,
+      platform: detectPlatform(item.category || item.name),
       // Always expose clean 2-decimal sell price (+%50)
       sellRate: applyMarkup(item.rate, markup),
     })),
