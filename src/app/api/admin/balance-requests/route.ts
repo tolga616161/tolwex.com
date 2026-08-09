@@ -8,7 +8,6 @@ export const dynamic = "force-dynamic";
 
 export async function GET() {
   await ensureDbHydrated(true);
-  await pullPaymentsFromGist();
   const gate = await requireAdminApi();
   if (!gate.ok) return gate.response;
 
@@ -23,7 +22,6 @@ export async function GET() {
 
 export async function PATCH(request: NextRequest) {
   await ensureDbHydrated(true);
-  await pullPaymentsFromGist();
   const gate = await requireAdminApi();
   if (!gate.ok) return gate.response;
 
