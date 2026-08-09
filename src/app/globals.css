@@ -328,11 +328,10 @@ h3,
   position: relative;
   isolation: isolate;
   background:
-    radial-gradient(ellipse 80% 55% at 75% 12%, rgba(255, 0, 51, 0.1), transparent 52%),
-    radial-gradient(ellipse 90% 60% at 70% 20%, rgba(24, 119, 242, 0.14), transparent 55%),
-    radial-gradient(ellipse 70% 50% at 18% 78%, rgba(225, 48, 108, 0.14), transparent 50%),
-    radial-gradient(ellipse 50% 40% at 50% 100%, rgba(37, 244, 238, 0.06), transparent 45%),
-    #000;
+    radial-gradient(ellipse 70% 50% at 78% 18%, rgba(255, 255, 255, 0.05), transparent 55%),
+    radial-gradient(ellipse 60% 45% at 16% 72%, rgba(255, 255, 255, 0.035), transparent 50%),
+    radial-gradient(ellipse 50% 40% at 50% 100%, rgba(255, 255, 255, 0.025), transparent 45%),
+    #050505;
 }
 .page-3d-atmosphere {
   position: fixed;
@@ -340,7 +339,7 @@ h3,
   z-index: 0;
   pointer-events: none;
   overflow: hidden;
-  opacity: 1;
+  opacity: 0.72;
 }
 .network-scene {
   position: absolute;
@@ -354,8 +353,8 @@ h3,
   position: absolute;
   inset: 0;
   background:
-    radial-gradient(ellipse 90% 75% at 60% 35%, transparent 5%, rgba(0, 0, 0, 0.22) 55%, rgba(0, 0, 0, 0.72) 100%),
-    linear-gradient(180deg, rgba(0, 8, 20, 0.15), rgba(0, 0, 0, 0.55));
+    radial-gradient(ellipse 85% 70% at 55% 32%, transparent 8%, rgba(0, 0, 0, 0.35) 52%, rgba(0, 0, 0, 0.82) 100%),
+    linear-gradient(180deg, rgba(0, 0, 0, 0.28), rgba(0, 0, 0, 0.62));
   pointer-events: none;
 }
 .announce-banner,
