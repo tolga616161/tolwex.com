@@ -212,7 +212,12 @@ function OrderModal({ item, onClose }: { item: Item; onClose: () => void }) {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       credentials: "same-origin",
-      body: JSON.stringify({ serviceId: item.id, link: normalized, quantity }),
+      body: JSON.stringify({
+        serviceId: item.id,
+        providerServiceId: item.providerServiceId,
+        link: normalized,
+        quantity,
+      }),
     });
     const data = await res.json().catch(() => ({}));
     setBusy(false);

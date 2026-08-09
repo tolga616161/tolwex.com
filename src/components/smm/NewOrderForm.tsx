@@ -169,6 +169,7 @@ export function NewOrderForm() {
     try {
       const payload: Record<string, string | number> = {
         serviceId: selected.id,
+        providerServiceId: selected.providerServiceId,
         link: normalizeLink(link),
         quantity,
       };

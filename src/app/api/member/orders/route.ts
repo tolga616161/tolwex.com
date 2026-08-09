@@ -19,30 +19,39 @@ const optionalInt = (min: number, max: number) =>
     z.coerce.number().int().min(min).max(max).optional()
   );
 
-const schema = z.object({
-  serviceId: z.string().min(1, "Servis seçilmedi"),
-  link: z
-    .string()
-    .min(3, "Link gerekli")
-    .max(500)
-    .transform(normalizeLink)
-    .refine((v) => /^https?:\/\//i.test(v), "Geçersiz link"),
-  // Forms / JSON sometimes send quantity as string — coerce + floor
-  quantity: z.preprocess(
-    (v) => {
-      if (v === null || v === undefined || v === "") return v;
-      const n = Math.floor(Number(v));
-      return Number.isFinite(n) ? n : v;
-    },
-    z.number().int("Adet tam sayı olmalı").positive("Adet 0'dan büyük olmalı")
-  ),
-  comments: z.preprocess(
-    (v) => (v === null || v === undefined ? undefined : v),
-    z.string().max(5000).optional()
-  ),
-  dripfeedRuns: optionalInt(1, 1000),
-  dripfeedInterval: optionalInt(1, 1440),
-});
+const schema = z
+  .object({
+    serviceId: z.string().min(1).optional(),
+    providerServiceId: z.preprocess(
+      (v) => (v === null || v === "" || v === undefined ? undefined : v),
+      z.coerce.number().int().positive().optional()
+    ),
+    link: z
+      .string()
+      .min(3, "Link gerekli")
+      .max(500)
+      .transform(normalizeLink)
+      .refine((v) => /^https?:\/\//i.test(v), "Geçersiz link"),
+    // Forms / JSON sometimes send quantity as string — coerce + floor
+    quantity: z.preprocess(
+      (v) => {
+        if (v === null || v === undefined || v === "") return v;
+        const n = Math.floor(Number(v));
+        return Number.isFinite(n) ? n : v;
+      },
+      z.number().int("Adet tam sayı olmalı").positive("Adet 0'dan büyük olmalı")
+    ),
+    comments: z.preprocess(
+      (v) => (v === null || v === undefined ? undefined : v),
+      z.string().max(5000).optional()
+    ),
+    dripfeedRuns: optionalInt(1, 1000),
+    dripfeedInterval: optionalInt(1, 1440),
+  })
+  .refine((v) => Boolean(v.serviceId || v.providerServiceId), {
+    message: "Servis seçilmedi",
+    path: ["serviceId"],
+  });
 
 const massSchema = z.object({
   lines: z.string().min(3).max(20000),
@@ -144,6 +153,7 @@ export async function POST(req: NextRequest) {
     const order = await placeMemberOrder({
       memberId: member.id,
       serviceId: parsed.data.serviceId,
+      providerServiceId: parsed.data.providerServiceId,
       link: parsed.data.link,
       quantity: parsed.data.quantity,
       comments: parsed.data.comments,

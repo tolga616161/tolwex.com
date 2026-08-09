@@ -16,17 +16,37 @@ export type PlaceOrderRequest = {
   dripfeedInterval?: number;
 };
 
+async function findService(input: PlaceOrderRequest) {
+  // providerServiceId is stable across Vercel /tmp SQLite instances; cuid is not
+  if (input.providerServiceId != null && Number.isFinite(input.providerServiceId)) {
+    const byProvider = await prisma.smmService.findFirst({
+      where: { providerServiceId: input.providerServiceId, active: true },
+    });
+    if (byProvider) return byProvider;
+  }
+  if (input.serviceId) {
+    const byId = await prisma.smmService.findFirst({
+      where: { id: input.serviceId, active: true },
+    });
+    if (byId) return byId;
+    // Legacy: some clients may send provider id as serviceId string
+    const asNum = Number(input.serviceId);
+    if (Number.isFinite(asNum) && String(asNum) === input.serviceId.trim()) {
+      return prisma.smmService.findFirst({
+        where: { providerServiceId: asNum, active: true },
+      });
+    }
+  }
+  return null;
+}
+
 export async function placeMemberOrder(input: PlaceOrderRequest) {
   const member = await prisma.member.findFirst({
     where: { id: input.memberId, active: true },
   });
   if (!member) throw Object.assign(new Error("Üye bulunamadı"), { status: 401 });
 
-  let service = input.serviceId
-    ? await prisma.smmService.findFirst({ where: { id: input.serviceId, active: true } })
-    : await prisma.smmService.findFirst({
-        where: { providerServiceId: input.providerServiceId, active: true },
-      });
+  let service = await findService(input);
 
   if (!service) {
     try {
@@ -34,14 +54,19 @@ export async function placeMemberOrder(input: PlaceOrderRequest) {
     } catch {
       // ignore — will 404 below
     }
-    service = input.serviceId
-      ? await prisma.smmService.findFirst({ where: { id: input.serviceId, active: true } })
-      : await prisma.smmService.findFirst({
-          where: { providerServiceId: input.providerServiceId, active: true },
-        });
+    service = await findService(input);
   }
 
-  if (!service) throw Object.assign(new Error("Servis bulunamadı"), { status: 404 });
+  if (!service) {
+    throw Object.assign(
+      new Error(
+        input.providerServiceId
+          ? `Servis bulunamadı (API #${input.providerServiceId}) — katalog senkronu gerekli`
+          : "Servis bulunamadı — sayfayı yenileyip tekrar seç"
+      ),
+      { status: 404 }
+    );
+  }
 
   const runs = input.dripfeedRuns && input.dripfeedRuns > 1 ? input.dripfeedRuns : undefined;
   const interval =
