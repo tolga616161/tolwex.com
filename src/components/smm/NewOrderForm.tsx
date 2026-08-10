@@ -173,7 +173,13 @@ export function NewOrderForm() {
     }
     const quantity = Math.floor(Number(qty));
     if (!Number.isFinite(quantity) || quantity < 1) {
-      setErr("Geçerli bir adet gir");
+      setErr(
+        !Number.isFinite(quantity)
+          ? "Adet yalnızca sayı olmalı — harf kullanılamaz"
+          : quantity === 0
+            ? "Adet 0 olamaz"
+            : "Geçerli bir adet girin"
+      );
       return;
     }
     setBusy(true);
@@ -373,7 +379,18 @@ export function NewOrderForm() {
                   value={qty}
                   min={selected?.min || 1}
                   max={selected?.max || 1000000}
-                  onChange={(e) => setQty(Number(e.target.value))}
+                  onChange={(e) => {
+                    const v = e.target.value;
+                    if (v === "") {
+                      setQty(0);
+                      return;
+                    }
+                    if (/[^\d]/.test(v)) return;
+                    setQty(Math.floor(Number(v)) || 0);
+                  }}
+                  onBlur={() => {
+                    if (!Number.isFinite(qty) || qty < 1) setQty(selected?.min || 1);
+                  }}
                   required
                 />
               </label>

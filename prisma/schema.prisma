@@ -20,25 +20,36 @@ model AuditLog {
 }
 
 model Member {
-  id           String   @id @default(cuid())
-  username     String   @unique
-  email        String   @unique
-  passwordHash String
-  name         String   @default("")
-  phone        String   @default("")
-  balance      Float    @default(0)
-  spent        Float    @default(0)
-  apiKey       String   @unique @default(cuid())
-  active       Boolean  @default(true)
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  id             String    @id @default(cuid())
+  username       String    @unique
+  email          String    @unique
+  passwordHash   String
+  name           String    @default("")
+  phone          String    @default("")
+  balance        Float     @default(0)
+  spent          Float     @default(0)
+  apiKey         String    @unique @default(cuid())
+  active         Boolean   @default(true)
+  /** Registration IP — one account per IP for welcome campaign */
+  registerIp     String    @default("")
+  /** Existing members default verified; new signups set false until OTP */
+  emailVerified  Boolean   @default(true)
+  phoneVerified  Boolean   @default(true)
+  emailOtp       String    @default("")
+  phoneOtp       String    @default("")
+  otpExpiresAt   DateTime?
+  welcomeBonusAt DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
 
-  orders           SmmOrder[]
-  transactions     WalletTransaction[]
-  balanceRequests  BalanceRequest[]
-  tickets          SupportTicket[]
+  orders          SmmOrder[]
+  transactions    WalletTransaction[]
+  balanceRequests BalanceRequest[]
+  tickets         SupportTicket[]
 
   @@index([createdAt])
+  @@index([registerIp])
+  @@index([phone])
 }
 
 model SmmService {

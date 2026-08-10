@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/db";
+import { CAMPAIGN_ANNOUNCEMENT } from "@/lib/welcome-bonus";
 
 export type PanelSettings = {
   site_name: string;
@@ -19,6 +20,8 @@ export type PanelSettings = {
   /** hours when enabling (default 24) */
   maintenance_hours: string;
   maintenance_message: string;
+  /** "1" once R10 welcome campaign announcement applied */
+  welcome_campaign: string;
 };
 
 export const DEFAULT_SETTINGS: PanelSettings = {
@@ -26,9 +29,9 @@ export const DEFAULT_SETTINGS: PanelSettings = {
   support_whatsapp: process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || "905338236175",
   support_email: "destek@tolwex.com",
   min_deposit: "50",
-  announcement: "Hoş geldiniz — bakiye yükleyip anında sipariş verebilirsiniz.",
+  announcement: CAMPAIGN_ANNOUNCEMENT,
   announcement_enabled: "1",
-  announcement_style: "mono",
+  announcement_style: "accent",
   bank_name: "İş Bankası",
   bank_iban: "TR920006400000168090093279",
   bank_holder: "Tolga Mazlum",
@@ -36,6 +39,7 @@ export const DEFAULT_SETTINGS: PanelSettings = {
   maintenance_until: "",
   maintenance_hours: "24",
   maintenance_message: "Kısa bir bakımdayız. Çok yakında döneceğiz.",
+  welcome_campaign: "1",
 };
 
 export type MaintenancePublic = {
@@ -91,7 +95,20 @@ export async function readPanelSettings(): Promise<PanelSettings> {
   const row = await prisma.panelSetting.findUnique({ where: { id: "main" } });
   if (!row) return { ...DEFAULT_SETTINGS };
   try {
-    return { ...DEFAULT_SETTINGS, ...(JSON.parse(row.data) as Partial<PanelSettings>) };
+    const parsed = { ...DEFAULT_SETTINGS, ...(JSON.parse(row.data) as Partial<PanelSettings>) };
+    // One-shot: push R10 welcome campaign into duyuru if not applied yet
+    if (parsed.welcome_campaign !== "1") {
+      const next: PanelSettings = {
+        ...parsed,
+        announcement: CAMPAIGN_ANNOUNCEMENT,
+        announcement_enabled: "1",
+        announcement_style: "accent",
+        welcome_campaign: "1",
+      };
+      await writePanelSettings(next);
+      return next;
+    }
+    return parsed;
   } catch {
     return { ...DEFAULT_SETTINGS };
   }

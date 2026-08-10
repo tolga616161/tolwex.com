@@ -21,7 +21,8 @@ export function SiteFooter() {
   if (
     pathname.startsWith("/uye") &&
     !pathname.startsWith("/uye/giris") &&
-    !pathname.startsWith("/uye/kayit")
+    !pathname.startsWith("/uye/kayit") &&
+    !pathname.startsWith("/uye/dogrula")
   ) {
     return null;
   }

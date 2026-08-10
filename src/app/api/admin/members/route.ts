@@ -40,7 +40,7 @@ export async function PATCH(req: NextRequest) {
   const parsed = patchSchema.safeParse(await req.json().catch(() => null));
   if (!parsed.success) return NextResponse.json({ error: "Geçersiz" }, { status: 400 });
 
-  if (parsed.data.balanceDelta) {
+  if (parsed.data.balanceDelta !== undefined && parsed.data.balanceDelta !== 0) {
     await adjustBalance(
       parsed.data.id,
       parsed.data.balanceDelta,

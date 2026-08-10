@@ -5,6 +5,7 @@ import { writeAuditLog } from "@/lib/audit";
 import { ensureProviderService, ensureSmmCatalogFresh } from "@/lib/smm/sync";
 import { upsertOrderInGist } from "@/lib/orders-durable";
 import { pullMembersFromGist, upsertMemberInGist } from "@/lib/members-durable";
+import { parseOrderQuantity } from "@/lib/welcome-bonus";
 
 export type PlaceOrderRequest = {
   memberId: string;
@@ -103,10 +104,11 @@ export async function placeMemberOrder(input: PlaceOrderRequest) {
     throw Object.assign(new Error("Bu serviste drip-feed yok"), { status: 400 });
   }
 
-  const quantity = Math.floor(Number(input.quantity));
-  if (!Number.isFinite(quantity) || quantity < 1) {
-    throw Object.assign(new Error("Geçerli bir adet gir"), { status: 400 });
+  const qtyParsed = parseOrderQuantity(input.quantity);
+  if (!qtyParsed.ok) {
+    throw Object.assign(new Error(qtyParsed.error), { status: 400 });
   }
+  const quantity = qtyParsed.value;
 
   const billQty = runs ? runs * quantity : quantity;
   if (billQty < service.min || billQty > service.max) {

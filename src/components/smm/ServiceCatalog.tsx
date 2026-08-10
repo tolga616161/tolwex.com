@@ -220,7 +220,13 @@ function OrderModal({ item, onClose }: { item: Item; onClose: () => void }) {
     e.preventDefault();
     const quantity = Math.floor(Number(qty));
     if (!Number.isFinite(quantity) || quantity < 1) {
-      setMsg("Geçerli bir adet gir");
+      setMsg(
+        !Number.isFinite(quantity)
+          ? "Adet yalnızca sayı olmalı — harf kullanılamaz"
+          : quantity === 0
+            ? "Adet 0 olamaz"
+            : "Geçerli bir adet girin"
+      );
       return;
     }
     const normalized = /^https?:\/\//i.test(link.trim()) ? link.trim() : `https://${link.trim()}`;
@@ -271,8 +277,19 @@ function OrderModal({ item, onClose }: { item: Item; onClose: () => void }) {
             required
             min={item.min}
             max={item.max}
-            value={qty}
-            onChange={(e) => setQty(Number(e.target.value))}
+            value={qty || ""}
+            onChange={(e) => {
+              const v = e.target.value;
+              if (v === "") {
+                setQty(0);
+                return;
+              }
+              if (/[^\d]/.test(v)) return;
+              setQty(Math.floor(Number(v)) || 0);
+            }}
+            onBlur={() => {
+              if (!qty || qty < item.min) setQty(item.min);
+            }}
           />
         </label>
         <p className="smm-price">

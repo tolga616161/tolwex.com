@@ -5,7 +5,12 @@ import { usePathname } from "next/navigation";
 
 function hideOnPath(path: string) {
   if (path.startsWith("/admin61")) return true;
-  if (path.startsWith("/uye") && !path.startsWith("/uye/giris") && !path.startsWith("/uye/kayit")) {
+  if (
+    path.startsWith("/uye") &&
+    !path.startsWith("/uye/giris") &&
+    !path.startsWith("/uye/kayit") &&
+    !path.startsWith("/uye/dogrula")
+  ) {
     return true;
   }
   return false;

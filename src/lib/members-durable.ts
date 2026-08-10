@@ -15,6 +15,13 @@ export type DurableMember = {
   spent: number;
   apiKey: string;
   active: boolean;
+  registerIp?: string;
+  emailVerified?: boolean;
+  phoneVerified?: boolean;
+  emailOtp?: string;
+  phoneOtp?: string;
+  otpExpiresAt?: string | null;
+  welcomeBonusAt?: string | null;
   createdAt: string;
   updatedAt: string;
 };
@@ -148,6 +155,13 @@ function toDurable(m: {
   spent: number;
   apiKey: string;
   active: boolean;
+  registerIp?: string;
+  emailVerified?: boolean;
+  phoneVerified?: boolean;
+  emailOtp?: string;
+  phoneOtp?: string;
+  otpExpiresAt?: Date | null;
+  welcomeBonusAt?: Date | null;
   createdAt: Date;
   updatedAt: Date;
 }): DurableMember {
@@ -162,6 +176,13 @@ function toDurable(m: {
     spent: m.spent,
     apiKey: m.apiKey,
     active: m.active,
+    registerIp: m.registerIp || "",
+    emailVerified: m.emailVerified !== false,
+    phoneVerified: m.phoneVerified !== false,
+    emailOtp: m.emailOtp || "",
+    phoneOtp: m.phoneOtp || "",
+    otpExpiresAt: m.otpExpiresAt ? m.otpExpiresAt.toISOString() : null,
+    welcomeBonusAt: m.welcomeBonusAt ? m.welcomeBonusAt.toISOString() : null,
     createdAt: m.createdAt.toISOString(),
     updatedAt: m.updatedAt.toISOString(),
   };
@@ -179,6 +200,13 @@ export async function upsertMemberInGist(member: {
   spent: number;
   apiKey: string;
   active: boolean;
+  registerIp?: string;
+  emailVerified?: boolean;
+  phoneVerified?: boolean;
+  emailOtp?: string;
+  phoneOtp?: string;
+  otpExpiresAt?: Date | null;
+  welcomeBonusAt?: Date | null;
   createdAt: Date;
   updatedAt: Date;
 }): Promise<{ ok: boolean; count: number; error?: string }> {
@@ -272,6 +300,13 @@ export async function pullMembersFromGist(
             spent: Number(m.spent) || 0,
             apiKey: m.apiKey || randomKey(),
             active: m.active !== false,
+            registerIp: m.registerIp || "",
+            emailVerified: m.emailVerified !== false,
+            phoneVerified: m.phoneVerified !== false,
+            emailOtp: m.emailOtp || "",
+            phoneOtp: m.phoneOtp || "",
+            otpExpiresAt: m.otpExpiresAt ? new Date(m.otpExpiresAt) : null,
+            welcomeBonusAt: m.welcomeBonusAt ? new Date(m.welcomeBonusAt) : null,
             createdAt: m.createdAt ? new Date(m.createdAt) : new Date(),
             updatedAt: m.updatedAt ? new Date(m.updatedAt) : new Date(),
           },
@@ -285,6 +320,13 @@ export async function pullMembersFromGist(
             spent: Number(m.spent) || 0,
             apiKey: m.apiKey || randomKey(),
             active: m.active !== false,
+            registerIp: m.registerIp || "",
+            emailVerified: m.emailVerified !== false,
+            phoneVerified: m.phoneVerified !== false,
+            emailOtp: m.emailOtp || "",
+            phoneOtp: m.phoneOtp || "",
+            otpExpiresAt: m.otpExpiresAt ? new Date(m.otpExpiresAt) : null,
+            welcomeBonusAt: m.welcomeBonusAt ? new Date(m.welcomeBonusAt) : null,
             updatedAt: m.updatedAt ? new Date(m.updatedAt) : new Date(),
           },
         });

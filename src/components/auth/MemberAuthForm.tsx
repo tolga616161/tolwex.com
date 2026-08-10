@@ -30,6 +30,10 @@ export function MemberAuthForm({
         setError("Şifreler eşleşmiyor");
         return;
       }
+      if (mode === "register" && !phone.trim()) {
+        setError("Telefon zorunlu — 500₺ bonus için doğrulama gerekir");
+        return;
+      }
 
       const url = mode === "login" ? "/api/auth/login" : "/api/auth/register";
       const body =
@@ -61,7 +65,7 @@ export function MemberAuthForm({
             (res.status === 401
               ? "Kullanıcı adı/e-posta veya şifre hatalı"
               : res.status === 409
-                ? "Bu kullanıcı adı veya e-posta zaten kayıtlı"
+                ? "Bu bilgilerle kayıt zaten var"
                 : res.status >= 500
                   ? "Sunucu hatası — lütfen birkaç saniye sonra tekrar deneyin"
                   : "İşlem başarısız")) + detail
@@ -69,11 +73,39 @@ export function MemberAuthForm({
         return;
       }
 
-      const me = await fetch("/api/auth/me", { credentials: "same-origin" }).then((r) =>
-        r.ok ? r.json() : null
-      );
+      if (data.needsVerify || mode === "register") {
+        if (data.emailOtp && data.phoneOtp) {
+          try {
+            sessionStorage.setItem(
+              "tolwex_otp",
+              JSON.stringify({
+                emailOtp: data.emailOtp,
+                phoneOtp: data.phoneOtp,
+              })
+            );
+          } catch {
+            /* ignore */
+          }
+        }
+        window.location.href = "/uye/dogrula";
+        return;
+      }
+
+      // Login: confirm session with short retry (cold start)
+      let me: { member?: unknown; needsVerify?: boolean } | null = null;
+      for (let i = 0; i < 3; i++) {
+        me = await fetch("/api/auth/me", { credentials: "same-origin" }).then((r) =>
+          r.ok ? r.json() : null
+        );
+        if (me?.member) break;
+        await new Promise((r) => setTimeout(r, 400 * (i + 1)));
+      }
       if (!me?.member) {
         setError("Oturum açılamadı — sayfayı yenileyip tekrar deneyin");
+        return;
+      }
+      if (me.needsVerify) {
+        window.location.href = "/uye/dogrula";
         return;
       }
 
@@ -103,9 +135,17 @@ export function MemberAuthForm({
             ? "Panele hızlı giriş"
             : mode === "login"
               ? "Kullanıcı adın veya e-postan ile giriş yap"
-              : "Birkaç saniyede üye ol, sipariş vermeye başla"}
+              : "Yeni üyelere 500₺ bakiye bonusu — e-posta + telefon doğrulaması gerekir"}
         </p>
       </div>
+
+      {mode === "register" && !compact ? (
+        <div className="auth-bonus-banner" role="status">
+          <strong>R10 kampanyası:</strong> Doğrulama sonrası hesabına{" "}
+          <strong>500₺</strong> yüklenir. Aynı IP / telefon / e-posta ile ikinci hesap
+          açılamaz.
+        </div>
+      ) : null}
 
       <div className="member-auth-fields">
         {mode === "register" ? (
@@ -131,17 +171,24 @@ export function MemberAuthForm({
                 autoComplete="email"
               />
             </label>
+            <label className="member-field">
+              <span>Telefon (cep) *</span>
+              <input
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+                placeholder="05xx xxx xx xx"
+                required
+                inputMode="tel"
+                autoComplete="tel"
+              />
+            </label>
             {!compact ? (
-              <>
-                <label className="member-field">
-                  <span>Ad Soyad <em>(opsiyonel)</em></span>
-                  <input value={name} onChange={(e) => setName(e.target.value)} />
-                </label>
-                <label className="member-field">
-                  <span>Telefon <em>(opsiyonel)</em></span>
-                  <input value={phone} onChange={(e) => setPhone(e.target.value)} />
-                </label>
-              </>
+              <label className="member-field">
+                <span>
+                  Ad Soyad <em>(opsiyonel)</em>
+                </span>
+                <input value={name} onChange={(e) => setName(e.target.value)} />
+              </label>
             ) : null}
             <label className="member-field">
               <span>Şifre</span>

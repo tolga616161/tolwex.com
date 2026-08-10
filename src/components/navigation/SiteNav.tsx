@@ -19,7 +19,8 @@ const NAV = [
 
 function isPanelChrome(path: string) {
   if (path.startsWith("/admin61")) return true;
-  if (path.startsWith("/uye/giris") || path.startsWith("/uye/kayit")) return false;
+  if (path.startsWith("/uye/giris") || path.startsWith("/uye/kayit") || path.startsWith("/uye/dogrula"))
+    return false;
   if (path.startsWith("/uye")) return true;
   return false;
 }

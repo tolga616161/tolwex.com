@@ -37,29 +37,28 @@ export function smmConfig() {
   return {
     url: (process.env.SMM_API_URL || DEFAULT_URL).replace(/\/$/, ""),
     key: process.env.SMM_API_KEY || "",
-    markupPercent: Number(process.env.SMM_MARKUP_PERCENT || "50") || 50,
+    markupPercent: Number(process.env.SMM_MARKUP_PERCENT || "100") || 100,
   };
 }
 
 /**
  * Customer sell price = provider rate + markup%.
- * Default +50% on normal rates.
- * Ultra-cheap rates (≈0.10 band) get a lighter commission so 2-decimal
+ * Default +100% (2× cost) on normal rates.
+ * Ultra-cheap / fractional rates get a lighter commission so 2-decimal
  * rounding doesn't inflate tiny prices too much.
  * Floor 0.01 so listing never shows 0,00.
  */
-export function applyMarkup(rate: number, markupPercent = 50): number {
+export function applyMarkup(rate: number, markupPercent = 100): number {
   const raw = Number(rate) || 0;
   if (raw <= 0) return 0.01;
 
-  // Soften commission on very low provider rates
+  // Soften commission on very low provider rates (küsürat)
   let pct = markupPercent;
-  if (raw < 0.2) pct = Math.min(markupPercent, 20); // ~0.10 band
-  else if (raw < 0.5) pct = Math.min(markupPercent, 30);
-  else if (raw < 1) pct = Math.min(markupPercent, 40);
+  if (raw < 0.2) pct = Math.min(markupPercent, 25);
+  else if (raw < 0.5) pct = Math.min(markupPercent, 40);
+  else if (raw < 1) pct = Math.min(markupPercent, 55);
 
   const sell = raw * (1 + pct / 100);
-  // Cheap: round (avoid ceil jump). Normal: ceil to protect margin.
   const rounded =
     raw < 1
       ? Math.round(sell * 100) / 100

@@ -16,6 +16,31 @@ export async function requireMember() {
       where: { id: session.memberId, active: true },
     });
   }
+  if (!member && session.memberEmail) {
+    member = await prisma.member.findFirst({
+      where: { email: session.memberEmail, active: true },
+    });
+  }
+  if (!member) return null;
+  // Unverified accounts cannot use panel APIs
+  if (!member.emailVerified || !member.phoneVerified) return null;
+  return member;
+}
+
+/** Session member even if not verified (for OTP page). */
+export async function requireMemberPending() {
+  await ensureDbHydrated(false);
+  const session = await getSession();
+  if (!session.memberId) return null;
+  let member = await prisma.member.findFirst({
+    where: { id: session.memberId, active: true },
+  });
+  if (!member) {
+    await pullMembersFromGist({ force: true });
+    member = await prisma.member.findFirst({
+      where: { id: session.memberId, active: true },
+    });
+  }
   return member;
 }
 

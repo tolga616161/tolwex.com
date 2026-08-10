@@ -5,6 +5,8 @@ import { verifyPassword } from "@/lib/auth/password";
 import { getSession } from "@/lib/session";
 import { rateLimit } from "@/lib/rate-limit";
 import { writeAuditLog } from "@/lib/audit";
+import { pullMembersFromGist } from "@/lib/members-durable";
+import { clientIpFromHeaders } from "@/lib/welcome-bonus";
 
 const schema = z.object({
   login: z.string().min(1).max(160),
@@ -15,7 +17,7 @@ export async function POST(req: NextRequest) {
   try {
     await ensureDbHydrated(true);
 
-    const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "local";
+    const ip = clientIpFromHeaders(req.headers);
     const rl = rateLimit(`login:${ip}`, 20, 60_000);
     if (!rl.ok) {
       return NextResponse.json({ error: "Çok fazla istek" }, { status: 429 });
@@ -30,12 +32,24 @@ export async function POST(req: NextRequest) {
     }
 
     const key = parsed.data.login.toLowerCase();
-    const member = await prisma.member.findFirst({
+    let member = await prisma.member.findFirst({
       where: {
         OR: [{ email: key }, { username: key }],
         active: true,
       },
     });
+
+    // Cold instance: member may only exist in gist
+    if (!member) {
+      await pullMembersFromGist({ force: true });
+      member = await prisma.member.findFirst({
+        where: {
+          OR: [{ email: key }, { username: key }],
+          active: true,
+        },
+      });
+    }
+
     if (!member || !verifyPassword(parsed.data.password, member.passwordHash)) {
       return NextResponse.json(
         { error: "Kullanıcı adı/e-posta veya şifre hatalı" },
@@ -48,14 +62,18 @@ export async function POST(req: NextRequest) {
     session.memberEmail = member.email;
     await session.save();
 
+    const needsVerify = !member.emailVerified || !member.phoneVerified;
+
     await writeAuditLog({
       action: "member.login",
       actorType: "visitor",
       actorId: member.id,
+      metadata: { needsVerify },
     });
 
     return NextResponse.json({
       ok: true,
+      needsVerify,
       member: {
         id: member.id,
         email: member.email,

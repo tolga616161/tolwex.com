@@ -5,6 +5,7 @@ import { requireMember } from "@/lib/member";
 import { placeMemberOrder } from "@/lib/smm/place-order";
 import { rateLimit } from "@/lib/rate-limit";
 import { pullOrdersFromGist } from "@/lib/orders-durable";
+import { parseOrderQuantity } from "@/lib/welcome-bonus";
 
 function normalizeLink(raw: string): string {
   const t = raw.trim();
@@ -32,14 +33,13 @@ const schema = z
       .max(500)
       .transform(normalizeLink)
       .refine((v) => /^https?:\/\//i.test(v), "Geçersiz link"),
-    // Forms / JSON sometimes send quantity as string — coerce + floor
     quantity: z.preprocess(
       (v) => {
-        if (v === null || v === undefined || v === "") return v;
-        const n = Math.floor(Number(v));
-        return Number.isFinite(n) ? n : v;
+        if (v === null || v === undefined || v === "") return undefined;
+        const parsed = parseOrderQuantity(v);
+        return parsed.ok ? parsed.value : Number.NaN;
       },
-      z.number().int("Adet tam sayı olmalı").positive("Adet 0'dan büyük olmalı")
+      z.number().int("Adet tam sayı olmalı").positive("Adet 0 olamaz")
     ),
     comments: z.preprocess(
       (v) => (v === null || v === undefined ? undefined : v),
@@ -61,6 +61,10 @@ function zodErrorMessage(err: z.ZodError): string {
   const issue = err.issues[0];
   if (!issue) return "Geçersiz sipariş";
   const msg = issue.message;
+  if (issue.path.includes("quantity")) {
+    if (msg && !/^Invalid |^Expected |^Required$/i.test(msg)) return msg;
+    return "Adet yalnızca sayı olmalı — harf kullanılamaz / 0 olamaz";
+  }
   if (msg && !/^Invalid |^Expected |^Required$/i.test(msg)) return msg;
   const path = issue.path.join(".") || "form";
   return `Geçersiz sipariş (${path})`;
@@ -120,7 +124,12 @@ export async function POST(req: NextRequest) {
         continue;
       }
       const [sid, qtyStr, link] = parts;
-      const quantity = Number(qtyStr);
+      const qtyParsed = parseOrderQuantity(qtyStr);
+      if (!qtyParsed.ok) {
+        results.push({ ok: false, line, error: qtyParsed.error });
+        continue;
+      }
+      const quantity = qtyParsed.value;
       const asNum = Number(sid);
       try {
         const order = await placeMemberOrder({

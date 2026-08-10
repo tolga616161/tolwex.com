@@ -99,6 +99,7 @@ export async function PUT(request: NextRequest) {
       body.maintenance_message !== undefined
         ? String(body.maintenance_message).slice(0, 280)
         : current.maintenance_message || DEFAULT_SETTINGS.maintenance_message,
+    welcome_campaign: current.welcome_campaign || "1",
   };
 
   await writePanelSettings(next);
