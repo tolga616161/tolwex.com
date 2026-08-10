@@ -1,11 +1,20 @@
-/** Yeni üye hoş geldin bonusu (₺). */
-export const WELCOME_BONUS_TRY = 500;
+/** Kayıtta bakiye YOK — bonus yalnızca IBAN ile min tutar yatırılınca. */
+export const WELCOME_BONUS_TRY = 0;
 
-/** Havale/EFT (IBAN) admin onayı sonrası ekstra bakiye (₺). */
+/** Havale/EFT: en az bu tutar yatırılıp onaylanınca verilen hediye (₺). */
 export const IBAN_APPROVE_BONUS_TRY = 500;
 
+/** Bonus için minimum havale tutarı (₺). */
+export const IBAN_BONUS_MIN_DEPOSIT_TRY = 500;
+
 export const CAMPAIGN_ANNOUNCEMENT =
-  "R10 kampanyası: Yeni üyelere 500₺ doğrulama bonusu · Havale/EFT onayında ek +500₺ bakiye hediye!";
+  "Kampanya: IBAN ile en az 500₺ yatır, onayda +500₺ hediye bakiye kazan! (Kayıtta bakiye verilmez.)";
+
+export function ibanDepositBonus(amount: number): number {
+  const n = Number(amount) || 0;
+  if (n + 1e-9 < IBAN_BONUS_MIN_DEPOSIT_TRY) return 0;
+  return IBAN_APPROVE_BONUS_TRY;
+}
 
 export function normalizeTrPhone(raw: string): string | null {
   const digits = String(raw || "").replace(/\D/g, "");

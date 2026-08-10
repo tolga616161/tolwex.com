@@ -3,7 +3,7 @@ import { ensureDbHydrated, prisma } from "@/lib/db";
 import { requireAdminApi } from "@/lib/admin/auth";
 import { adjustBalance } from "@/lib/member";
 import { pullPaymentsFromGist, pushPaymentsToGist } from "@/lib/payments-durable";
-import { IBAN_APPROVE_BONUS_TRY } from "@/lib/welcome-bonus";
+import { IBAN_APPROVE_BONUS_TRY, ibanDepositBonus } from "@/lib/welcome-bonus";
 import { writeAuditLog } from "@/lib/audit";
 
 export const dynamic = "force-dynamic";
@@ -31,6 +31,7 @@ export async function GET() {
       ok: true,
       items,
       ibanApproveBonus: IBAN_APPROVE_BONUS_TRY,
+      ibanBonusMinDeposit: 500,
     });
   } catch (e) {
     const message = e instanceof Error ? e.message : "Liste alınamadı";
@@ -67,15 +68,19 @@ export async function PATCH(request: NextRequest) {
       return NextResponse.json({ error: "Talep zaten işlenmiş." }, { status: 400 });
     }
 
+    // Bonus: sadece IBAN ve en az 500₺ yatırıldıysa
     const ibanBonus =
       body.status === "approved" && isIbanMethod(before.method)
-        ? IBAN_APPROVE_BONUS_TRY
+        ? ibanDepositBonus(before.amount)
         : 0;
 
     const noteExtra =
-      ibanBonus > 0 ? ` · IBAN hediye +${ibanBonus}₺` : "";
+      ibanBonus > 0
+        ? ` · IBAN hediye +${ibanBonus}₺ (≥500₺ yatırım)`
+        : body.status === "approved" && isIbanMethod(before.method)
+          ? " · hediye yok (<500₺)"
+          : "";
 
-    // Atomic claim: only one worker can move pending → decided
     const claimed = await prisma.balanceRequest.updateMany({
       where: { id: body.id, status: "pending" },
       data: {
@@ -112,7 +117,7 @@ export async function PATCH(request: NextRequest) {
           item.memberId,
           ibanBonus,
           "bonus",
-          `IBAN ödeme hediyesi +${ibanBonus}₺`,
+          `IBAN 500₺+ yatırım hediyesi +${ibanBonus}₺`,
           `${item.id}:iban-bonus`
         );
         bonusCredited = ibanBonus;

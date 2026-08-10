@@ -92,8 +92,8 @@ export default function AdminBalanceRequestsPage() {
         <div>
           <h2>Ödeme Bildirimleri</h2>
           <p className="muted">
-            {pendingCount} bekleyen · {pendingTotal.toFixed(2)} ₺ — havale onayında tutar +{" "}
-            {ibanBonus}₺ hediye otomatik yüklenir
+            {pendingCount} bekleyen · {pendingTotal.toFixed(2)} ₺ — IBAN ≥500₺ onayında tutar +{" "}
+            {ibanBonus}₺ hediye (kayıtta bonus yok)
           </p>
         </div>
         <div className="flex gap-2">
@@ -164,8 +164,14 @@ export default function AdminBalanceRequestsPage() {
                     {(i.method === "bank_transfer" ||
                       i.method === "whatsapp" ||
                       i.method === "havale") &&
-                    i.status === "pending" ? (
+                    i.status === "pending" &&
+                    i.amount >= 500 ? (
                       <div className="muted text-xs">+{ibanBonus}₺ hediye</div>
+                    ) : (i.method === "bank_transfer" ||
+                        i.method === "whatsapp" ||
+                        i.method === "havale") &&
+                      i.status === "pending" ? (
+                      <div className="muted text-xs">hediye yok (&lt;500₺)</div>
                     ) : null}
                   </td>
                   <td>
@@ -193,7 +199,14 @@ export default function AdminBalanceRequestsPage() {
                           disabled={busy === i.id}
                           onClick={() => decide(i.id, "approved")}
                         >
-                          {busy === i.id ? "…" : `Onayla (+${ibanBonus}₺)`}
+                          {busy === i.id
+                            ? "…"
+                            : i.amount >= 500 &&
+                                (i.method === "bank_transfer" ||
+                                  i.method === "whatsapp" ||
+                                  i.method === "havale")
+                              ? `Onayla (+${ibanBonus}₺)`
+                              : "Onayla"}
                         </button>
                         <button
                           type="button"

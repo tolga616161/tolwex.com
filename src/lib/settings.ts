@@ -39,7 +39,7 @@ export const DEFAULT_SETTINGS: PanelSettings = {
   maintenance_until: "",
   maintenance_hours: "24",
   maintenance_message: "Kısa bir bakımdayız. Çok yakında döneceğiz.",
-  welcome_campaign: "2",
+  welcome_campaign: "3",
 };
 
 export type MaintenancePublic = {
@@ -97,13 +97,13 @@ export async function readPanelSettings(): Promise<PanelSettings> {
   try {
     const parsed = { ...DEFAULT_SETTINGS, ...(JSON.parse(row.data) as Partial<PanelSettings>) };
     // One-shot: push R10 / IBAN campaign into duyuru if version not applied
-    if (parsed.welcome_campaign !== "2") {
+    if (parsed.welcome_campaign !== "3") {
       const next: PanelSettings = {
         ...parsed,
         announcement: CAMPAIGN_ANNOUNCEMENT,
         announcement_enabled: "1",
         announcement_style: "accent",
-        welcome_campaign: "2",
+        welcome_campaign: "3",
       };
       await writePanelSettings(next);
       return next;

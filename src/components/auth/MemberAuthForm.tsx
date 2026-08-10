@@ -31,7 +31,7 @@ export function MemberAuthForm({
         return;
       }
       if (mode === "register" && !phone.trim()) {
-        setError("Telefon zorunlu — 500₺ bonus için doğrulama gerekir");
+        setError("Telefon zorunlu — doğrulama için gerekli");
         return;
       }
 
@@ -135,15 +135,15 @@ export function MemberAuthForm({
             ? "Panele hızlı giriş"
             : mode === "login"
               ? "Kullanıcı adın veya e-postan ile giriş yap"
-              : "Yeni üyelere 500₺ bakiye bonusu — e-posta + telefon doğrulaması gerekir"}
+              : "E-posta ve telefon doğrulaması ile hesap oluştur"}
         </p>
       </div>
 
       {mode === "register" && !compact ? (
         <div className="auth-bonus-banner" role="status">
-          <strong>R10 kampanyası:</strong> Doğrulama sonrası hesabına{" "}
-          <strong>500₺</strong> yüklenir. Aynı IP / telefon / e-posta ile ikinci hesap
-          açılamaz.
+          <strong>Kampanya:</strong> Kayıtta bakiye yok. IBAN ile en az{" "}
+          <strong>500₺</strong> yatırıp onaylanınca <strong>+500₺</strong> hediye
+          bakiyenize eklenir.
         </div>
       ) : null}
 

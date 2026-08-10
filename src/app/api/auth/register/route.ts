@@ -13,7 +13,6 @@ import {
   generateOtp,
   isIgnorableIp,
   normalizeTrPhone,
-  WELCOME_BONUS_TRY,
 } from "@/lib/welcome-bonus";
 
 const schema = z
@@ -130,17 +129,17 @@ export async function POST(req: NextRequest) {
 
     const mail = await sendOtpEmail({
       to: email,
-      subject: `TOLWEX doğrulama — ${WELCOME_BONUS_TRY}₺ bonus`,
+      subject: `TOLWEX hesap doğrulama`,
       text: [
         `Merhaba ${member.username},`,
         ``,
-        `TOLWEX yeni üye kampanyası: doğrulama sonrası ${WELCOME_BONUS_TRY}₺ bakiye bonusu hesabınıza yüklenecek.`,
+        `TOLWEX üyelik doğrulama kodlarınız:`,
         ``,
         `E-posta doğrulama kodu: ${emailOtp}`,
         `Telefon doğrulama kodu: ${phoneOtp}`,
         ``,
         `Kodlar 30 dakika geçerlidir.`,
-        `R10 ve yeni üyeler için geçerlidir — aynı IP'den ikinci hesap açılamaz.`,
+        `Bakiye hediyesi kayıtta verilmez — IBAN ile en az 500₺ yatırıp onaylandığında +500₺ hediye bakiyenize eklenir.`,
         ``,
         `https://tolwex.com/uye/dogrula`,
       ].join("\n"),
@@ -169,7 +168,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({
       ok: true,
       needsVerify: true,
-      welcomeBonus: WELCOME_BONUS_TRY,
+      welcomeBonus: 0,
       mailDelivered: mail.delivered,
       // If mail provider missing, show codes once so campaign still works
       ...(mail.delivered

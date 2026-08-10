@@ -4,13 +4,11 @@ import { prisma, ensureDbHydrated } from "@/lib/db";
 import { getSession } from "@/lib/session";
 import { rateLimit } from "@/lib/rate-limit";
 import { writeAuditLog } from "@/lib/audit";
-import { adjustBalance } from "@/lib/member";
 import { upsertMemberInGist } from "@/lib/members-durable";
 import { sendOtpEmail } from "@/lib/mail";
 import {
   clientIpFromHeaders,
   generateOtp,
-  WELCOME_BONUS_TRY,
 } from "@/lib/welcome-bonus";
 
 const verifySchema = z.object({
@@ -33,7 +31,6 @@ export async function GET() {
       phone: true,
       emailVerified: true,
       phoneVerified: true,
-      welcomeBonusAt: true,
       otpExpiresAt: true,
     },
   });
@@ -47,7 +44,7 @@ export async function GET() {
       phone: member.phone,
     },
     needsVerify,
-    welcomeBonus: WELCOME_BONUS_TRY,
+    welcomeBonus: 0,
     expired: member.otpExpiresAt ? member.otpExpiresAt.getTime() < Date.now() : false,
   });
 }
@@ -82,7 +79,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({
         ok: true,
         alreadyVerified: true,
-        welcomeBonus: member.welcomeBonusAt ? WELCOME_BONUS_TRY : 0,
+        welcomeBonus: 0,
       });
     }
 
@@ -102,7 +99,6 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    let credited = false;
     await prisma.member.update({
       where: { id: member.id },
       data: {
@@ -114,19 +110,7 @@ export async function POST(req: NextRequest) {
       },
     });
 
-    if (!member.welcomeBonusAt) {
-      await adjustBalance(
-        member.id,
-        WELCOME_BONUS_TRY,
-        "bonus",
-        `Hoş geldin bonusu — ${WELCOME_BONUS_TRY}₺ (R10 / yeni üye kampanyası)`
-      );
-      await prisma.member.update({
-        where: { id: member.id },
-        data: { welcomeBonusAt: new Date() },
-      });
-      credited = true;
-    }
+    // Kayıt/doğrulamada bakiye YOK — bonus sadece IBAN 500₺+ yatırınca
 
     const fresh = await prisma.member.findUnique({ where: { id: member.id } });
     if (fresh) await upsertMemberInGist(fresh);
@@ -135,13 +119,13 @@ export async function POST(req: NextRequest) {
       action: "member.verify",
       actorType: "visitor",
       actorId: member.id,
-      metadata: { welcomeBonus: credited ? WELCOME_BONUS_TRY : 0 },
+      metadata: { welcomeBonus: 0 },
     });
 
     return NextResponse.json({
       ok: true,
-      credited,
-      welcomeBonus: credited ? WELCOME_BONUS_TRY : 0,
+      credited: false,
+      welcomeBonus: 0,
       balance: fresh?.balance ?? member.balance,
     });
   } catch (e) {

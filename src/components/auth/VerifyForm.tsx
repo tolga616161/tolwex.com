@@ -11,7 +11,6 @@ export function VerifyForm() {
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [email, setEmail] = useState("");
-  const [bonus, setBonus] = useState(500);
 
   useEffect(() => {
     try {
@@ -37,7 +36,6 @@ export function VerifyForm() {
           return;
         }
         setEmail(d.member.email || "");
-        if (d.welcomeBonus) setBonus(Number(d.welcomeBonus) || 500);
         if (d.expired) setInfo("Kodların süresi dolmuş olabilir — yeni kod isteyin");
       })
       .catch(() => setError("Doğrulama durumu alınamadı"));
@@ -96,7 +94,7 @@ export function VerifyForm() {
         } catch {
           /* ignore */
         }
-        setInfo("Yeni kodlar oluşturuldu (e-posta gecikmesinde ekranda gösterildi)");
+        setInfo("Yeni kodlar oluşturuldu");
       } else {
         setInfo("Yeni kodlar e-postanıza gönderildi");
       }
@@ -118,7 +116,8 @@ export function VerifyForm() {
           {email ? (
             <>
               <strong>{email}</strong> adresine giden e-posta ve telefon kodlarını gir.
-              Doğrulama sonrası <strong>{bonus}₺</strong> bakiye bonusu yüklenir.
+              Doğrulama hesabını açar — bakiye hediyesi kayıtta yok; IBAN ile 500₺+
+              yatırınca +500₺ hediye gelir.
             </>
           ) : (
             <>E-posta ve telefon doğrulama kodlarını girin.</>
@@ -154,7 +153,7 @@ export function VerifyForm() {
       {error ? <p className="member-auth-error">{error}</p> : null}
 
       <button type="submit" className="btn btn-primary member-auth-submit" disabled={busy}>
-        {busy ? "…" : `Doğrula ve ${bonus}₺ kazan`}
+        {busy ? "…" : "Doğrula ve panele gir"}
       </button>
       <button
         type="button"

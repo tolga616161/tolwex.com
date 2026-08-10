@@ -5,7 +5,7 @@ import { requireMember } from "@/lib/member";
 import { rateLimit } from "@/lib/rate-limit";
 import { readPanelSettings } from "@/lib/settings";
 import { pushPaymentsToGist } from "@/lib/payments-durable";
-import { IBAN_APPROVE_BONUS_TRY } from "@/lib/welcome-bonus";
+import { IBAN_APPROVE_BONUS_TRY, IBAN_BONUS_MIN_DEPOSIT_TRY, ibanDepositBonus } from "@/lib/welcome-bonus";
 import { clientIpFromHeaders } from "@/lib/welcome-bonus";
 
 export const dynamic = "force-dynamic";
@@ -26,6 +26,7 @@ export async function GET() {
       balance: member.balance,
       requests,
       ibanApproveBonus: IBAN_APPROVE_BONUS_TRY,
+      ibanBonusMinDeposit: IBAN_BONUS_MIN_DEPOSIT_TRY,
     });
   } catch (e) {
     const message = e instanceof Error ? e.message : "Hata";
@@ -98,8 +99,12 @@ export async function POST(req: NextRequest) {
       ok: true,
       request: row,
       ibanApproveBonus: IBAN_APPROVE_BONUS_TRY,
+      ibanBonusMinDeposit: IBAN_BONUS_MIN_DEPOSIT_TRY,
       durable: Boolean(synced && "ok" in synced && synced.ok),
-      message: `Bildirim alındı. Onayda ${amount.toFixed(2)}₺ + ${IBAN_APPROVE_BONUS_TRY}₺ hediye yüklenecek.`,
+      message:
+        ibanDepositBonus(amount) > 0
+          ? `Bildirim alındı. Onayda ${amount.toFixed(2)}₺ + ${IBAN_APPROVE_BONUS_TRY}₺ hediye yüklenecek.`
+          : `Bildirim alındı. Onayda ${amount.toFixed(2)}₺ yüklenecek. (+${IBAN_APPROVE_BONUS_TRY}₺ hediye için en az ${IBAN_BONUS_MIN_DEPOSIT_TRY}₺ yatırın.)`,
     });
   } catch (e) {
     const message = e instanceof Error ? e.message : "Hata";

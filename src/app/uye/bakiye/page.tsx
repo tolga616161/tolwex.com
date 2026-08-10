@@ -322,7 +322,7 @@ function BalanceInner({
           <div className="sp-card bank-card mb-4">
             <div className="sp-card-head">
               <h2>Havale / EFT (IBAN)</h2>
-              <span className="pay-badge">+{ibanBonus}₺ hediye</span>
+              <span className="pay-badge">500₺+ → +500₺</span>
             </div>
             {bank ? (
               <div className="bank-rows" style={{ padding: "0 1.1rem 1.1rem" }}>
@@ -342,8 +342,8 @@ function BalanceInner({
                   </button>
                 </div>
                 <p className="muted text-xs mt-3">
-                  Açıklamaya <strong>{me.username}</strong> yazın · Min. {minDeposit} ₺ · Onayda
-                  yatırdığın tutar + <strong>{ibanBonus}₺</strong> hediye
+                  Açıklamaya <strong>{me.username}</strong> yazın · Min. {minDeposit} ₺ · En az{" "}
+                  <strong>500₺</strong> yatırıp onaylanınca <strong>+{ibanBonus}₺</strong> hediye
                 </p>
               </div>
             ) : (
@@ -356,8 +356,9 @@ function BalanceInner({
               <h2>Havale bildirimi</h2>
             </div>
             <p className="muted text-sm" style={{ marginTop: "-0.35rem" }}>
-              Transferden sonra tutarı bildir. Admin onaylayınca{" "}
-              <strong>yatırdığın tutar + {ibanBonus}₺</strong> bakiyene eklenir.
+              Transferden sonra tutarı bildir. <strong>En az 500₺</strong> yatırıp admin
+              onaylayınca yatırdığın tutar + <strong>{ibanBonus}₺ hediye</strong> eklenir.
+              Daha düşük tutarda sadece yatırdığın kadar yüklenir.
             </p>
               <label>
                 <span>Yatırılan tutar (₺)</span>
