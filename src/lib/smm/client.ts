@@ -37,26 +37,26 @@ export function smmConfig() {
   return {
     url: (process.env.SMM_API_URL || DEFAULT_URL).replace(/\/$/, ""),
     key: process.env.SMM_API_KEY || "",
-    markupPercent: Number(process.env.SMM_MARKUP_PERCENT || "100") || 100,
+    markupPercent: Number(process.env.SMM_MARKUP_PERCENT || "125") || 125,
   };
 }
 
 /**
  * Customer sell price = provider rate + markup%.
- * Default +100% (2× cost) on normal rates.
- * Ultra-cheap / fractional rates get a lighter commission so 2-decimal
- * rounding doesn't inflate tiny prices too much.
+ * Default +125% (2.25× cost) so panel stays profitable vs API cost.
+ * Ultra-cheap fractional rates get a slightly softer band (still strong margin)
+ * so 2-decimal rounding doesn't explode tiny unit prices.
  * Floor 0.01 so listing never shows 0,00.
  */
-export function applyMarkup(rate: number, markupPercent = 100): number {
+export function applyMarkup(rate: number, markupPercent = 125): number {
   const raw = Number(rate) || 0;
   if (raw <= 0) return 0.01;
 
-  // Soften commission on very low provider rates (küsürat)
+  // Soften a bit on very low provider rates — keep ≥ ~half of target markup
   let pct = markupPercent;
-  if (raw < 0.2) pct = Math.min(markupPercent, 25);
-  else if (raw < 0.5) pct = Math.min(markupPercent, 40);
-  else if (raw < 1) pct = Math.min(markupPercent, 55);
+  if (raw < 0.2) pct = Math.min(markupPercent, Math.max(70, Math.round(markupPercent * 0.55)));
+  else if (raw < 0.5) pct = Math.min(markupPercent, Math.max(90, Math.round(markupPercent * 0.75)));
+  else if (raw < 1) pct = Math.min(markupPercent, Math.max(110, Math.round(markupPercent * 0.9)));
 
   const sell = raw * (1 + pct / 100);
   const rounded =
