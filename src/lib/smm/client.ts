@@ -34,10 +34,16 @@ export function serviceDescriptionFromRaw(s: SmmRawService): string {
 const DEFAULT_URL = "https://smmapi.com/api/v2";
 
 export function smmConfig() {
+  const envPct = Number(process.env.SMM_MARKUP_PERCENT);
+  // En az %125 kâr — eski Vercel env (50/100) fiyatı düşüremesin
+  const markupPercent = Math.max(
+    125,
+    Number.isFinite(envPct) && envPct > 0 ? envPct : 125
+  );
   return {
     url: (process.env.SMM_API_URL || DEFAULT_URL).replace(/\/$/, ""),
     key: process.env.SMM_API_KEY || "",
-    markupPercent: Number(process.env.SMM_MARKUP_PERCENT || "125") || 125,
+    markupPercent,
   };
 }
 
