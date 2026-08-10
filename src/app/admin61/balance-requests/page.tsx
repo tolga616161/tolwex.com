@@ -10,7 +10,13 @@ type Item = {
   status: string;
   adminNote: string;
   createdAt: string;
-  member: { username: string; email: string };
+  member: {
+    username: string;
+    email: string;
+    phone?: string;
+    registerIp?: string;
+    welcomeBonusAt?: string | null;
+  };
 };
 
 type Bank = { name: string; iban: string; iban_formatted: string; holder: string };
@@ -158,6 +164,17 @@ export default function AdminBalanceRequestsPage() {
                   <td>
                     <div>{i.member?.username || "—"}</div>
                     <div className="muted text-xs">{i.member?.email}</div>
+                    {i.member?.phone ? (
+                      <div className="muted text-xs">Tel: {i.member.phone}</div>
+                    ) : null}
+                    {i.member?.registerIp ? (
+                      <div className="muted text-xs">IP: {i.member.registerIp}</div>
+                    ) : null}
+                    {i.member?.welcomeBonusAt ? (
+                      <div className="text-xs" style={{ color: "#6ee7a8" }}>
+                        IBAN hediye alındı
+                      </div>
+                    ) : null}
                   </td>
                   <td>
                     <strong>{i.amount.toFixed(2)} ₺</strong>
