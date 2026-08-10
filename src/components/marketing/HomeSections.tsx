@@ -1,7 +1,7 @@
 export function HowItWorksSection() {
   const steps = [
     { n: "01", title: "ÜYE OL", text: "Kullanıcı adı ve şifre ile panel hesabı aç." },
-    { n: "02", title: "BAKİYE YÜKLE", text: "İş Bankası’na havale yap, ödeme bildir — onaylanınca bakiye yüklenir." },
+    { n: "02", title: "BAKİYE YÜKLE", text: "Kart ile anında veya havale ile yükle — onaylanınca bakiyen hazır." },
     { n: "03", title: "SİPARİŞ VER", text: "Tekli / toplu sipariş veya API ile gönder." },
     { n: "04", title: "TAKİP ET", text: "Siparişlerim ve dashboard’dan durumu izle." },
   ];
