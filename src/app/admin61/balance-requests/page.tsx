@@ -28,6 +28,7 @@ export default function AdminBalanceRequestsPage() {
   const [busy, setBusy] = useState<string | null>(null);
   const [msg, setMsg] = useState<string | null>(null);
   const [err, setErr] = useState<string | null>(null);
+  const [ibanBonus, setIbanBonus] = useState(500);
 
   async function load() {
     const [d, s] = await Promise.all([
@@ -35,6 +36,7 @@ export default function AdminBalanceRequestsPage() {
       fetch("/api/settings/public").then((r) => (r.ok ? r.json() : null)),
     ]);
     setItems(d?.items || []);
+    if (typeof d?.ibanApproveBonus === "number") setIbanBonus(d.ibanApproveBonus);
     if (s?.bank) setBank(s.bank);
   }
 
@@ -69,7 +71,13 @@ export default function AdminBalanceRequestsPage() {
         setErr(data.error || "İşlem başarısız");
         return;
       }
-      setMsg(status === "approved" ? "Ödeme onaylandı — bakiye yüklendi" : "Bildirim reddedildi");
+      setMsg(
+        status === "approved"
+          ? data.ibanBonus
+            ? `Onaylandı — ${Number(data.totalCredited || 0).toFixed(2)}₺ yüklendi (yatırım + ${Number(data.ibanBonus).toFixed(0)}₺ hediye)`
+            : "Ödeme onaylandı — bakiye yüklendi"
+          : "Bildirim reddedildi"
+      );
       await load();
     } catch {
       setErr("Ağ hatası");
@@ -84,7 +92,8 @@ export default function AdminBalanceRequestsPage() {
         <div>
           <h2>Ödeme Bildirimleri</h2>
           <p className="muted">
-            {pendingCount} bekleyen · {pendingTotal.toFixed(2)} ₺ — onayda bakiye otomatik yüklenir
+            {pendingCount} bekleyen · {pendingTotal.toFixed(2)} ₺ — havale onayında tutar +{" "}
+            {ibanBonus}₺ hediye otomatik yüklenir
           </p>
         </div>
         <div className="flex gap-2">
@@ -152,8 +161,20 @@ export default function AdminBalanceRequestsPage() {
                   </td>
                   <td>
                     <strong>{i.amount.toFixed(2)} ₺</strong>
+                    {(i.method === "bank_transfer" ||
+                      i.method === "whatsapp" ||
+                      i.method === "havale") &&
+                    i.status === "pending" ? (
+                      <div className="muted text-xs">+{ibanBonus}₺ hediye</div>
+                    ) : null}
                   </td>
-                  <td>{i.method === "bank_transfer" ? "Havale/EFT" : i.method}</td>
+                  <td>
+                    {i.method === "bank_transfer"
+                      ? "Havale/EFT"
+                      : i.method === "shopier"
+                        ? "Kart"
+                        : i.method}
+                  </td>
                   <td className="max-w-xs">{i.note || "—"}</td>
                   <td className="muted text-xs">
                     {new Date(i.createdAt).toLocaleString("tr-TR")}
@@ -172,7 +193,7 @@ export default function AdminBalanceRequestsPage() {
                           disabled={busy === i.id}
                           onClick={() => decide(i.id, "approved")}
                         >
-                          {busy === i.id ? "…" : "Onayla"}
+                          {busy === i.id ? "…" : `Onayla (+${ibanBonus}₺)`}
                         </button>
                         <button
                           type="button"

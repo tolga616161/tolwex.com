@@ -1,8 +1,11 @@
 /** Yeni üye hoş geldin bonusu (₺). */
 export const WELCOME_BONUS_TRY = 500;
 
+/** Havale/EFT (IBAN) admin onayı sonrası ekstra bakiye (₺). */
+export const IBAN_APPROVE_BONUS_TRY = 500;
+
 export const CAMPAIGN_ANNOUNCEMENT =
-  "R10'dan gelen herkese özel: Yeni üyelere 500₺ bakiye bonusu! E-posta + telefon doğrulaması ile tek seferlik — aynı IP'den tekrar üye olunamaz.";
+  "R10 kampanyası: Yeni üyelere 500₺ doğrulama bonusu · Havale/EFT onayında ek +500₺ bakiye hediye!";
 
 export function normalizeTrPhone(raw: string): string | null {
   const digits = String(raw || "").replace(/\D/g, "");

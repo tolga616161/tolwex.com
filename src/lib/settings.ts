@@ -20,7 +20,7 @@ export type PanelSettings = {
   /** hours when enabling (default 24) */
   maintenance_hours: string;
   maintenance_message: string;
-  /** "1" once R10 welcome campaign announcement applied */
+  /** "1" / "2" … once campaign announcement applied */
   welcome_campaign: string;
 };
 
@@ -39,7 +39,7 @@ export const DEFAULT_SETTINGS: PanelSettings = {
   maintenance_until: "",
   maintenance_hours: "24",
   maintenance_message: "Kısa bir bakımdayız. Çok yakında döneceğiz.",
-  welcome_campaign: "1",
+  welcome_campaign: "2",
 };
 
 export type MaintenancePublic = {
@@ -96,14 +96,14 @@ export async function readPanelSettings(): Promise<PanelSettings> {
   if (!row) return { ...DEFAULT_SETTINGS };
   try {
     const parsed = { ...DEFAULT_SETTINGS, ...(JSON.parse(row.data) as Partial<PanelSettings>) };
-    // One-shot: push R10 welcome campaign into duyuru if not applied yet
-    if (parsed.welcome_campaign !== "1") {
+    // One-shot: push R10 / IBAN campaign into duyuru if version not applied
+    if (parsed.welcome_campaign !== "2") {
       const next: PanelSettings = {
         ...parsed,
         announcement: CAMPAIGN_ANNOUNCEMENT,
         announcement_enabled: "1",
         announcement_style: "accent",
-        welcome_campaign: "1",
+        welcome_campaign: "2",
       };
       await writePanelSettings(next);
       return next;

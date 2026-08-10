@@ -62,7 +62,7 @@ function BalanceInner({
   const [shopierBusy, setShopierBusy] = useState(false);
   const [couponBusy, setCouponBusy] = useState(false);
   const [shopierEnabled, setShopierEnabled] = useState(false);
-  const [showBankHelp, setShowBankHelp] = useState(false);
+  const [ibanBonus, setIbanBonus] = useState(500);
 
   const loadRequests = useCallback(async () => {
     const res = await fetch("/api/member/balance", { credentials: "same-origin" });
@@ -73,6 +73,7 @@ function BalanceInner({
     const data = await res.json().catch(() => null);
     if (data?.requests) setRequests(data.requests);
     if (typeof data?.balance === "number") setBalance(data.balance);
+    if (typeof data?.ibanApproveBonus === "number") setIbanBonus(data.ibanApproveBonus);
   }, [router, setBalance]);
 
   useEffect(() => {
@@ -147,7 +148,10 @@ function BalanceInner({
         setErr(data.error || "Ödeme bildirimi oluşturulamadı");
         return;
       }
-      setMsg("Ödeme bildiriminiz alındı. Onaylanınca bakiyeniz yüklenir.");
+      setMsg(
+        data.message ||
+          `Ödeme bildiriminiz alındı. Onayda ${value.toFixed(2)}₺ + ${ibanBonus}₺ hediye yüklenecek.`
+      );
       setNote("");
       setSenderName("");
       await loadRequests();
@@ -317,14 +321,8 @@ function BalanceInner({
 
           <div className="sp-card bank-card mb-4">
             <div className="sp-card-head">
-              <h2>Havale / EFT</h2>
-              <button
-                type="button"
-                className="btn btn-ghost"
-                onClick={() => setShowBankHelp((v) => !v)}
-              >
-                {showBankHelp ? "Gizle" : "Detay"}
-              </button>
+              <h2>Havale / EFT (IBAN)</h2>
+              <span className="pay-badge">+{ibanBonus}₺ hediye</span>
             </div>
             {bank ? (
               <div className="bank-rows" style={{ padding: "0 1.1rem 1.1rem" }}>
@@ -344,7 +342,8 @@ function BalanceInner({
                   </button>
                 </div>
                 <p className="muted text-xs mt-3">
-                  Açıklamaya <strong>{me.username}</strong> yazın · Min. {minDeposit} ₺
+                  Açıklamaya <strong>{me.username}</strong> yazın · Min. {minDeposit} ₺ · Onayda
+                  yatırdığın tutar + <strong>{ibanBonus}₺</strong> hediye
                 </p>
               </div>
             ) : (
@@ -352,14 +351,14 @@ function BalanceInner({
             )}
           </div>
 
-          {(showBankHelp || !shopierEnabled) && (
-            <form onSubmit={submitRequest} className="sp-card sp-form mb-4">
-              <div className="sp-card-head">
-                <h2>Havale bildirimi</h2>
-              </div>
-              <p className="muted text-sm" style={{ marginTop: "-0.35rem" }}>
-                Transferden sonra tutarı bildirin — onayda bakiye yüklenir.
-              </p>
+          <form onSubmit={submitRequest} className="sp-card sp-form mb-4">
+            <div className="sp-card-head">
+              <h2>Havale bildirimi</h2>
+            </div>
+            <p className="muted text-sm" style={{ marginTop: "-0.35rem" }}>
+              Transferden sonra tutarı bildir. Admin onaylayınca{" "}
+              <strong>yatırdığın tutar + {ibanBonus}₺</strong> bakiyene eklenir.
+            </p>
               <label>
                 <span>Yatırılan tutar (₺)</span>
                 <input
@@ -391,8 +390,7 @@ function BalanceInner({
                   WhatsApp
                 </a>
               </div>
-            </form>
-          )}
+          </form>
 
           <form onSubmit={redeemCoupon} className="sp-card sp-form">
             <div className="sp-card-head">
