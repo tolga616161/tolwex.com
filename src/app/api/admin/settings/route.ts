@@ -9,6 +9,9 @@ import {
   writePanelSettings,
   type PanelSettings,
 } from "@/lib/settings";
+import { shopierConfigured, shopierWebsiteIndex } from "@/lib/shopier";
+import { appBaseUrl } from "@/lib/session";
+import { siteUrl } from "@/lib/seo";
 
 export const dynamic = "force-dynamic";
 
@@ -19,6 +22,7 @@ export async function GET() {
   let settings = await readPanelSettings();
   settings = await clearExpiredMaintenance(settings);
   const cfg = smmConfig();
+  const base = siteUrl() || appBaseUrl();
 
   return NextResponse.json({
     ok: true,
@@ -27,6 +31,9 @@ export async function GET() {
       markup_percent: cfg.markupPercent,
       smm_api_url: cfg.url,
       smm_api_configured: Boolean(cfg.key),
+      shopier_configured: shopierConfigured(),
+      shopier_website_index: shopierWebsiteIndex(),
+      shopier_callback_url: `${base}/api/member/shopier/callback`,
     },
     maintenance: resolveMaintenance(settings),
   });

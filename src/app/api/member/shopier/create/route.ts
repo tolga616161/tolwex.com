@@ -9,18 +9,26 @@ import { appBaseUrl } from "@/lib/session";
 import {
   buildShopierPayment,
   shopierConfigured,
+  shopierPhone,
   splitBuyerName,
 } from "@/lib/shopier";
+import { clientIpFromHeaders } from "@/lib/welcome-bonus";
 
 const schema = z.object({
-  amount: z.number().positive().max(100000),
+  amount: z.preprocess(
+    (v) => (typeof v === "string" ? Number(v.replace(",", ".")) : v),
+    z.number().positive().max(100000)
+  ),
 });
 
 export async function POST(req: NextRequest) {
   try {
     if (!shopierConfigured()) {
       return NextResponse.json(
-        { error: "Shopier henüz yapılandırılmadı. Admin API anahtarlarını eklemeli." },
+        {
+          error:
+            "Kartlı ödeme şu an kapalı. Havale/EFT kullanın veya destek ile iletişime geçin.",
+        },
         { status: 503 }
       );
     }
@@ -28,30 +36,48 @@ export async function POST(req: NextRequest) {
     const member = await requireMember();
     if (!member) return NextResponse.json({ error: "Giriş gerekli" }, { status: 401 });
 
-    const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "local";
+    const ip = clientIpFromHeaders(req.headers);
     const rl = rateLimit(`shopier:${member.id}:${ip}`, 8, 60_000);
-    if (!rl.ok) return NextResponse.json({ error: "Çok fazla istek" }, { status: 429 });
+    if (!rl.ok) return NextResponse.json({ error: "Çok fazla istek — biraz bekleyin" }, { status: 429 });
 
     const parsed = schema.safeParse(await req.json().catch(() => null));
     if (!parsed.success) {
       return NextResponse.json({ error: "Geçersiz tutar" }, { status: 400 });
     }
 
+    const amount = Math.round(parsed.data.amount * 100) / 100;
     const settings = await readPanelSettings();
     const minDeposit = Number(settings.min_deposit) || 50;
-    if (parsed.data.amount < minDeposit) {
+    if (amount < minDeposit) {
       return NextResponse.json(
         { error: `Minimum yükleme tutarı ${minDeposit} ₺` },
         { status: 400 }
       );
     }
 
+    // Drop stale pending Shopier checkouts (>2h) so members aren't blocked
+    const staleBefore = new Date(Date.now() - 2 * 60 * 60 * 1000);
+    await prisma.balanceRequest
+      .updateMany({
+        where: {
+          memberId: member.id,
+          method: "shopier",
+          status: "pending",
+          createdAt: { lt: staleBefore },
+        },
+        data: { status: "rejected", adminNote: "Shopier zaman aşımı" },
+      })
+      .catch(() => null);
+
     const pendingShopier = await prisma.balanceRequest.count({
       where: { memberId: member.id, status: "pending", method: "shopier" },
     });
-    if (pendingShopier >= 5) {
+    if (pendingShopier >= 3) {
       return NextResponse.json(
-        { error: "Bekleyen çok fazla Shopier işlemi var. Öncekilerin tamamlanmasını bekleyin." },
+        {
+          error:
+            "Bekleyen kart ödemeniz var. Önceki işlemi tamamlayın veya 2 saat sonra tekrar deneyin.",
+        },
         { status: 400 }
       );
     }
@@ -59,27 +85,27 @@ export async function POST(req: NextRequest) {
     const row = await prisma.balanceRequest.create({
       data: {
         memberId: member.id,
-        amount: parsed.data.amount,
+        amount,
         method: "shopier",
-        note: "Shopier ödeme başlatıldı",
+        note: "Kart ile ödeme başlatıldı",
         status: "pending",
       },
     });
-    await pushPaymentsToGist();
+    await pushPaymentsToGist().catch(() => null);
 
     const base = appBaseUrl(req);
     const { firstName, lastName } = splitBuyerName(member.name, member.username);
     const payment = buildShopierPayment({
       orderId: row.id,
-      amount: parsed.data.amount,
-      productName: `TOLWEX Bakiye ${parsed.data.amount.toFixed(2)} TL`,
+      amount,
+      productName: `TOLWEX Panel Bakiye ${amount.toFixed(2)} TL`,
       callbackUrl: `${base}/api/member/shopier/callback`,
       buyer: {
         id: member.id,
         firstName,
         lastName,
         email: member.email,
-        phone: member.phone || "05000000000",
+        phone: shopierPhone(member.phone),
       },
     });
 
@@ -93,7 +119,7 @@ export async function POST(req: NextRequest) {
     const message = e instanceof Error ? e.message : "Hata";
     console.error("shopier_create_failed", message);
     return NextResponse.json(
-      { error: "Shopier ödeme başlatılamadı", detail: message },
+      { error: "Ödeme başlatılamadı. Biraz sonra tekrar deneyin.", detail: message },
       { status: 500 }
     );
   }

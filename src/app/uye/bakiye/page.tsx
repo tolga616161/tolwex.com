@@ -23,9 +23,11 @@ const STATUS_TR: Record<string, string> = {
 
 const METHOD_TR: Record<string, string> = {
   bank_transfer: "Havale",
-  shopier: "Shopier",
+  shopier: "Kart",
   whatsapp: "WhatsApp",
 };
+
+const PRESETS = [100, 250, 500, 1000, 2500];
 
 export default function MemberBalancePage() {
   return (
@@ -39,7 +41,7 @@ function BalanceInner({
   api,
 }: {
   api: {
-    me: { username: string; email: string; balance: number };
+    me: { username: string; email: string; balance: number; phone?: string };
     refreshMe: () => Promise<void>;
     setBalance: (n: number) => void;
   };
@@ -60,6 +62,7 @@ function BalanceInner({
   const [shopierBusy, setShopierBusy] = useState(false);
   const [couponBusy, setCouponBusy] = useState(false);
   const [shopierEnabled, setShopierEnabled] = useState(false);
+  const [showBankHelp, setShowBankHelp] = useState(false);
 
   const loadRequests = useCallback(async () => {
     const res = await fetch("/api/member/balance", { credentials: "same-origin" });
@@ -82,12 +85,20 @@ function BalanceInner({
       });
     loadRequests();
     const q = new URLSearchParams(window.location.search);
-    const shopier = q.get("shopier");
-    if (shopier === "ok") {
-      setMsg("Shopier ödemesi alındı — bakiyeniz güncellendi.");
+    const pay = q.get("pay") || q.get("shopier");
+    if (pay === "ok") {
+      setMsg("Ödeme alındı — bakiyeniz güncellendi.");
       refreshMe().catch(() => undefined);
-    } else if (shopier === "fail") {
-      setErr("Shopier ödemesi tamamlanamadı veya iptal edildi.");
+      loadRequests();
+      window.history.replaceState({}, "", "/uye/bakiye");
+    } else if (pay === "fail") {
+      setErr("Ödeme tamamlanamadı veya iptal edildi. Tekrar deneyebilirsiniz.");
+      window.history.replaceState({}, "", "/uye/bakiye");
+    } else if (pay === "return") {
+      setMsg("Ödeme sayfasından döndünüz. Bakiye birkaç saniye içinde güncellenir.");
+      refreshMe().catch(() => undefined);
+      loadRequests();
+      window.history.replaceState({}, "", "/uye/bakiye");
     }
   }, [loadRequests, refreshMe]);
 
@@ -136,7 +147,7 @@ function BalanceInner({
         setErr(data.error || "Ödeme bildirimi oluşturulamadı");
         return;
       }
-      setMsg("Ödeme bildiriminiz alındı. Admin onaylayınca bakiyeniz yüklenecek.");
+      setMsg("Ödeme bildiriminiz alındı. Onaylanınca bakiyeniz yüklenir.");
       setNote("");
       setSenderName("");
       await loadRequests();
@@ -151,7 +162,7 @@ function BalanceInner({
     e.preventDefault();
     setMsg(null);
     setErr(null);
-    const value = Number(amount);
+    const value = Number(String(amount).replace(",", "."));
     if (!Number.isFinite(value) || value < minDeposit) {
       setErr(`Minimum yükleme tutarı ${minDeposit} ₺`);
       return;
@@ -170,7 +181,7 @@ function BalanceInner({
       }
       const data = await res.json().catch(() => ({}));
       if (!res.ok) {
-        setErr(data.error || "Shopier başlatılamadı");
+        setErr(data.error || "Ödeme başlatılamadı");
         return;
       }
       const form = document.createElement("form");
@@ -189,7 +200,6 @@ function BalanceInner({
       form.submit();
     } catch {
       setErr("Ağ hatası — tekrar deneyin");
-    } finally {
       setShopierBusy(false);
     }
   }
@@ -227,9 +237,10 @@ function BalanceInner({
   }
 
   const wa = whatsappUrl(
-    `Merhaba, TOLWEX bakiye yükledim. Kullanıcı: ${me.username}, tutar: ${amount} ₺, IBAN: ${bank?.iban || ""}`
+    `Merhaba, TOLWEX bakiye yükledim. Kullanıcı: ${me.username}, tutar: ${amount} ₺`
   );
   const pending = requests.filter((r) => r.status === "pending").length;
+  const amountNum = Number(String(amount).replace(",", ".")) || 0;
 
   return (
     <div className="sp-page">
@@ -237,7 +248,7 @@ function BalanceInner({
         <h1>Bakiye Yükle</h1>
         <p>
           Güncel bakiye: <strong>{me.balance.toFixed(2)} ₺</strong>
-          {pending ? ` · ${pending} bildirim bekliyor` : ""}
+          {pending ? ` · ${pending} işlem bekliyor` : ""}
         </p>
       </div>
 
@@ -247,44 +258,29 @@ function BalanceInner({
       <div className="pay-grid">
         <div className="pay-col">
           {shopierEnabled ? (
-            <form onSubmit={payWithShopier} className="sp-card sp-form mb-4">
+            <form onSubmit={payWithShopier} className="sp-card pay-card-primary sp-form mb-4">
               <div className="sp-card-head">
-                <h2>Shopier ile öde</h2>
+                <h2>Kart ile anında yükle</h2>
+                <span className="pay-badge">Önerilen</span>
               </div>
-              <div className="shopier-help muted text-sm" style={{ marginTop: "-0.2rem" }}>
-                <p>
-                  <strong>ÖNEMLİ:</strong> Lütfen birden fazla kez &quot;Öde&quot; butonuna
-                  basıp veya &quot;Sepete Ekle&quot; ile sepet şeklinde ödeme
-                  tamamlamayın. Sepet şeklinde tamamlanan ödemeler otomatik olarak
-                  hesabınıza tanımlanamaz!
-                </p>
-                <ol style={{ paddingLeft: "1.15rem", margin: "0.65rem 0 0.85rem" }}>
-                  <li>
-                    Tutarı girip <strong>Güvenli Ödeme Sayfasına Git</strong> butonuna
-                    tıklayın.
-                  </li>
-                  <li>
-                    Açılan sayfada <strong>Hemen al</strong> butonuna tıklayın.
-                  </li>
-                  <li>
-                    Tüm bilgilerinizi doğru girip <strong>Ödemeye geç</strong>{" "}
-                    butonuna tıklayın.
-                  </li>
-                  <li>
-                    <strong>ÖNEMLİ:</strong> Ödemenizin Shopier tarafından şüpheli
-                    işaretlenmemesi için lütfen <strong>doğru isim, adres ve telefon</strong>{" "}
-                    bilgilerinizi girin.
-                  </li>
-                  <li>
-                    Kart bilgilerinizi girip <strong>Siparişi tamamla</strong>{" "}
-                    butonuna tıklayın.
-                  </li>
-                  <li>
-                    Ödeme başarılı olunca <strong>PANELE DÖNMEK İÇİN TIKLAYIN</strong>{" "}
-                    yazısına tıklayın ve panele dönün.
-                  </li>
-                </ol>
+              <p className="pay-lead">
+                Visa / Mastercard ile güvenli ödeme. Tutar onaylanınca bakiyenize otomatik
+                eklenir.
+              </p>
+
+              <div className="pay-presets" role="group" aria-label="Hızlı tutar">
+                {PRESETS.map((p) => (
+                  <button
+                    key={p}
+                    type="button"
+                    className={`pay-chip ${amountNum === p ? "is-on" : ""}`}
+                    onClick={() => setAmount(String(p))}
+                  >
+                    {p.toLocaleString("tr-TR")} ₺
+                  </button>
+                ))}
               </div>
+
               <label>
                 <span>Yükleme tutarı (₺)</span>
                 <input
@@ -296,17 +292,41 @@ function BalanceInner({
                   required
                 />
               </label>
-              <button type="submit" className="btn btn-primary" disabled={shopierBusy}>
-                {shopierBusy ? "Yönlendiriliyor…" : "Güvenli Ödeme Sayfasına Git"}
-              </button>
-            </form>
-          ) : null}
+              <p className="muted text-xs">Minimum {minDeposit} ₺</p>
 
-          {bank ? (
-            <div className="sp-card bank-card mb-4">
+              <button type="submit" className="btn btn-primary pay-cta" disabled={shopierBusy}>
+                {shopierBusy ? "Ödeme sayfasına gidiliyor…" : "Güvenli ödemeye geç"}
+              </button>
+
+              <ul className="pay-tips">
+                <li>Açılan sayfada <strong>Hemen al</strong> → bilgileri doldur → ödemeyi tamamla.</li>
+                <li>Sepete ekleyerek ödeme yapmayın — bakiye otomatik tanımlanmaz.</li>
+                <li>İşlem bitince <strong>panele dön</strong> yazısına tıklayın.</li>
+              </ul>
+            </form>
+          ) : (
+            <div className="sp-card mb-4 pay-card-wait">
               <div className="sp-card-head">
-                <h2>{shopierEnabled ? "Havale / EFT" : "1 · Havale / EFT"}</h2>
+                <h2>Kart ile ödeme</h2>
               </div>
+              <p className="muted text-sm" style={{ padding: "0 1.1rem 1.1rem" }}>
+                Kartlı ödeme yakında aktif. Şimdilik havale / EFT ile yükleyebilirsiniz.
+              </p>
+            </div>
+          )}
+
+          <div className="sp-card bank-card mb-4">
+            <div className="sp-card-head">
+              <h2>Havale / EFT</h2>
+              <button
+                type="button"
+                className="btn btn-ghost"
+                onClick={() => setShowBankHelp((v) => !v)}
+              >
+                {showBankHelp ? "Gizle" : "Detay"}
+              </button>
+            </div>
+            {bank ? (
               <div className="bank-rows" style={{ padding: "0 1.1rem 1.1rem" }}>
                 <div>
                   <span className="muted text-xs">Banka</span>
@@ -320,59 +340,59 @@ function BalanceInner({
                   <span className="muted text-xs">IBAN</span>
                   <strong className="bank-iban">{bank.iban_formatted || bank.iban}</strong>
                   <button type="button" className="btn btn-ghost" onClick={copyIban}>
-                    {copied ? "Kopyalandı ✓" : "IBAN Kopyala"}
+                    {copied ? "Kopyalandı" : "IBAN kopyala"}
                   </button>
                 </div>
                 <p className="muted text-xs mt-3">
                   Açıklamaya <strong>{me.username}</strong> yazın · Min. {minDeposit} ₺
                 </p>
               </div>
-            </div>
-          ) : (
-            <div className="sp-card mb-4">
-              <p className="muted p-4 text-sm">Banka bilgisi yüklenemedi. Destek ile iletişime geçin.</p>
-            </div>
-          )}
+            ) : (
+              <p className="muted p-4 text-sm">Banka bilgisi yükleniyor…</p>
+            )}
+          </div>
 
-          <form onSubmit={submitRequest} className="sp-card sp-form mb-4">
-            <div className="sp-card-head">
-              <h2>Havale ödeme bildirimi</h2>
-            </div>
-            <p className="muted text-sm" style={{ marginTop: "-0.35rem" }}>
-              Havale yaptıktan sonra tutarı bildirin — onayda bakiye otomatik yüklenir.
-            </p>
-            <label>
-              <span>Yatırılan tutar (₺)</span>
-              <input
-                type="number"
-                min={minDeposit}
-                step="1"
-                value={amount}
-                onChange={(e) => setAmount(e.target.value)}
-                required
-              />
-            </label>
-            <label>
-              <span>Gönderen adı (hesaptaki isim)</span>
-              <input
-                value={senderName}
-                onChange={(e) => setSenderName(e.target.value)}
-                placeholder="Tolga Mazlum"
-              />
-            </label>
-            <label>
-              <span>Not / dekont no (opsiyonel)</span>
-              <textarea value={note} onChange={(e) => setNote(e.target.value)} rows={2} />
-            </label>
-            <div className="flex flex-wrap gap-3">
-              <button type="submit" className="btn btn-primary" disabled={busy}>
-                {busy ? "Gönderiliyor…" : "Ödeme Bildir"}
-              </button>
-              <a href={wa} className="btn btn-ghost" target="_blank" rel="noopener noreferrer">
-                WhatsApp
-              </a>
-            </div>
-          </form>
+          {(showBankHelp || !shopierEnabled) && (
+            <form onSubmit={submitRequest} className="sp-card sp-form mb-4">
+              <div className="sp-card-head">
+                <h2>Havale bildirimi</h2>
+              </div>
+              <p className="muted text-sm" style={{ marginTop: "-0.35rem" }}>
+                Transferden sonra tutarı bildirin — onayda bakiye yüklenir.
+              </p>
+              <label>
+                <span>Yatırılan tutar (₺)</span>
+                <input
+                  type="number"
+                  min={minDeposit}
+                  step="1"
+                  value={amount}
+                  onChange={(e) => setAmount(e.target.value)}
+                  required
+                />
+              </label>
+              <label>
+                <span>Gönderen adı</span>
+                <input
+                  value={senderName}
+                  onChange={(e) => setSenderName(e.target.value)}
+                  placeholder="Hesaptaki isim"
+                />
+              </label>
+              <label>
+                <span>Not / dekont (opsiyonel)</span>
+                <textarea value={note} onChange={(e) => setNote(e.target.value)} rows={2} />
+              </label>
+              <div className="flex flex-wrap gap-3">
+                <button type="submit" className="btn btn-primary" disabled={busy}>
+                  {busy ? "Gönderiliyor…" : "Ödeme bildir"}
+                </button>
+                <a href={wa} className="btn btn-ghost" target="_blank" rel="noopener noreferrer">
+                  WhatsApp
+                </a>
+              </div>
+            </form>
+          )}
 
           <form onSubmit={redeemCoupon} className="sp-card sp-form">
             <div className="sp-card-head">
@@ -383,12 +403,12 @@ function BalanceInner({
               <input
                 value={coupon}
                 onChange={(e) => setCoupon(e.target.value)}
-                placeholder="ORNEK50"
+                placeholder="Kupon kodunuz"
                 required
               />
             </label>
             <button type="submit" className="btn btn-ghost" disabled={couponBusy}>
-              {couponBusy ? "…" : "Kuponu Kullan"}
+              {couponBusy ? "…" : "Kuponu kullan"}
             </button>
           </form>
         </div>
@@ -396,7 +416,7 @@ function BalanceInner({
         <div className="pay-col">
           <div className="sp-card">
             <div className="sp-card-head">
-              <h2>Bildirimlerim</h2>
+              <h2>İşlemlerim</h2>
               <button type="button" className="btn btn-ghost" onClick={() => loadRequests()}>
                 Yenile
               </button>
@@ -415,9 +435,7 @@ function BalanceInner({
                     <tr key={r.id}>
                       <td>
                         <strong>{r.amount.toFixed(2)} ₺</strong>
-                        <div className="muted text-xs">
-                          {METHOD_TR[r.method] || r.method}
-                        </div>
+                        <div className="muted text-xs">{METHOD_TR[r.method] || r.method}</div>
                         {r.note ? (
                           <div className="muted text-xs" style={{ maxWidth: 200 }}>
                             {r.note}
@@ -437,7 +455,7 @@ function BalanceInner({
                 </tbody>
               </table>
               {requests.length === 0 ? (
-                <p className="muted p-4 text-sm">Henüz ödeme bildirimi yok.</p>
+                <p className="muted p-4 text-sm">Henüz işlem yok.</p>
               ) : null}
             </div>
           </div>

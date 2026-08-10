@@ -3388,3 +3388,71 @@ a.sp-user:hover {
 .auth-bonus-banner strong {
   color: #fde68a;
 }
+
+/* —— Bakiye / Shopier ödeme —— */
+.pay-card-primary {
+  border-color: rgba(255, 255, 255, 0.18);
+  background:
+    linear-gradient(165deg, rgba(255, 255, 255, 0.06), transparent 42%),
+    rgba(255, 255, 255, 0.03);
+}
+.pay-card-primary .sp-card-head {
+  align-items: center;
+}
+.pay-badge {
+  font-size: 0.68rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 0.2rem 0.5rem;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  color: rgba(255, 255, 255, 0.75);
+}
+.pay-lead {
+  margin: -0.15rem 0 0.85rem;
+  color: var(--ink-muted);
+  font-size: 0.92rem;
+  line-height: 1.5;
+}
+.pay-presets {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  margin-bottom: 0.85rem;
+}
+.pay-chip {
+  appearance: none;
+  border: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--ink);
+  font-size: 0.82rem;
+  padding: 0.4rem 0.7rem;
+  cursor: pointer;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+.pay-chip:hover {
+  border-color: var(--line-strong);
+}
+.pay-chip.is-on {
+  border-color: rgba(255, 255, 255, 0.45);
+  background: rgba(255, 255, 255, 0.1);
+}
+.pay-cta {
+  width: 100%;
+  margin-top: 0.35rem;
+}
+.pay-tips {
+  margin: 1rem 0 0;
+  padding-left: 1.1rem;
+  display: grid;
+  gap: 0.35rem;
+  color: var(--ink-dim);
+  font-size: 0.8rem;
+  line-height: 1.45;
+}
+.pay-tips strong {
+  color: var(--ink-muted);
+  font-weight: 600;
+}
+.pay-card-wait {
+  border-style: dashed;
+}

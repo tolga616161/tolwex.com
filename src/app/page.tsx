@@ -62,12 +62,12 @@ export default async function HomePage() {
         <div className="site-shell why-grid">
           {[
             {
-              t: "Kaliteli servisler",
-              d: "Binlerce SMM hizmeti — takipçi, beğeni, izlenme ve daha fazlası.",
+              t: "Kart ile anında bakiye",
+              d: "Güvenli ödeme ile bakiyeni hemen yükle; siparişe dakikalar içinde başla.",
             },
             {
               t: "Havale / EFT",
-              d: "İş Bankası hesabına yatır, ödeme bildir, bakiyen tanımlansın.",
+              d: "Banka havalesi sonrası bildirim — onayda bakiyen tanımlansın.",
             },
             {
               t: "Hızlı teslimat",

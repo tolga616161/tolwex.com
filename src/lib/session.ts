@@ -40,8 +40,18 @@ export async function getSessionForResponse(req: NextRequest, res: NextResponse)
 }
 
 export function appBaseUrl(req?: NextRequest): string {
-  const env = process.env.NEXT_PUBLIC_APP_URL;
+  const env =
+    process.env.NEXT_PUBLIC_APP_URL ||
+    process.env.NEXT_PUBLIC_SITE_URL ||
+    process.env.SITE_URL;
   if (env) return env.replace(/\/$/, "");
-  if (req) return req.nextUrl.origin;
+  if (req) {
+    const host = req.headers.get("x-forwarded-host") || req.headers.get("host");
+    const proto = req.headers.get("x-forwarded-proto") || "https";
+    if (host && !host.includes("localhost")) {
+      return `${proto}://${host}`.replace(/\/$/, "");
+    }
+    return req.nextUrl.origin;
+  }
   return "http://localhost:3000";
 }

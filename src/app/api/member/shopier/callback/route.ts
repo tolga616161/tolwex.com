@@ -3,36 +3,63 @@ import { prisma, ensureDbHydrated } from "@/lib/db";
 import { adjustBalance } from "@/lib/member";
 import { pullPaymentsFromGist, pushPaymentsToGist } from "@/lib/payments-durable";
 import { appBaseUrl } from "@/lib/session";
-import { parseShopierCallback, verifyShopierCallback } from "@/lib/shopier";
+import {
+  amountsMatch,
+  parseShopierCallback,
+  verifyShopierCallback,
+} from "@/lib/shopier";
 
 export const dynamic = "force-dynamic";
 
-async function handleCallback(req: NextRequest) {
-  await ensureDbHydrated(true);
-  await pullPaymentsFromGist();
-
-  const base = appBaseUrl(req);
-  const failUrl = `${base}/uye/bakiye?shopier=fail`;
-  const okUrl = `${base}/uye/bakiye?shopier=ok`;
-
-  let body: Record<string, unknown> = {};
+async function readBody(req: NextRequest): Promise<Record<string, unknown>> {
   const ctype = req.headers.get("content-type") || "";
-  try {
-    if (ctype.includes("application/json")) {
-      body = (await req.json()) as Record<string, unknown>;
-    } else {
+  const body: Record<string, unknown> = {};
+
+  if (ctype.includes("application/json")) {
+    const json = (await req.json().catch(() => null)) as Record<string, unknown> | null;
+    if (json && typeof json === "object") Object.assign(body, json);
+  } else if (ctype.includes("form") || req.method === "POST") {
+    try {
       const form = await req.formData();
       form.forEach((v, k) => {
         body[k] = typeof v === "string" ? v : String(v);
       });
+    } catch {
+      /* empty */
     }
+  }
+
+  // Also merge query (some return flows use GET)
+  const url = new URL(req.url);
+  url.searchParams.forEach((v, k) => {
+    if (!(k in body)) body[k] = v;
+  });
+
+  return body;
+}
+
+async function handleCallback(req: NextRequest) {
+  await ensureDbHydrated(true);
+  await pullPaymentsFromGist().catch(() => null);
+
+  const base = appBaseUrl(req);
+  const failUrl = `${base}/uye/bakiye?pay=fail`;
+  const okUrl = `${base}/uye/bakiye?pay=ok`;
+
+  let body: Record<string, unknown>;
+  try {
+    body = await readBody(req);
   } catch {
     return NextResponse.redirect(failUrl, 303);
   }
 
   const cb = parseShopierCallback(body);
   if (!cb || !verifyShopierCallback(cb)) {
-    console.error("shopier_callback_invalid", body);
+    console.error("shopier_callback_invalid", {
+      keys: Object.keys(body),
+      status: body.status,
+      order: body.platform_order_id,
+    });
     return NextResponse.redirect(failUrl, 303);
   }
 
@@ -57,7 +84,15 @@ async function handleCallback(req: NextRequest) {
     return NextResponse.redirect(failUrl, 303);
   }
 
-  // Idempotent: already approved
+  if (!amountsMatch(request.amount, cb.total_order_value)) {
+    console.error("shopier_amount_mismatch", {
+      expected: request.amount,
+      got: cb.total_order_value,
+      id: request.id,
+    });
+    return NextResponse.redirect(failUrl, 303);
+  }
+
   if (request.status === "approved") {
     return NextResponse.redirect(okUrl, 303);
   }
@@ -67,7 +102,7 @@ async function handleCallback(req: NextRequest) {
     data: {
       status: "approved",
       adminNote: `Shopier payment_id=${cb.payment_id}`,
-      note: `Shopier #${cb.payment_id || "ok"}`,
+      note: `Kart ödeme #${cb.payment_id || "ok"}`,
     },
   });
 
@@ -76,10 +111,10 @@ async function handleCallback(req: NextRequest) {
       request.memberId,
       request.amount,
       "deposit",
-      `Shopier bakiye yükleme #${cb.payment_id || request.id}`,
+      `Kart ile bakiye yükleme #${cb.payment_id || request.id}`,
       request.id
     );
-    await pushPaymentsToGist();
+    await pushPaymentsToGist().catch(() => null);
   }
 
   return NextResponse.redirect(okUrl, 303);
@@ -90,7 +125,10 @@ export async function POST(req: NextRequest) {
 }
 
 export async function GET(req: NextRequest) {
-  // Some Shopier flows may GET; treat missing body as fail redirect to panel
+  const url = new URL(req.url);
+  if (url.searchParams.get("platform_order_id") && url.searchParams.get("signature")) {
+    return handleCallback(req);
+  }
   const base = appBaseUrl(req);
-  return NextResponse.redirect(`${base}/uye/bakiye?shopier=return`, 303);
+  return NextResponse.redirect(`${base}/uye/bakiye?pay=return`, 303);
 }
