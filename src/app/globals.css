@@ -3456,3 +3456,7 @@ a.sp-user:hover {
 .pay-card-wait {
   border-style: dashed;
 }
+
+.text-err { color: #f87171; }
+.acct-day-table { overflow: auto; }
+.acct-day-table .admin-table { font-size: 0.8rem; }

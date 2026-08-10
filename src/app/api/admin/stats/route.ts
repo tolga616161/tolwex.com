@@ -34,10 +34,22 @@ export async function GET() {
       prisma.supportTicket.count({ where: { status: "open" } }).catch(() => 0),
       prisma.smmOrder
         .aggregate({
-          _sum: { charge: true },
-          where: { status: { in: ["processing", "completed", "partial"] } },
+          _sum: { charge: true, cost: true },
+          where: {
+            status: {
+              in: [
+                "pending",
+                "awaiting",
+                "processing",
+                "inprogress",
+                "in progress",
+                "completed",
+                "partial",
+              ],
+            },
+          },
         })
-        .catch(() => ({ _sum: { charge: 0 } })),
+        .catch(() => ({ _sum: { charge: 0, cost: 0 } })),
       prisma.smmOrder
         .count({
           where: {
@@ -54,6 +66,10 @@ export async function GET() {
         .catch(() => 0),
     ]);
 
+    const rev = Number(revenue._sum.charge || 0);
+    const cost = Number(revenue._sum.cost || 0);
+    const profit = Math.round((rev - cost) * 100) / 100;
+
     return NextResponse.json({
       ok: true,
       members,
@@ -62,7 +78,9 @@ export async function GET() {
       pendingBalance,
       openTickets,
       pendingOrders,
-      revenue: Number(revenue._sum.charge || 0),
+      revenue: rev,
+      cost,
+      profit,
     });
   } catch (e) {
     const message = e instanceof Error ? e.message : "İstatistikler alınamadı";

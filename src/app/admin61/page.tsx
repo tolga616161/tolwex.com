@@ -12,6 +12,8 @@ type Stats = {
   openTickets: number;
   pendingOrders: number;
   revenue: number;
+  cost: number;
+  profit: number;
 };
 
 const EMPTY: Stats = {
@@ -22,6 +24,8 @@ const EMPTY: Stats = {
   openTickets: 0,
   pendingOrders: 0,
   revenue: 0,
+  cost: 0,
+  profit: 0,
 };
 
 export default function AdminDashboardPage() {
@@ -48,6 +52,8 @@ export default function AdminDashboardPage() {
         openTickets: Number(data.openTickets) || 0,
         pendingOrders: Number(data.pendingOrders) || 0,
         revenue: Number(data.revenue) || 0,
+        cost: Number(data.cost) || 0,
+        profit: Number(data.profit) || 0,
       });
     } catch {
       setStats(EMPTY);
@@ -106,12 +112,22 @@ export default function AdminDashboardPage() {
           tone={s.openTickets > 0 ? "warn" : "default"}
         />
         <StatCard label="CİRO (₺)" value={s.revenue.toFixed(2)} />
+        <StatCard
+          label="KÂR (₺)"
+          value={s.profit.toFixed(2)}
+          hint={`Maliyet ${s.cost.toFixed(2)} ₺`}
+          tone={s.profit > 0 ? "ok" : s.profit < 0 ? "err" : "default"}
+        />
       </div>
 
       <div className="admin-two-col mt-6">
         <div className="admin-panel">
           <h3>Hızlı işlemler</h3>
           <ul className="admin-usage-list">
+            <li>
+              <span>Muhasebe / kâr-zarar</span>
+              <Link href="/admin61/muhasebe">Aç</Link>
+            </li>
             <li>
               <span>Servis senkron</span>
               <Link href="/admin61/api">Aç</Link>
