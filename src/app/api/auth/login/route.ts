@@ -57,29 +57,36 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    // Eski OTP hesaplarını aç
+    if (!member.emailVerified || !member.phoneVerified) {
+      member = await prisma.member.update({
+        where: { id: member.id },
+        data: { emailVerified: true, phoneVerified: true, emailOtp: "", phoneOtp: "" },
+      });
+    }
+
     const session = await getSession();
     session.memberId = member.id;
     session.memberEmail = member.email;
     await session.save();
 
-    const needsVerify = !member.emailVerified || !member.phoneVerified;
-
     await writeAuditLog({
       action: "member.login",
       actorType: "visitor",
       actorId: member.id,
-      metadata: { needsVerify },
+      metadata: { needsVerify: false },
     });
 
     return NextResponse.json({
       ok: true,
-      needsVerify,
+      needsVerify: false,
       member: {
         id: member.id,
         email: member.email,
         name: member.name,
         username: member.username,
         balance: member.balance,
+        phone: member.phone,
       },
     });
   } catch (e) {

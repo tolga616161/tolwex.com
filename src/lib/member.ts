@@ -22,8 +22,13 @@ export async function requireMember() {
     });
   }
   if (!member) return null;
-  // Unverified accounts cannot use panel APIs
-  if (!member.emailVerified || !member.phoneVerified) return null;
+  // Eski OTP bekleyen hesapları otomatik aç (OTP kaldırıldı)
+  if (!member.emailVerified || !member.phoneVerified) {
+    member = await prisma.member.update({
+      where: { id: member.id },
+      data: { emailVerified: true, phoneVerified: true, emailOtp: "", phoneOtp: "" },
+    });
+  }
   return member;
 }
 

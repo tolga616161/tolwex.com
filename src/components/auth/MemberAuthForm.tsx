@@ -31,7 +31,7 @@ export function MemberAuthForm({
         return;
       }
       if (mode === "register" && !phone.trim()) {
-        setError("Telefon zorunlu — doğrulama için gerekli");
+        setError("Telefon zorunlu");
         return;
       }
 
@@ -73,25 +73,7 @@ export function MemberAuthForm({
         return;
       }
 
-      if (data.needsVerify || mode === "register") {
-        if (data.emailOtp && data.phoneOtp) {
-          try {
-            sessionStorage.setItem(
-              "tolwex_otp",
-              JSON.stringify({
-                emailOtp: data.emailOtp,
-                phoneOtp: data.phoneOtp,
-              })
-            );
-          } catch {
-            /* ignore */
-          }
-        }
-        window.location.href = "/uye/dogrula";
-        return;
-      }
-
-      // Login: confirm session with short retry (cold start)
+      // Login / kayıt: oturum doğrula (cold start retry)
       let me: { member?: unknown; needsVerify?: boolean } | null = null;
       for (let i = 0; i < 3; i++) {
         me = await fetch("/api/auth/me", { credentials: "same-origin" }).then((r) =>
@@ -102,10 +84,6 @@ export function MemberAuthForm({
       }
       if (!me?.member) {
         setError("Oturum açılamadı — sayfayı yenileyip tekrar deneyin");
-        return;
-      }
-      if (me.needsVerify) {
-        window.location.href = "/uye/dogrula";
         return;
       }
 
@@ -135,15 +113,14 @@ export function MemberAuthForm({
             ? "Panele hızlı giriş"
             : mode === "login"
               ? "Kullanıcı adın veya e-postan ile giriş yap"
-              : "E-posta ve telefon doğrulaması ile hesap oluştur"}
+              : "E-posta ve telefon ile hesap oluştur — OTP yok"}
         </p>
       </div>
 
       {mode === "register" && !compact ? (
         <div className="auth-bonus-banner" role="status">
-          <strong>Kampanya:</strong> Kayıtta bakiye yok. IBAN ile en az{" "}
-          <strong>500₺</strong> yatırıp onaylanınca <strong>+500₺</strong> hediye
-          bakiyenize eklenir.
+          <strong>Kampanya:</strong> IBAN ile en az <strong>500₺</strong> yatırıp onaylanınca{" "}
+          <strong>+500₺</strong> hediye. Aynı telefon / e-posta / IP ile ikinci hesap açılamaz.
         </div>
       ) : null}
 

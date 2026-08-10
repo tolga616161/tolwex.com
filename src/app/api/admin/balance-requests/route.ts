@@ -24,7 +24,18 @@ export async function GET() {
     const items = await prisma.balanceRequest.findMany({
       orderBy: { createdAt: "desc" },
       take: 200,
-      include: { member: { select: { id: true, username: true, email: true } } },
+      include: {
+        member: {
+          select: {
+            id: true,
+            username: true,
+            email: true,
+            phone: true,
+            registerIp: true,
+            welcomeBonusAt: true,
+          },
+        },
+      },
     });
 
     return NextResponse.json({
@@ -68,17 +79,46 @@ export async function PATCH(request: NextRequest) {
       return NextResponse.json({ error: "Talep zaten işlenmiş." }, { status: 400 });
     }
 
-    // Bonus: sadece IBAN ve en az 500₺ yatırıldıysa
-    const ibanBonus =
-      body.status === "approved" && isIbanMethod(before.method)
-        ? ibanDepositBonus(before.amount)
-        : 0;
+    // Bonus: sadece IBAN, ≥500₺, ve bu üye daha önce IBAN hediyesi almamış
+    let ibanBonus = 0;
+    if (body.status === "approved" && isIbanMethod(before.method)) {
+      const member = await prisma.member.findUnique({
+        where: { id: before.memberId },
+        select: {
+          id: true,
+          phone: true,
+          email: true,
+          registerIp: true,
+          welcomeBonusAt: true,
+        },
+      });
+      const amountOk = ibanDepositBonus(before.amount) > 0;
+      const alreadyGot = Boolean(member?.welcomeBonusAt);
+      // Aynı IP ile başka hesap hediye aldıysa engelle
+      let ipBonusUsed = false;
+      if (member?.registerIp) {
+        const other = await prisma.member.findFirst({
+          where: {
+            registerIp: member.registerIp,
+            welcomeBonusAt: { not: null },
+            id: { not: member.id },
+          },
+          select: { id: true },
+        });
+        ipBonusUsed = Boolean(other);
+      }
+      if (amountOk && !alreadyGot && !ipBonusUsed) {
+        ibanBonus = IBAN_APPROVE_BONUS_TRY;
+      }
+    }
 
     const noteExtra =
       ibanBonus > 0
         ? ` · IBAN hediye +${ibanBonus}₺ (≥500₺ yatırım)`
         : body.status === "approved" && isIbanMethod(before.method)
-          ? " · hediye yok (<500₺)"
+          ? before.amount < 500
+            ? " · hediye yok (<500₺)"
+            : " · hediye yok (daha önce alındı / engel)"
           : "";
 
     const claimed = await prisma.balanceRequest.updateMany({
@@ -121,6 +161,10 @@ export async function PATCH(request: NextRequest) {
           `${item.id}:iban-bonus`
         );
         bonusCredited = ibanBonus;
+        await prisma.member.update({
+          where: { id: item.memberId },
+          data: { welcomeBonusAt: new Date() },
+        });
       }
 
       await writeAuditLog({

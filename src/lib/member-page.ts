@@ -46,8 +46,14 @@ export async function requireMemberPage() {
   }
 
   if (!member) redirect("/uye/giris");
+
   if (!member.emailVerified || !member.phoneVerified) {
-    redirect("/uye/dogrula");
+    await prisma.member
+      .update({
+        where: { id: member.id },
+        data: { emailVerified: true, phoneVerified: true, emailOtp: "", phoneOtp: "" },
+      })
+      .catch(() => null);
   }
 
   return {

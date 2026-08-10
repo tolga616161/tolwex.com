@@ -55,7 +55,15 @@ export async function GET() {
     return NextResponse.json({ member: null, pending: true });
   }
 
-  const needsVerify = !member.emailVerified || !member.phoneVerified;
+  if (!member.emailVerified || !member.phoneVerified) {
+    await prisma.member
+      .update({
+        where: { id: member.id },
+        data: { emailVerified: true, phoneVerified: true, emailOtp: "", phoneOtp: "" },
+      })
+      .catch(() => null);
+  }
+
   return NextResponse.json({
     member: {
       id: member.id,
@@ -67,6 +75,6 @@ export async function GET() {
       spent: member.spent,
       createdAt: member.createdAt,
     },
-    needsVerify,
+    needsVerify: false,
   });
 }

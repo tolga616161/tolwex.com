@@ -7,10 +7,8 @@ import { rateLimit } from "@/lib/rate-limit";
 import { writeAuditLog } from "@/lib/audit";
 import { generateApiKey } from "@/lib/api-key";
 import { upsertMemberInGist, pushMembersToGist } from "@/lib/members-durable";
-import { sendOtpEmail } from "@/lib/mail";
 import {
   clientIpFromHeaders,
-  generateOtp,
   isIgnorableIp,
   normalizeTrPhone,
 } from "@/lib/welcome-bonus";
@@ -58,24 +56,22 @@ export async function POST(req: NextRequest) {
     const phone = normalizeTrPhone(parsed.data.phone);
     if (!phone) {
       return NextResponse.json(
-        {
-          error:
-            "Geçerli bir Türkiye cep telefonu girin (05xx…). Bonus için telefon zorunlu.",
-        },
+        { error: "Geçerli bir Türkiye cep telefonu girin (05xx…)" },
         { status: 400 }
       );
     }
 
+    // Anti-abuse: aynı IP / e-posta / telefon ile ikinci hesap yok
     if (!isIgnorableIp(ip)) {
       const ipHit = await prisma.member.findFirst({
         where: { registerIp: ip },
-        select: { id: true },
+        select: { id: true, username: true },
       });
       if (ipHit) {
         return NextResponse.json(
           {
             error:
-              "Bu IP adresinden daha önce üyelik açılmış. Kampanya tek hesap / tek IP — yeni bonus verilemez.",
+              "Bu IP ile zaten üyelik var. Aynı kişi ikinci hesap açamaz — destek ile iletişime geçin.",
           },
           { status: 409 }
         );
@@ -89,20 +85,23 @@ export async function POST(req: NextRequest) {
     if (existsUser) {
       if (existsUser.phone === phone) {
         return NextResponse.json(
-          { error: "Bu telefon numarası zaten kayıtlı" },
+          { error: "Bu telefon numarası zaten kayıtlı — ikinci hesap açılamaz" },
+          { status: 409 }
+        );
+      }
+      if (existsUser.email === email) {
+        return NextResponse.json(
+          { error: "Bu e-posta zaten kayıtlı — ikinci hesap açılamaz" },
           { status: 409 }
         );
       }
       return NextResponse.json(
-        { error: "Bu kullanıcı adı veya e-posta zaten kayıtlı" },
+        { error: "Bu kullanıcı adı zaten alınmış" },
         { status: 409 }
       );
     }
 
-    const emailOtp = generateOtp(6);
-    const phoneOtp = generateOtp(6);
-    const otpExpiresAt = new Date(Date.now() + 30 * 60 * 1000);
-
+    // OTP yok — e-posta + telefon zorunlu toplanır, anında panel
     const member = await prisma.member.create({
       data: {
         username,
@@ -112,11 +111,11 @@ export async function POST(req: NextRequest) {
         passwordHash: hashPassword(parsed.data.password),
         apiKey: generateApiKey(),
         registerIp: isIgnorableIp(ip) ? "" : ip,
-        emailVerified: false,
-        phoneVerified: false,
-        emailOtp,
-        phoneOtp,
-        otpExpiresAt,
+        emailVerified: true,
+        phoneVerified: true,
+        emailOtp: "",
+        phoneOtp: "",
+        otpExpiresAt: null,
         balance: 0,
       },
     });
@@ -127,25 +126,6 @@ export async function POST(req: NextRequest) {
       await pushMembersToGist().catch(() => null);
     }
 
-    const mail = await sendOtpEmail({
-      to: email,
-      subject: `TOLWEX hesap doğrulama`,
-      text: [
-        `Merhaba ${member.username},`,
-        ``,
-        `TOLWEX üyelik doğrulama kodlarınız:`,
-        ``,
-        `E-posta doğrulama kodu: ${emailOtp}`,
-        `Telefon doğrulama kodu: ${phoneOtp}`,
-        ``,
-        `Kodlar 30 dakika geçerlidir.`,
-        `Bakiye hediyesi kayıtta verilmez — IBAN ile en az 500₺ yatırıp onaylandığında +500₺ hediye bakiyenize eklenir.`,
-        ``,
-        `https://tolwex.com/uye/dogrula`,
-      ].join("\n"),
-    });
-
-    // Pending verify session (limited) — panel blocked until verified
     const session = await getSession();
     session.memberId = member.id;
     session.memberEmail = member.email;
@@ -161,25 +141,20 @@ export async function POST(req: NextRequest) {
         phone,
         ip,
         gistSynced: synced.ok,
-        mailDelivered: mail.delivered,
       },
     });
 
     return NextResponse.json({
       ok: true,
-      needsVerify: true,
+      needsVerify: false,
       welcomeBonus: 0,
-      mailDelivered: mail.delivered,
-      // If mail provider missing, show codes once so campaign still works
-      ...(mail.delivered
-        ? {}
-        : { emailOtp, phoneOtp, otpNotice: "Kodlar e-postaya gönderilemedi — aşağıda gösterildi." }),
       member: {
         id: member.id,
         email: member.email,
         name: member.name,
         username: member.username,
-        phone,
+        phone: member.phone,
+        registerIp: member.registerIp,
       },
       durable: synced.ok,
     });
