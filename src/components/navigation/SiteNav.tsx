@@ -9,9 +9,9 @@ import { whatsappUrl } from "@/lib/contact";
 
 const NAV = [
   { label: "Ana Sayfa", href: "/" },
-  { label: "Kapanan", href: "/basvuru/kapanan" },
-  { label: "Çalınan", href: "/basvuru/calinan" },
-  { label: "Fake Hesap", href: "/basvuru/fake" },
+  { label: "Kategoriler", href: "/#kategoriler" },
+  { label: "Influencer", href: "/basvuru/influencer" },
+  { label: "Reklam", href: "/basvuru/reklam-kisit" },
 ];
 
 export function SiteNav() {

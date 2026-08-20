@@ -1,6 +1,14 @@
 import { CONTACT_PHONE_DISPLAY, whatsappUrl } from "@/lib/contact";
 
-export type RecoveryKind = "closed" | "stolen" | "fake";
+export type RecoveryKind =
+  | "closed"
+  | "stolen"
+  | "fake"
+  | "influencer"
+  | "account"
+  | "growth"
+  | "ad_restrict"
+  | "ad_approve";
 
 export type RecoveryPlatform =
   | "Instagram"
@@ -32,7 +40,9 @@ export type RecoveryService = {
   reasonLabel: string;
   reasonPlaceholder: string;
   imageHint: string;
+  imageRequired?: boolean;
   cta: string;
+  group: "hesap" | "buyume" | "reklam";
 };
 
 export const RECOVERY_SERVICES: RecoveryService[] = [
@@ -49,7 +59,9 @@ export const RECOVERY_SERVICES: RecoveryService[] = [
     reasonLabel: "Kapanma sebebi",
     reasonPlaceholder: "Ekranda yazan mesajı veya kapanma sebebini yaz.",
     imageHint: "Giriş / kapanma ekranı fotoğrafını ekle",
+    imageRequired: true,
     cta: "WhatsApp’tan gönder",
+    group: "hesap",
   },
   {
     kind: "stolen",
@@ -62,9 +74,11 @@ export const RECOVERY_SERVICES: RecoveryService[] = [
     whenLabel: "Ne zaman çalındı?",
     whenPlaceholder: "Örn. dün gece, 2 saat önce…",
     reasonLabel: "Ne oldu?",
-    reasonPlaceholder: "Şifre değişimi, e-posta/telefon değişimi, şüpheli hareket…",
-    imageHint: "Şüpheli giriş / hesap ekranı fotoğrafını ekle",
+    reasonPlaceholder: "Şifre / e-posta değişimi, şüpheli hareket…",
+    imageHint: "Şüpheli giriş ekranı fotoğrafını ekle",
+    imageRequired: true,
     cta: "WhatsApp’tan gönder",
+    group: "hesap",
   },
   {
     kind: "fake",
@@ -73,19 +87,117 @@ export const RECOVERY_SERVICES: RecoveryService[] = [
     title: "Fake Hesap Şikayeti",
     short: "Sahte hesap şikayeti",
     eyebrow: "03",
-    description: "Adınıza veya fotoğrafınıza açılan sahte hesap için şikayet formu.",
+    description: "Adınıza veya fotoğrafınıza açılan sahte hesap için şikayet.",
     whenLabel: "Ne zaman fark edildi?",
     whenPlaceholder: "Örn. bu sabah, geçen hafta…",
-    reasonLabel: "Sahte hesap / şikayet detayı",
+    reasonLabel: "Sahte hesap detayı",
     reasonPlaceholder: "Sahte @kullanıcıadı ve neyi taklit ettiği…",
     imageHint: "Fake profil ekran görüntüsünü ekle",
+    imageRequired: true,
     cta: "WhatsApp’tan gönder",
+    group: "hesap",
+  },
+  {
+    kind: "account",
+    slug: "hesap-hizmeti",
+    href: "/basvuru/hesap-hizmeti",
+    title: "Hesap Hizmeti",
+    short: "Genel hesap desteği",
+    eyebrow: "04",
+    description: "Hesap ayarı, doğrulama, erişim ve diğer hesap işlemleri.",
+    whenLabel: "Ne zamandır sorun var?",
+    whenPlaceholder: "Örn. 1 haftadır, bugün…",
+    reasonLabel: "Ne istiyorsun?",
+    reasonPlaceholder: "Doğrulama, erişim, ayar, diğer… kısa yaz.",
+    imageHint: "İlgili ekran görüntüsünü ekle (önerilir)",
+    imageRequired: false,
+    cta: "WhatsApp’tan gönder",
+    group: "hesap",
+  },
+  {
+    kind: "influencer",
+    slug: "influencer",
+    href: "/basvuru/influencer",
+    title: "Influencer Olmak",
+    short: "Influencer başvurusu",
+    eyebrow: "05",
+    description: "Profesyonel / creator büyüme ve influencer süreç desteği.",
+    whenLabel: "Hedefin ne?",
+    whenPlaceholder: "Örn. marka işbirliği, profesyonel hesap…",
+    reasonLabel: "Kısaca kendini anlat",
+    reasonPlaceholder: "Niş, takipçi, ne yapmak istediğin…",
+    imageHint: "Profil ekran görüntüsü (önerilir)",
+    imageRequired: false,
+    cta: "WhatsApp’tan gönder",
+    group: "buyume",
+  },
+  {
+    kind: "growth",
+    slug: "buyume",
+    href: "/basvuru/buyume",
+    title: "Büyüme Hizmeti",
+    short: "Organik / stratejik büyüme",
+    eyebrow: "06",
+    description: "İçerik, erişim ve hesap büyüme danışmanlığı başvurusu.",
+    whenLabel: "Hangi platform?",
+    whenPlaceholder: "Instagram / TikTok / YouTube…",
+    reasonLabel: "Büyüme hedefin",
+    reasonPlaceholder: "Takipçi, erişim, satış… hedefi yaz.",
+    imageHint: "Profil veya istatistik ekranı (önerilir)",
+    imageRequired: false,
+    cta: "WhatsApp’tan gönder",
+    group: "buyume",
+  },
+  {
+    kind: "ad_restrict",
+    slug: "reklam-kisit",
+    href: "/basvuru/reklam-kisit",
+    title: "Reklam Kısıtı Kaldırma",
+    short: "Reklam hesabı kısıtı",
+    eyebrow: "07",
+    description: "Reklam hesabı kısıtlıysa veya yayınlanmıyorsa başvuru formu.",
+    whenLabel: "Ne zaman kısıtlandı?",
+    whenPlaceholder: "Örn. dün, bu sabah…",
+    reasonLabel: "Kısıt mesajı / detay",
+    reasonPlaceholder: "Ekranda yazan uyarıyı aynen yaz.",
+    imageHint: "Kısıt ekranı fotoğrafını ekle",
+    imageRequired: true,
+    cta: "WhatsApp’tan gönder",
+    group: "reklam",
+  },
+  {
+    kind: "ad_approve",
+    slug: "reklam-onay",
+    href: "/basvuru/reklam-onay",
+    title: "Reklam Onayları",
+    short: "Reklam onay / inceleme",
+    eyebrow: "08",
+    description: "Onayda bekleyen veya reddedilen reklamlar için destek.",
+    whenLabel: "Ne zamandır onayda?",
+    whenPlaceholder: "Örn. 2 gündür, bugün…",
+    reasonLabel: "Reklam / hesap bilgisi",
+    reasonPlaceholder: "Hesap adı, reklam konusu, red sebebi varsa…",
+    imageHint: "Onay / red ekranı fotoğrafını ekle",
+    imageRequired: true,
+    cta: "WhatsApp’tan gönder",
+    group: "reklam",
   },
 ];
 
 export function getRecoveryService(slug: string): RecoveryService | undefined {
   return RECOVERY_SERVICES.find((s) => s.slug === slug);
 }
+
+const KIND_TITLE: Record<RecoveryKind, string> = {
+  closed: "KAPANAN HESAP",
+  stolen: "ÇALINAN HESAP",
+  fake: "FAKE HESAP ŞİKAYETİ",
+  account: "HESAP HİZMETİ",
+  influencer: "INFLUENCER BAŞVURUSU",
+  growth: "BÜYÜME HİZMETİ",
+  ad_restrict: "REKLAM KISITI KALDIRMA",
+  ad_approve: "REKLAM ONAYLARI",
+};
 
 export function buildRecoveryWhatsAppText(input: {
   kind: RecoveryKind;
@@ -95,35 +207,17 @@ export function buildRecoveryWhatsAppText(input: {
   whenText: string;
   reason: string;
 }): string {
-  const title =
-    input.kind === "closed"
-      ? "KAPANAN HESAP BAŞVURUSU"
-      : input.kind === "stolen"
-        ? "ÇALINAN HESAP BAŞVURUSU"
-        : "FAKE HESAP ŞİKAYETİ";
-  const when =
-    input.kind === "closed"
-      ? `Kapanma zamanı: ${input.whenText}`
-      : input.kind === "stolen"
-        ? `Çalınma zamanı: ${input.whenText}`
-        : `Fark edilme: ${input.whenText}`;
-  const reason =
-    input.kind === "closed"
-      ? `Kapanma sebebi:\n${input.reason}`
-      : input.kind === "stolen"
-        ? `Çalıntı / ne oldu:\n${input.reason}`
-        : `Fake hesap / şikayet:\n${input.reason}`;
-
+  const title = KIND_TITLE[input.kind] || "BAŞVURU";
   return [
     `TOLWEX · ${title}`,
     "",
     `Platform: ${input.platform}`,
-    `Hesap: ${input.username}`,
+    `Hesap / kullanıcı: ${input.username}`,
     input.email ? `E-posta: ${input.email}` : "",
-    when,
-    reason,
+    `${input.whenText ? `Zaman / hedef: ${input.whenText}` : ""}`,
+    `Detay:\n${input.reason}`,
     "",
-    "Ekran görüntüsünü / fotoğrafı bu sohbete ekliyorum.",
+    "Görseli bu sohbete ekliyorum (varsa).",
     `İletişim: ${CONTACT_PHONE_DISPLAY}`,
   ]
     .filter(Boolean)

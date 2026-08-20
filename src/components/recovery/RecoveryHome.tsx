@@ -1,62 +1,70 @@
 import Link from "next/link";
 import { TolwexLogo } from "@/components/brand/TolwexLogo";
+import { HeroOrbit } from "@/components/recovery/HeroOrbit";
 import { RECOVERY_SERVICES } from "@/lib/recovery";
 import { CONTACT_PHONE_DISPLAY, whatsappUrl } from "@/lib/contact";
 
-const CAT_META: Record<string, { icon: string; blurb: string }> = {
-  kapanan: { icon: "01", blurb: "Kapalı veya engelli hesap başvurusu" },
-  calinan: { icon: "02", blurb: "Çalınan / ele geçirilen hesap başvurusu" },
-  fake: { icon: "03", blurb: "Adınıza açılan sahte hesap şikayeti" },
-};
+const GROUPS: Array<{ id: "hesap" | "buyume" | "reklam"; title: string; note: string }> = [
+  { id: "hesap", title: "Hesap hizmetleri", note: "Kapanan, çalınan, fake ve genel hesap" },
+  { id: "buyume", title: "Büyüme & influencer", note: "Büyüme ve influencer başvuruları" },
+  { id: "reklam", title: "Reklam", note: "Kısıt kaldırma ve reklam onayları" },
+];
 
 export function RecoveryHome() {
-  const wa = whatsappUrl("Merhaba, TOLWEX hesap kurtarma için yazıyorum.");
+  const wa = whatsappUrl("Merhaba, TOLWEX hizmetleri için yazıyorum.");
 
   return (
     <div className="rec-home is-clean">
-      <section className="rec-hero rec-hero-clean">
+      <section className="rec-hero rec-hero-clean rec-hero-filled">
         <div className="rec-hero-soft" aria-hidden />
-        <div className="site-shell rec-hero-inner">
-          <div className="rec-hero-logo">
-            <TolwexLogo size="lg" showMark showWordmark />
-          </div>
-          <h1 className="rec-hero-title display">
-            Hesap kurtarma
-            <span>başvuru merkezi</span>
-          </h1>
-          <p className="rec-hero-sub">
-            Platformu seç, fotoğraf ekle, kısa bilgi yaz — başvurun WhatsApp’tan bize ulaşır.
-          </p>
-          <div className="rec-hero-actions">
-            <Link href="/basvuru/kapanan" className="btn btn-primary">
-              Başvuruya başla
-            </Link>
-            <a href={wa} className="btn btn-ghost" target="_blank" rel="noopener noreferrer">
-              WhatsApp
-            </a>
+        <div className="site-shell rec-hero-stack">
+          <HeroOrbit />
+          <div className="rec-hero-inner">
+            <div className="rec-hero-logo">
+              <TolwexLogo size="lg" showMark showWordmark />
+            </div>
+            <h1 className="rec-hero-title display">
+              Hesap &amp; büyüme
+              <span>başvuru merkezi</span>
+            </h1>
+            <p className="rec-hero-sub">
+              Instagram · Facebook… Kategori seç, fotoğraf ekle — WhatsApp’tan bize ulaşır.
+            </p>
+            <div className="rec-hero-actions">
+              <a href="#kategoriler" className="btn btn-primary">
+                Kategoriler
+              </a>
+              <a href={wa} className="btn btn-ghost" target="_blank" rel="noopener noreferrer">
+                WhatsApp
+              </a>
+            </div>
           </div>
         </div>
       </section>
 
-      <section className="rec-services">
+      <section className="rec-services" id="kategoriler">
         <div className="site-shell">
-          <div className="rec-services-head">
-            <h2 className="display">Kategoriler</h2>
-            <p>İhtiyacına uygun formu seç</p>
-          </div>
-          <div className="rec-service-grid rec-service-grid-3">
-            {RECOVERY_SERVICES.map((s) => {
-              const meta = CAT_META[s.slug] || { icon: "•", blurb: s.short };
-              return (
-                <Link key={s.slug} href={s.href} className="rec-service-card rec-cat-card">
-                  <span className="rec-cat-num">{meta.icon}</span>
-                  <h3>{s.title}</h3>
-                  <p>{meta.blurb}</p>
-                  <span className="rec-service-go">Devam →</span>
-                </Link>
-              );
-            })}
-          </div>
+          {GROUPS.map((g) => {
+            const items = RECOVERY_SERVICES.filter((s) => s.group === g.id);
+            return (
+              <div key={g.id} className="rec-group">
+                <div className="rec-services-head">
+                  <h2 className="display">{g.title}</h2>
+                  <p>{g.note}</p>
+                </div>
+                <div className="rec-service-grid rec-service-grid-auto">
+                  {items.map((s) => (
+                    <Link key={s.slug} href={s.href} className="rec-service-card rec-cat-card">
+                      <span className="rec-cat-num">{s.eyebrow}</span>
+                      <h3>{s.title}</h3>
+                      <p>{s.description}</p>
+                      <span className="rec-service-go">Başvur →</span>
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            );
+          })}
         </div>
       </section>
 
@@ -66,11 +74,11 @@ export function RecoveryHome() {
           <ol className="rec-how-list">
             <li>
               <strong>Kategori seç</strong>
-              <span>Kapanan, çalınan veya fake</span>
+              <span>Hesap, büyüme veya reklam</span>
             </li>
             <li>
-              <strong>Fotoğraf ekle</strong>
-              <span>Ekran görüntüsü yükle</span>
+              <strong>Bilgi + fotoğraf</strong>
+              <span>Formu doldur, ekran ekle</span>
             </li>
             <li>
               <strong>WhatsApp’a gönder</strong>

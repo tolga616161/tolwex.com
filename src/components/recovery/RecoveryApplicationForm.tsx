@@ -24,6 +24,7 @@ export function RecoveryApplicationForm({ service }: { service: RecoveryService 
   const [done, setDone] = useState(false);
   const [waHref, setWaHref] = useState<string | null>(null);
   const [hint, setHint] = useState<string | null>(null);
+  const needImage = service.imageRequired !== false;
 
   async function onFile(file: File | null) {
     setHint(null);
@@ -67,12 +68,12 @@ export function RecoveryApplicationForm({ service }: { service: RecoveryService 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
     setHint(null);
-    if (!preview) {
+    if (needImage && !preview) {
       setHint("Fotoğraf / ekran görüntüsü zorunlu");
       return;
     }
     if (!username.trim()) {
-      setHint("Hesap kullanıcı adını yaz");
+      setHint("Hesap / kullanıcı adını yaz");
       return;
     }
     if (!whenText.trim()) {
@@ -85,12 +86,11 @@ export function RecoveryApplicationForm({ service }: { service: RecoveryService 
     }
 
     setBusy(true);
+    const rawUser = username.trim();
     const message = buildRecoveryWhatsAppText({
       kind: service.kind,
       platform,
-      username: username.trim().startsWith("@")
-        ? username.trim()
-        : `@${username.trim().replace(/^@/, "")}`,
+      username: rawUser.startsWith("@") || !rawUser.includes(" ") ? rawUser : rawUser,
       email: email.trim() || undefined,
       whenText: whenText.trim(),
       reason: reason.trim(),
@@ -140,7 +140,9 @@ export function RecoveryApplicationForm({ service }: { service: RecoveryService 
           <img src={preview} alt="Yüklenen fotoğraf" className="rec-preview" />
         ) : (
           <span className="rec-drop-copy">
-              <strong>Fotoğraf / ekran ekle *</strong>
+              <strong>
+                Fotoğraf / ekran ekle{needImage ? " *" : " (önerilir)"}
+              </strong>
               <em>{service.imageHint}</em>
               <em className="rec-drop-sub">JPG · PNG · WEBP</em>
           </span>

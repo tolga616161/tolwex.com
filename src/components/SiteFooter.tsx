@@ -5,9 +5,10 @@ import { usePathname } from "next/navigation";
 import { TolwexLogo } from "@/components/brand/TolwexLogo";
 
 const LINKS = [
-  { label: "Kapanan Hesap", href: "/basvuru/kapanan" },
-  { label: "Çalınan Hesap", href: "/basvuru/calinan" },
-  { label: "Fake Hesap Şikayeti", href: "/basvuru/fake" },
+  { label: "Kategoriler", href: "/#kategoriler" },
+  { label: "Influencer", href: "/basvuru/influencer" },
+  { label: "Büyüme", href: "/basvuru/buyume" },
+  { label: "Reklam Onay", href: "/basvuru/reklam-onay" },
   { label: "Gizlilik", href: "/privacy" },
   { label: "Kullanım Koşulları", href: "/terms" },
 ];
@@ -21,7 +22,7 @@ export function SiteFooter() {
       <div className="site-shell footer-inner">
         <div className="footer-brand">
           <TolwexLogo size="md" />
-          <p className="footer-tag">Hesap kurtarma başvuru merkezi</p>
+          <p className="footer-tag">Hesap, büyüme ve reklam başvuru merkezi</p>
         </div>
         <nav className="footer-links" aria-label="Footer">
           {LINKS.map((l) => (
