@@ -29,7 +29,8 @@ class AtmosphereSafe extends Component<
 
 function shouldSkip3d(path: string) {
   if (path.startsWith("/admin61")) return true;
-  // Member panel pages: keep UI snappy — no WebGL
+  // Recovery site: clean pages, no busy 3D/logo atmosphere
+  if (path === "/" || path.startsWith("/basvuru")) return true;
   if (
     path.startsWith("/uye") &&
     !path.startsWith("/uye/giris") &&

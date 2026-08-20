@@ -162,6 +162,24 @@ h3,
   gap: 0.55rem;
   color: #fff;
 }
+.tolwex-wordmark-img {
+  height: auto;
+  width: auto;
+  max-height: 22px;
+  object-fit: contain;
+  opacity: 0.96;
+  filter: none;
+}
+.tolwex-logo .tolwex-mark {
+  border-radius: 0.5rem;
+  opacity: 0.95;
+}
+.rec-hero-logo .tolwex-wordmark-img {
+  max-height: 28px;
+}
+.rec-hero-logo .tolwex-logo {
+  gap: 0.7rem;
+}
 .tolwex-mark {
   flex-shrink: 0;
 }
