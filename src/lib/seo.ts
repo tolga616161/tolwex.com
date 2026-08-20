@@ -1,5 +1,5 @@
 export const SITE_NAME = "TOLWEX";
-export const SITE_TAGLINE = "Dijitalde karşınıza çıkan sorunları birlikte çözüyoruz";
+export const SITE_TAGLINE = "Kapanan ve çalınan hesap kurtarma";
 
 export function siteUrl(): string {
   const raw =
@@ -10,19 +10,13 @@ export function siteUrl(): string {
 }
 
 export const SEO_KEYWORDS = [
-  "SMM panel",
-  "Instagram takipçi",
-  "TikTok izlenme",
-  "YouTube izlenme",
-  "SMM panel Türkiye",
-  "ucuz takipçi",
-  "beğeni satın al",
+  "kapanan hesap kurtarma",
+  "çalınan hesap kurtarma",
+  "Instagram hesap kurtarma",
+  "hesap kapandı",
+  "hesap çalındı",
   "TOLWEX",
-  "sosyal medya paneli",
-  "PerfectPanel",
-  "SMM blog",
-  "Instagram takipçi nasıl artırılır",
-  "güvenilir SMM panel",
+  "Instagram yardım",
 ];
 
 export function absoluteUrl(path = "/"): string {

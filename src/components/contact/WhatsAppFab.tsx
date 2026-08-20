@@ -7,17 +7,10 @@ import { CONTACT_PHONE_DISPLAY, whatsappUrl } from "@/lib/contact";
 export function WhatsAppFab() {
   const pathname = usePathname() || "/";
   if (pathname.startsWith("/admin61")) return null;
-  if (
-    pathname.startsWith("/uye") &&
-    !pathname.startsWith("/uye/giris") &&
-    !pathname.startsWith("/uye/kayit")
-  ) {
-    return null;
-  }
 
   return (
     <a
-      href={whatsappUrl("Merhaba, TOLWEX SMM paneli hakkında yazıyorum.")}
+      href={whatsappUrl("Merhaba, TOLWEX hesap kurtarma için yazıyorum.")}
       className="wa-fab"
       target="_blank"
       rel="noopener noreferrer"

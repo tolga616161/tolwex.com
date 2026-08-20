@@ -11,11 +11,6 @@ export function JsonLd() {
         name: SITE_NAME,
         description: SITE_TAGLINE,
         inLanguage: "tr-TR",
-        potentialAction: {
-          "@type": "SearchAction",
-          target: `${siteUrl()}/hizmetler?q={search_term_string}`,
-          "query-input": "required name=search_term_string",
-        },
       },
       {
         "@type": "Organization",
@@ -27,17 +22,18 @@ export function JsonLd() {
         sameAs: ["https://tolwex.com", "https://www.tolwex.com"],
       },
       {
-        "@type": "WebApplication",
-        name: `${SITE_NAME} SMM Panel`,
-        url: siteUrl(),
-        applicationCategory: "BusinessApplication",
-        operatingSystem: "Web",
-        offers: {
-          "@type": "Offer",
-          price: "0",
-          priceCurrency: "TRY",
-          description: "Ücretsiz üyelik — bakiyeli SMM sipariş",
-        },
+        "@type": "Service",
+        name: "Kapanan hesap kurtarma",
+        url: absoluteUrl("/basvuru/kapanan"),
+        provider: { "@id": `${siteUrl()}/#organization` },
+        areaServed: "TR",
+      },
+      {
+        "@type": "Service",
+        name: "Çalınan hesap kurtarma",
+        url: absoluteUrl("/basvuru/calinan"),
+        provider: { "@id": `${siteUrl()}/#organization` },
+        areaServed: "TR",
       },
     ],
   };

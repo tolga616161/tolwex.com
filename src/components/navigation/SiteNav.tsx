@@ -9,28 +9,15 @@ import { whatsappUrl } from "@/lib/contact";
 
 const NAV = [
   { label: "Ana Sayfa", href: "/" },
-  { label: "Servisler", href: "/hizmetler" },
-  { label: "Blog", href: "/blog" },
-  { label: "İade Koşulları", href: "/sss" },
-  { label: "Üye Ol", href: "/uye/kayit" },
-  { label: "Giriş", href: "/uye/giris" },
-  { label: "Panel", href: "/uye" },
+  { label: "Kapanan Hesap", href: "/basvuru/kapanan" },
+  { label: "Çalınan Hesap", href: "/basvuru/calinan" },
 ];
-
-function isPanelChrome(path: string) {
-  if (path.startsWith("/admin61")) return true;
-  if (path.startsWith("/uye/giris") || path.startsWith("/uye/kayit") || path.startsWith("/uye/dogrula"))
-    return false;
-  if (path.startsWith("/uye")) return true;
-  return false;
-}
 
 export function SiteNav() {
   const pathname = usePathname() || "/";
   const [mobileOpen, setMobileOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-  const hide = isPanelChrome(pathname);
 
   useEffect(() => {
     setMounted(true);
@@ -50,9 +37,9 @@ export function SiteNav() {
     };
   }, [mobileOpen]);
 
-  if (hide) return null;
+  if (pathname.startsWith("/admin61")) return null;
 
-  const wa = whatsappUrl("Merhaba, TOLWEX SMM paneli hakkında yazıyorum.");
+  const wa = whatsappUrl("Merhaba, TOLWEX hesap kurtarma için yazıyorum.");
 
   const mobileMenu =
     mounted &&
@@ -67,11 +54,7 @@ export function SiteNav() {
             <Link href="/" onClick={() => setMobileOpen(false)}>
               <TolwexLogo size="md" />
             </Link>
-            <button
-              type="button"
-              className="mobile-close"
-              onClick={() => setMobileOpen(false)}
-            >
+            <button type="button" className="mobile-close" onClick={() => setMobileOpen(false)}>
               Kapat
             </button>
           </div>
@@ -88,13 +71,15 @@ export function SiteNav() {
             ))}
           </nav>
           <div className="mt-10 grid gap-3">
-            <Link
-              href="/uye/giris"
+            <a
+              href={wa}
               className="btn btn-primary"
+              target="_blank"
+              rel="noopener noreferrer"
               onClick={() => setMobileOpen(false)}
             >
-              Üye Girişi
-            </Link>
+              WhatsApp
+            </a>
           </div>
         </div>
       </div>,
@@ -123,16 +108,17 @@ export function SiteNav() {
 
         <nav className="nav-desktop" aria-label="Ana menü">
           {NAV.map((item) => (
-            <a key={item.href} href={item.href} className="nav-link">
+            <a
+              key={item.href}
+              href={item.href}
+              className={`nav-link ${pathname === item.href ? "is-active" : ""}`}
+            >
               {item.label}
             </a>
           ))}
         </nav>
 
         <div className="nav-actions">
-          <Link href="/uye/giris" className="nav-link nav-login">
-            Üye Girişi
-          </Link>
           <a href={wa} className="btn btn-primary nav-cta" target="_blank" rel="noopener noreferrer">
             WhatsApp
           </a>

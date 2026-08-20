@@ -26,10 +26,10 @@ const body = IBM_Plex_Sans({
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl()),
   title: {
-    default: `${SITE_NAME} | SMM Panel Türkiye — Takipçi, Beğeni, İzlenme`,
+    default: `${SITE_NAME} | Kapanan & Çalınan Hesap Kurtarma`,
     template: `%s | ${SITE_NAME}`,
   },
-  description: `${SITE_TAGLINE}. Instagram, TikTok, YouTube SMM paneli — ucuz takipçi, beğeni, izlenme. Üye ol, bakiye yükle, anında sipariş ver.`,
+  description: `${SITE_TAGLINE}. Başvuru formu doldur, ekran görüntüsü yükle, WhatsApp’tan ilet.`,
   keywords: SEO_KEYWORDS,
   authors: [{ name: SITE_NAME, url: siteUrl() }],
   creator: SITE_NAME,
@@ -45,7 +45,7 @@ export const metadata: Metadata = {
     locale: "tr_TR",
     url: siteUrl(),
     siteName: SITE_NAME,
-    title: `${SITE_NAME} | Profesyonel SMM Panel`,
+    title: `${SITE_NAME} | Hesap Kurtarma`,
     description: SITE_TAGLINE,
     images: [
       {
@@ -58,7 +58,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: `${SITE_NAME} | SMM Panel`,
+    title: `${SITE_NAME} | Hesap Kurtarma`,
     description: SITE_TAGLINE,
     images: [absoluteUrl("/icon.png")],
   },
@@ -102,7 +102,11 @@ export const viewport: Viewport = {
   themeColor: "#000000",
 };
 
-export default function RootLayout({ children }: LayoutProps<"/">) {
+export default function RootLayout({
+  children,
+}: Readonly<{
+  children: React.ReactNode;
+}>) {
   return (
     <html lang="tr" className={`${display.variable} ${body.variable} h-full`}>
       <body className="min-h-full flex flex-col antialiased site-body">
