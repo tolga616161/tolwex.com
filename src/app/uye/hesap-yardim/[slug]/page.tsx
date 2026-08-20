@@ -21,7 +21,7 @@ export default function AccountHelpToolPage() {
               <p>Bu hesap yardım servisi yok.</p>
             </div>
             <Link href="/uye/hesap-yardim" className="btn btn-primary">
-              3 servise dön
+              Hesap kurtarmaya dön
             </Link>
           </div>
         )}
@@ -35,7 +35,7 @@ export default function AccountHelpToolPage() {
         <div className="sp-page">
           <div className="sp-page-title">
             <p className="section-kicker">
-              <Link href="/uye/hesap-yardim">Hesap Yardım</Link> · {tool.short}
+              <Link href="/uye/hesap-yardim">Hesap Kurtarma</Link> · {tool.short}
             </p>
             <h1>{tool.title}</h1>
             <p>{tool.description}</p>

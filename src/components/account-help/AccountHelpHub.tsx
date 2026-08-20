@@ -7,10 +7,10 @@ export function AccountHelpHub() {
   return (
     <div className="account-help-hub">
       <div className="sp-page-title">
-        <h1>Hesap Yardım Servisleri</h1>
+        <h1>Hesap Kurtarma</h1>
         <p>
-          3 servis · görsel yükle · açıklama yaz · otomatik analiz · başvuru numarası · Meta yardıma
-          aktarım
+          Kapanan veya çalınan hesap · ne zaman oldu · sebep · görsel yükle · her şey WhatsApp’a
+          gider
         </p>
       </div>
 
@@ -29,7 +29,7 @@ export function AccountHelpHub() {
                 <li key={s}>{s}</li>
               ))}
             </ul>
-            <span className="account-help-go">Servisi başlat →</span>
+            <span className="account-help-go">Başvuruyu başlat →</span>
           </Link>
         ))}
       </div>

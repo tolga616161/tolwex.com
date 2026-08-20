@@ -2,7 +2,12 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/db";
 import { requireMember } from "@/lib/member";
-import { caseNumberFromTicket, type AccountHelpKind } from "@/lib/account-help";
+import {
+  buildRecoveryWhatsAppMessage,
+  caseNumberFromTicket,
+  recoveryWhatsAppUrl,
+  type AccountHelpKind,
+} from "@/lib/account-help";
 
 export async function GET() {
   const member = await requireMember();
@@ -63,9 +68,9 @@ const schema = z.object({
 });
 
 const KIND_SUBJECT: Record<string, string> = {
-  closed: "Kapanan hesap sorgulama",
+  closed: "Kapanan hesap kurtarma",
   fake: "Adınıza açılan fake hesap",
-  stolen: "Çalınan hesap başvurusu",
+  stolen: "Çalınan hesap kurtarma",
   general: "Destek talebi",
 };
 
@@ -116,11 +121,11 @@ export async function POST(req: NextRequest) {
       : "",
     parsed.data.note
       ? kind === "closed"
-        ? `Kapanma nedeni / açıklama:\n${parsed.data.note.trim()}`
+        ? `Kapanma sebebi:\n${parsed.data.note.trim()}`
         : `Detay:\n${parsed.data.note.trim()}`
       : "",
     parsed.data.imageData ? "[Ekran görüntüsü eklendi]" : "",
-    isHelp ? "Meta yardım formuna yönlendirildi." : "",
+    isHelp ? "WhatsApp’a iletildi." : "",
   ].filter(Boolean);
 
   const message = lines.join("\n") || subject;
@@ -140,6 +145,20 @@ export async function POST(req: NextRequest) {
         ? caseNumberFromTicket(kind, ticket.id)
         : null;
 
+    const whatsappMessage =
+      caseNumber && (kind === "closed" || kind === "stolen" || kind === "fake")
+        ? buildRecoveryWhatsAppMessage({
+            kind,
+            caseNumber,
+            username: parsed.data.username?.trim() || "",
+            email: parsed.data.email?.trim() || undefined,
+            whenText: parsed.data.whenStolen?.trim() || "",
+            detail: parsed.data.note?.trim() || "",
+            memberUsername: member.username,
+            memberEmail: member.email,
+          })
+        : null;
+
     return NextResponse.json({
       ok: true,
       caseNumber,
@@ -152,14 +171,9 @@ export async function POST(req: NextRequest) {
         caseNumber,
       },
       redirect: "/uye/destek",
-      metaHelp:
-        kind === "closed"
-          ? "https://www.facebook.com/help/instagram/contact/606967319425038"
-          : kind === "stolen"
-            ? "https://www.facebook.com/hacked"
-            : kind === "fake"
-              ? "https://www.facebook.com/help/instagram/contact/636276399721841"
-              : null,
+      whatsappMessage,
+      whatsappUrl: whatsappMessage ? recoveryWhatsAppUrl(whatsappMessage) : null,
+      metaHelp: null,
     });
   } catch (e) {
     console.error("support_create_failed", e instanceof Error ? e.message : e);

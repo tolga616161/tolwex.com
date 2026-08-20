@@ -18,9 +18,9 @@ type Ticket = {
 };
 
 const KIND_LABEL: Record<string, string> = {
-  closed: "Kapanan hesap",
-  fake: "Adınıza açılan fake hesap",
-  stolen: "Çalınan hesap",
+  closed: "Kapanan hesap kurtarma",
+  fake: "Fake hesap (eski)",
+  stolen: "Çalınan hesap kurtarma",
   general: "Genel",
 };
 
@@ -81,10 +81,9 @@ function SupportInner() {
       ) : null}
 
       <div className="account-help-mini-nav">
-        <Link href="/uye/hesap-yardim">3 hesap servisi</Link>
+        <Link href="/uye/hesap-yardim">Hesap kurtarma</Link>
         <Link href="/uye/hesap-yardim/kapanan">Kapanan hesap</Link>
         <Link href="/uye/hesap-yardim/calinan">Çalınan hesap</Link>
-        <Link href="/uye/hesap-yardim/fake">Fake hesap</Link>
       </div>
 
       <form onSubmit={submit} className="sp-card sp-form mb-6">

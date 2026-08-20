@@ -2,34 +2,35 @@
 
 import { useRef, useState } from "react";
 import type { AccountHelpTool } from "@/lib/account-help";
-import { buildAnalysis, extractImageSignals } from "@/lib/account-help-analyze";
+import {
+  buildRecoveryWhatsAppMessage,
+  recoveryWhatsAppUrl,
+} from "@/lib/account-help";
 import { compressImageToDataUrl } from "@/lib/image-compress";
+import { CONTACT_PHONE_DISPLAY } from "@/lib/contact";
 
 type Result = {
   caseNumber: string;
-  summary: string;
-  points: string[];
-  metaHint: string;
-  metaHelpUrl: string;
-  metaHelpLabel: string;
+  whatsappHref: string;
   ticketId: string;
 };
 
 export function AccountHelpForm({ tool }: { tool: AccountHelpTool }) {
   const inputRef = useRef<HTMLInputElement>(null);
+  const fileRef = useRef<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [whenText, setWhenText] = useState("");
   const [detail, setDetail] = useState("");
   const [busy, setBusy] = useState(false);
-  const [phase, setPhase] = useState<"form" | "scan" | "done">("form");
-  const [scanLabel, setScanLabel] = useState("Görsel okunuyor…");
+  const [phase, setPhase] = useState<"form" | "done">("form");
   const [hint, setHint] = useState<string | null>(null);
   const [result, setResult] = useState<Result | null>(null);
 
   async function onFile(file: File | null) {
     setHint(null);
+    fileRef.current = file;
     if (!file) {
       setPreview(null);
       return;
@@ -39,8 +40,28 @@ export function AccountHelpForm({ tool }: { tool: AccountHelpTool }) {
       setPreview(url);
     } catch (e) {
       setPreview(null);
+      fileRef.current = null;
       setHint(e instanceof Error ? e.message : "Görsel yüklenemedi");
     }
+  }
+
+  async function openWhatsAppWithImage(href: string, message: string) {
+    const file = fileRef.current;
+    // Mobilde mümkünse görseli de paylaş (WhatsApp seçilebilir)
+    try {
+      if (file && typeof navigator !== "undefined" && navigator.canShare) {
+        const shareFile = new File([file], file.name || "ekran-goruntusu.jpg", {
+          type: file.type || "image/jpeg",
+        });
+        if (navigator.canShare({ files: [shareFile], text: message })) {
+          await navigator.share({ files: [shareFile], text: message, title: tool.title });
+          return;
+        }
+      }
+    } catch {
+      // kullanıcı iptal / destek yok → wa.me
+    }
+    window.open(href, "_blank", "noopener,noreferrer");
   }
 
   async function submit(e: React.FormEvent) {
@@ -64,32 +85,6 @@ export function AccountHelpForm({ tool }: { tool: AccountHelpTool }) {
     }
 
     setBusy(true);
-    setPhase("scan");
-    setScanLabel("Görsel analiz ediliyor…");
-    await new Promise((r) => setTimeout(r, 700));
-
-    let analysis;
-    try {
-      setScanLabel("Ekran oranı ve arayüz taranıyor…");
-      const signals = await extractImageSignals(preview);
-      await new Promise((r) => setTimeout(r, 500));
-      setScanLabel("Meta yardım kaydı hazırlanıyor…");
-      analysis = buildAnalysis({
-        kind: tool.kind,
-        username,
-        whenText,
-        detail,
-        email,
-        signals,
-      });
-      await new Promise((r) => setTimeout(r, 450));
-    } catch {
-      setBusy(false);
-      setPhase("form");
-      setHint("Görsel analiz edilemedi — başka bir ekran görüntüsü dene");
-      return;
-    }
-
     try {
       const res = await fetch("/api/member/support", {
         method: "POST",
@@ -102,39 +97,44 @@ export function AccountHelpForm({ tool }: { tool: AccountHelpTool }) {
           email: email.trim() || undefined,
           whenStolen: whenText.trim(),
           note: detail.trim(),
-          analysisSummary: analysis.summary,
-          analysisPoints: analysis.points,
-          closureGuess: analysis.closureGuess,
           imageData: preview,
         }),
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) {
         setBusy(false);
-        setPhase("form");
         setHint(data.error || "Kayıt alınamadı — tekrar dene");
         return;
       }
 
-      const caseNumber = data.caseNumber || data.ticket?.caseNumber || "TW-—";
+      const caseNumber = String(data.caseNumber || data.ticket?.caseNumber || "TW-—");
+      const message =
+        typeof data.whatsappMessage === "string" && data.whatsappMessage
+          ? data.whatsappMessage
+          : buildRecoveryWhatsAppMessage({
+              kind: tool.kind,
+              caseNumber,
+              username: username.trim(),
+              email: email.trim() || undefined,
+              whenText: whenText.trim(),
+              detail: detail.trim(),
+            });
+      const whatsappHref =
+        typeof data.whatsappUrl === "string" && data.whatsappUrl
+          ? data.whatsappUrl
+          : recoveryWhatsAppUrl(message);
+
       const done: Result = {
         caseNumber,
-        summary: analysis.summary,
-        points: analysis.points,
-        metaHint: analysis.metaHint,
-        metaHelpUrl: tool.metaHelpUrl,
-        metaHelpLabel: tool.metaHelpLabel,
+        whatsappHref,
         ticketId: data.ticket?.id || "",
       };
       setResult(done);
       setPhase("done");
       setBusy(false);
-
-      // Direct Meta help transfer
-      window.open(tool.metaHelpUrl, "_blank", "noopener,noreferrer");
+      await openWhatsAppWithImage(whatsappHref, message);
     } catch {
       setBusy(false);
-      setPhase("form");
       setHint("Bağlantı kopuk — tekrar dene");
     }
   }
@@ -146,29 +146,27 @@ export function AccountHelpForm({ tool }: { tool: AccountHelpTool }) {
           Başvuru numaran
           <strong>{result.caseNumber}</strong>
         </p>
-        <h3>Görsel analizi</h3>
-        <p className="account-help-summary">{result.summary}</p>
-        <ul className="account-help-points">
-          {result.points.map((p) => (
-            <li key={p}>{p}</li>
-          ))}
-        </ul>
-        <p className="muted text-sm">{result.metaHint}</p>
+        <h3>WhatsApp açıldı</h3>
+        <p className="account-help-summary">
+          Tüm bilgiler {CONTACT_PHONE_DISPLAY} numarasına hazırlandı. Sohbette{" "}
+          <strong>ekran görüntüsünü de ekleyip Gönder</strong> — böylece hem yazı hem görsel bize
+          düşer.
+        </p>
         <div className="account-help-result-actions">
           <a
-            href={result.metaHelpUrl}
+            href={result.whatsappHref}
             target="_blank"
             rel="noopener noreferrer"
             className="btn btn-primary"
           >
-            {result.metaHelpLabel}
+            WhatsApp’ı tekrar aç
           </a>
           <a href="/uye/destek" className="btn btn-ghost">
             Yardım Merkezi · taleplerim
           </a>
         </div>
         <p className="muted text-xs text-center">
-          Numaranı sakla. Detaylı takip için Yardım Merkezi’nden aynı başvuruyu görebilirsin.
+          Kayıt panelde de duruyor; görsel admin destek ekranında görünür.
         </p>
       </div>
     );
@@ -186,9 +184,7 @@ export function AccountHelpForm({ tool }: { tool: AccountHelpTool }) {
       </ol>
 
       <div className="account-help-visual">
-        <label
-          className={`recovery-drop ${preview ? "has-preview" : ""} ${phase === "scan" ? "is-scanning" : ""}`}
-        >
+        <label className={`recovery-drop ${preview ? "has-preview" : ""}`}>
           <input
             ref={inputRef}
             type="file"
@@ -202,23 +198,19 @@ export function AccountHelpForm({ tool }: { tool: AccountHelpTool }) {
             <img src={preview} alt="Yüklenen görsel" className="recovery-preview" />
           ) : (
             <span>
-              <strong>Zorunlu · Görsel yükle</strong>
+              <strong>Zorunlu · Ekran görüntüsü yükle</strong>
               <br />
-              Kapanma / çalıntı / fake profil ekran görüntüsü
+              Kapanma / çalıntı ekranı
             </span>
           )}
-          {phase === "scan" ? (
-            <span className="account-help-scan" aria-live="polite">
-              {scanLabel}
-            </span>
-          ) : null}
         </label>
-        {preview && phase === "form" ? (
+        {preview ? (
           <button
             type="button"
             className="btn btn-ghost"
             onClick={() => {
               setPreview(null);
+              fileRef.current = null;
               if (inputRef.current) inputRef.current.value = "";
             }}
           >
@@ -278,10 +270,10 @@ export function AccountHelpForm({ tool }: { tool: AccountHelpTool }) {
       {hint ? <p className="account-help-hint">{hint}</p> : null}
 
       <button type="submit" className="btn btn-primary w-full" disabled={busy}>
-        {busy ? "Analiz ediliyor…" : tool.cta}
+        {busy ? "Gönderiliyor…" : tool.cta}
       </button>
       <p className="muted text-sm text-center">
-        Analiz bitince başvuru numarası verilir ve <strong>Meta yardım</strong> formu açılır.
+        Gönderince kayıt oluşur ve <strong>WhatsApp</strong> açılır — görseli sohbete eklemeyi unutma.
       </p>
     </form>
   );

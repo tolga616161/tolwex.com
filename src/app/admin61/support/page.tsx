@@ -15,9 +15,9 @@ type Ticket = {
 };
 
 const KIND_LABEL: Record<string, string> = {
-  closed: "Kapanan hesap",
-  fake: "Fake hesap",
-  stolen: "Çalınan hesap",
+  closed: "Kapanan hesap kurtarma",
+  fake: "Fake hesap (eski)",
+  stolen: "Çalınan hesap kurtarma",
   general: "Genel",
 };
 
