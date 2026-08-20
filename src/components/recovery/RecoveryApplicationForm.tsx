@@ -3,7 +3,9 @@
 import { useRef, useState } from "react";
 import {
   buildRecoveryWhatsAppText,
+  RECOVERY_PLATFORMS,
   recoveryWhatsAppHref,
+  type RecoveryPlatform,
   type RecoveryService,
 } from "@/lib/recovery";
 import { CONTACT_PHONE_DISPLAY } from "@/lib/contact";
@@ -13,6 +15,7 @@ export function RecoveryApplicationForm({ service }: { service: RecoveryService 
   const inputRef = useRef<HTMLInputElement>(null);
   const fileRef = useRef<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
+  const [platform, setPlatform] = useState<RecoveryPlatform>("Instagram");
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [whenText, setWhenText] = useState("");
@@ -56,7 +59,7 @@ export function RecoveryApplicationForm({ service }: { service: RecoveryService 
         }
       }
     } catch {
-      /* iptal / destek yok */
+      /* iptal */
     }
     window.open(href, "_blank", "noopener,noreferrer");
   }
@@ -65,7 +68,7 @@ export function RecoveryApplicationForm({ service }: { service: RecoveryService 
     e.preventDefault();
     setHint(null);
     if (!preview) {
-      setHint("Ekran görüntüsü zorunlu — giriş / kapanma ekranını yükle");
+      setHint("Fotoğraf / ekran görüntüsü zorunlu");
       return;
     }
     if (!username.trim()) {
@@ -84,6 +87,7 @@ export function RecoveryApplicationForm({ service }: { service: RecoveryService 
     setBusy(true);
     const message = buildRecoveryWhatsAppText({
       kind: service.kind,
+      platform,
       username: username.trim().startsWith("@")
         ? username.trim()
         : `@${username.trim().replace(/^@/, "")}`,
@@ -101,11 +105,11 @@ export function RecoveryApplicationForm({ service }: { service: RecoveryService 
   if (done && waHref) {
     return (
       <div className="rec-done">
-        <p className="rec-done-kicker">Başvuru hazır</p>
+        <p className="rec-done-kicker">010101 · paket hazır</p>
         <h2>WhatsApp açıldı</h2>
         <p>
-          Bilgiler {CONTACT_PHONE_DISPLAY} numarasına yazıldı. Sohbette{" "}
-          <strong>ekran görüntüsünü de ekleyip Gönder</strong>.
+          Platform, hesap, sebep ve notlar {CONTACT_PHONE_DISPLAY} numarasına yazıldı. Sohbette{" "}
+          <strong>fotoğrafı da ekleyip Gönder</strong>.
         </p>
         <div className="rec-done-actions">
           <a href={waHref} target="_blank" rel="noopener noreferrer" className="btn btn-primary">
@@ -126,17 +130,19 @@ export function RecoveryApplicationForm({ service }: { service: RecoveryService 
           ref={inputRef}
           type="file"
           accept="image/jpeg,image/png,image/webp,image/*"
+          capture="environment"
           className="sr-only"
           disabled={busy}
           onChange={(e) => onFile(e.target.files?.[0] || null)}
         />
         {preview ? (
           // eslint-disable-next-line @next/next/no-img-element
-          <img src={preview} alt="Yüklenen ekran" className="rec-preview" />
+          <img src={preview} alt="Yüklenen fotoğraf" className="rec-preview" />
         ) : (
           <span className="rec-drop-copy">
-            <strong>Ekran resmi ekle</strong>
+            <strong>📷 Fotoğraf / ekran ekle *</strong>
             <em>{service.imageHint}</em>
+            <em className="rec-drop-sub">JPG · PNG · WEBP · kameradan da çekebilirsin</em>
           </span>
         )}
       </label>
@@ -150,12 +156,44 @@ export function RecoveryApplicationForm({ service }: { service: RecoveryService 
             if (inputRef.current) inputRef.current.value = "";
           }}
         >
-          Görseli değiştir
+          Fotoğrafı değiştir
         </button>
       ) : null}
 
       <label className="rec-field">
-        <span>Hesap kullanıcı adı *</span>
+        <span>Platform *</span>
+        <select
+          value={platform}
+          onChange={(e) => setPlatform(e.target.value as RecoveryPlatform)}
+          disabled={busy}
+          required
+        >
+          {RECOVERY_PLATFORMS.map((p) => (
+            <option key={p} value={p}>
+              {p}
+            </option>
+          ))}
+        </select>
+      </label>
+
+      <div className="rec-platform-chips" role="group" aria-label="Hızlı platform">
+        {RECOVERY_PLATFORMS.filter((p) => p !== "Diğer").map((p) => (
+          <button
+            key={p}
+            type="button"
+            className={`rec-chip ${platform === p ? "is-on" : ""}`}
+            onClick={() => setPlatform(p)}
+            disabled={busy}
+          >
+            {p}
+          </button>
+        ))}
+      </div>
+
+      <label className="rec-field">
+        <span>
+          {service.kind === "fake" ? "Sahte hesap kullanıcı adı *" : "Hesap kullanıcı adı *"}
+        </span>
         <input
           value={username}
           onChange={(e) => setUsername(e.target.value)}
@@ -204,10 +242,10 @@ export function RecoveryApplicationForm({ service }: { service: RecoveryService 
       {hint ? <p className="rec-hint">{hint}</p> : null}
 
       <button type="submit" className="btn btn-primary rec-submit" disabled={busy}>
-        {busy ? "Hazırlanıyor…" : service.cta}
+        {busy ? "Paket hazırlanıyor…" : service.cta}
       </button>
       <p className="rec-foot muted">
-        Gönderince WhatsApp açılır — yazı otomatik dolar, görseli sohbete eklemen yeterli.
+        Gönderince WhatsApp açılır — yazı otomatik dolar, fotoğrafı sohbete eklemen yeterli.
       </p>
     </form>
   );

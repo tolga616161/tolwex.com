@@ -7,6 +7,7 @@ import { TolwexLogo } from "@/components/brand/TolwexLogo";
 const LINKS = [
   { label: "Kapanan Hesap", href: "/basvuru/kapanan" },
   { label: "Çalınan Hesap", href: "/basvuru/calinan" },
+  { label: "Fake Hesap Şikayeti", href: "/basvuru/fake" },
   { label: "Gizlilik", href: "/privacy" },
   { label: "Kullanım Koşulları", href: "/terms" },
 ];

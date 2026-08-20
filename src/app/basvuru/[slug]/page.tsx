@@ -16,6 +16,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   };
 }
 
+export function generateStaticParams() {
+  return [{ slug: "kapanan" }, { slug: "calinan" }, { slug: "fake" }];
+}
+
 export default async function BasvuruPage({ params }: Props) {
   const { slug } = await params;
   const service = getRecoveryService(slug);

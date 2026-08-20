@@ -15,7 +15,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 0.95,
     },
     {
-      url: `${base}/basvuru/calinan`,
+      url: `${base}/basvuru/fake`,
       lastModified: now,
       changeFrequency: "weekly",
       priority: 0.95,

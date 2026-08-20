@@ -1,24 +1,27 @@
 import Link from "next/link";
 import { RECOVERY_SERVICES } from "@/lib/recovery";
 import { CONTACT_PHONE_DISPLAY, whatsappUrl } from "@/lib/contact";
+import { CyberHeroStage } from "@/components/recovery/CyberHeroStage";
 
 export function RecoveryHome() {
-  const wa = whatsappUrl("Merhaba, TOLWEX hesap kurtarma için yazıyorum.");
+  const wa = whatsappUrl("Merhaba, TOLWEX hesap kurtarma / fake şikayet için yazıyorum.");
 
   return (
     <div className="rec-home">
-      <section className="rec-hero">
-        <div className="rec-hero-bg" aria-hidden />
-        <div className="rec-hero-grain" aria-hidden />
+      <section className="rec-hero cyber-hero">
+        <CyberHeroStage />
         <div className="site-shell rec-hero-inner">
-          <p className="rec-brand-mark">TOLWEX</p>
+          <p className="rec-brand-mark cyber-glitch" data-text="TOLWEX">
+            TOLWEX
+          </p>
+          <p className="cyber-line">// 010101 · sosyal medya hesap kurtarma</p>
           <h1 className="rec-hero-title display">
-            Kapanan ve çalınan
-            <span>hesap kurtarma</span>
+            Kapanan, çalınan
+            <span>&amp; fake hesap</span>
           </h1>
           <p className="rec-hero-sub">
-            Başvuru formunu doldur, ekran görüntünü yükle — her şey doğrudan WhatsApp’tan bize
-            gelsin.
+            Instagram · Facebook · TikTok… Platformu seç, fotoğraf ekle, sebebi yaz — başvuru
+            doğrudan WhatsApp’a düşer. Yazılım / güvenlik operasyon görünümüyle hızlı destek.
           </p>
           <div className="rec-hero-actions">
             <Link href="/basvuru/kapanan" className="btn btn-primary">
@@ -27,6 +30,9 @@ export function RecoveryHome() {
             <Link href="/basvuru/calinan" className="btn btn-ghost">
               Çalınan hesap
             </Link>
+            <Link href="/basvuru/fake" className="btn btn-ghost">
+              Fake hesap şikayeti
+            </Link>
           </div>
         </div>
       </section>
@@ -34,16 +40,16 @@ export function RecoveryHome() {
       <section className="rec-services">
         <div className="site-shell">
           <div className="rec-services-head">
-            <h2 className="display">Hizmetler</h2>
-            <p>İki başvuru. Form doldur, görsel ekle, WhatsApp’tan ilet.</p>
+            <h2 className="display">Operasyon menüsü</h2>
+            <p>3 başvuru tipi · platform seç · fotoğraf yükle · WhatsApp’a ilet</p>
           </div>
-          <div className="rec-service-grid">
+          <div className="rec-service-grid rec-service-grid-3">
             {RECOVERY_SERVICES.map((s) => (
               <Link key={s.slug} href={s.href} className="rec-service-card">
                 <span className="rec-service-eye">{s.eyebrow}</span>
                 <h3>{s.title}</h3>
                 <p>{s.description}</p>
-                <span className="rec-service-go">Başvuru formu →</span>
+                <span className="rec-service-go">Formu aç →</span>
               </Link>
             ))}
           </div>
@@ -55,12 +61,12 @@ export function RecoveryHome() {
           <h2 className="display">Nasıl işler?</h2>
           <ol className="rec-how-list">
             <li>
-              <strong>Formu doldur</strong>
-              <span>Hesap adı, zaman, sebep</span>
+              <strong>Platform seç</strong>
+              <span>Instagram, Facebook, TikTok…</span>
             </li>
             <li>
-              <strong>Ekran resmi yükle</strong>
-              <span>Giriş / kapanma / çalıntı ekranı</span>
+              <strong>Fotoğraf / ekran ekle</strong>
+              <span>Giriş, kapanma veya fake profil resmi</span>
             </li>
             <li>
               <strong>WhatsApp’a gönder</strong>
