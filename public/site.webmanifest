@@ -1,7 +1,7 @@
 {
-  "name": "TOLWEX SMM Panel",
+  "name": "TOLWEX Hesap Kurtarma",
   "short_name": "TOLWEX",
-  "description": "Dijitalde karşınıza çıkan sorunları birlikte çözüyoruz. Instagram, TikTok, YouTube SMM paneli.",
+  "description": "Kapanan ve çalınan hesap kurtarma — başvuru formu, WhatsApp.",
   "start_url": "/",
   "display": "standalone",
   "lang": "tr-TR",
