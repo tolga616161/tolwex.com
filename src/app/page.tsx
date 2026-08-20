@@ -2,9 +2,9 @@ import type { Metadata } from "next";
 import { RecoveryHome } from "@/components/recovery/RecoveryHome";
 
 export const metadata: Metadata = {
-  title: "TOLWEX | Kapanan, Çalınan & Fake Hesap Kurtarma",
+  title: "TOLWEX | Hesap Kurtarma",
   description:
-    "Instagram, Facebook, TikTok hesap kurtarma ve fake hesap şikayeti. Fotoğraf ekle, platform seç, WhatsApp’tan ilet.",
+    "Kapanan, çalınan ve fake hesap başvurusu. Fotoğraf ekle, platform seç, WhatsApp’tan ilet.",
 };
 
 export default function HomePage() {

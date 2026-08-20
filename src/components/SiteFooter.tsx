@@ -21,7 +21,7 @@ export function SiteFooter() {
       <div className="site-shell footer-inner">
         <div className="footer-brand">
           <TolwexLogo size="md" />
-          <p className="footer-tag">Kapanan ve çalınan hesap kurtarma</p>
+          <p className="footer-tag">Hesap kurtarma başvuru merkezi</p>
         </div>
         <nav className="footer-links" aria-label="Footer">
           {LINKS.map((l) => (

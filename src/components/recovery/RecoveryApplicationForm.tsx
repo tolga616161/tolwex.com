@@ -140,9 +140,9 @@ export function RecoveryApplicationForm({ service }: { service: RecoveryService 
           <img src={preview} alt="Yüklenen fotoğraf" className="rec-preview" />
         ) : (
           <span className="rec-drop-copy">
-            <strong>📷 Fotoğraf / ekran ekle *</strong>
-            <em>{service.imageHint}</em>
-            <em className="rec-drop-sub">JPG · PNG · WEBP · kameradan da çekebilirsin</em>
+              <strong>Fotoğraf / ekran ekle *</strong>
+              <em>{service.imageHint}</em>
+              <em className="rec-drop-sub">JPG · PNG · WEBP</em>
           </span>
         )}
       </label>

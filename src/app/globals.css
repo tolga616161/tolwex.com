@@ -3670,9 +3670,8 @@ a.sp-user:hover {
   position: absolute;
   inset: 0;
   background:
-    radial-gradient(ellipse 60% 40% at 80% 0%, rgba(251, 146, 60, 0.1), transparent 55%),
-    radial-gradient(ellipse 50% 35% at 10% 30%, rgba(45, 212, 191, 0.12), transparent 50%),
-    #000;
+    radial-gradient(ellipse 55% 35% at 50% 0%, rgba(94, 234, 212, 0.07), transparent 60%),
+    #050505;
   pointer-events: none;
 }
 .rec-apply-shell { position: relative; z-index: 1; max-width: 640px; }
