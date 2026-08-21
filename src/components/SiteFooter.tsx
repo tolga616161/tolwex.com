@@ -6,9 +6,7 @@ import { TolwexLogo } from "@/components/brand/TolwexLogo";
 
 const LINKS = [
   { label: "Kapanan hesaplar", href: "/basvuru/kapanan" },
-  { label: "Reklam kısıtları", href: "/basvuru/reklam-kisit" },
   { label: "Çalınan hesaplar", href: "/basvuru/calinan" },
-  { label: "Fake hesaplar", href: "/basvuru/fake" },
   { label: "Makaleler", href: "/makaleler" },
   { label: "Gizlilik", href: "/privacy" },
   { label: "Kullanım Koşulları", href: "/terms" },
@@ -23,7 +21,7 @@ export function SiteFooter() {
       <div className="site-shell footer-inner">
         <div className="footer-brand">
           <TolwexLogo size="md" />
-          <p className="footer-tag">Sosyal medya uzmanı · teknik çözümler</p>
+          <p className="footer-tag">2020’den beri · tolgamedyam → TOLWEX</p>
         </div>
         <nav className="footer-links" aria-label="Footer">
           {LINKS.map((l) => (
@@ -34,7 +32,7 @@ export function SiteFooter() {
         </nav>
       </div>
       <div className="site-shell footer-bottom">
-        <p>© {new Date().getFullYear()} TOLWEX. Tüm hakları saklıdır.</p>
+        <p>© 2020 TOLWEX. Tüm hakları saklıdır.</p>
       </div>
     </footer>
   );

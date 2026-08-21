@@ -19,6 +19,7 @@ export function RecoveryApplicationForm({ service }: { service: RecoveryService 
   const fileRef = useRef<File | null>(null);
   const previewRef = useRef<string | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
+  const [fileName, setFileName] = useState<string | null>(null);
   const [platform, setPlatform] = useState<RecoveryPlatform>("Instagram");
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
@@ -28,11 +29,8 @@ export function RecoveryApplicationForm({ service }: { service: RecoveryService 
   const [done, setDone] = useState(false);
   const [waHref, setWaHref] = useState<string | null>(null);
   const [hint, setHint] = useState<string | null>(null);
-  const [dragOver, setDragOver] = useState(false);
 
-  const relatedGuides = GUIDE_ARTICLES.filter(
-    (g) => g.relatedHref === service.href || g.tags.some((t) => service.title.includes(t.split(" ")[0]))
-  ).slice(0, 2);
+  const relatedGuides = GUIDE_ARTICLES.filter((g) => g.relatedHref === service.href).slice(0, 2);
 
   useEffect(() => {
     return () => {
@@ -46,16 +44,19 @@ export function RecoveryApplicationForm({ service }: { service: RecoveryService 
     previewRef.current = null;
     fileRef.current = null;
     setPreview(null);
+    setFileName(null);
     if (!file) return;
 
+    fileRef.current = file;
+    setFileName(file.name || "fotoğraf");
     const result = await prepareImagePreview(file);
     if (result.ok && result.previewUrl) {
-      fileRef.current = file;
       previewRef.current = result.previewUrl;
       setPreview(result.previewUrl);
       if (result.warning) setHint(result.warning);
     } else {
-      setHint(result.warning || "Bu dosya önizlenemedi — WhatsApp’tan yine foto ekleyebilirsin.");
+      // Dosya yine tutulur — önizleme olmasa da WhatsApp’a gider
+      setHint(result.warning || "Önizleme yok — dosya seçildi, gönderince WhatsApp’a ekleyebilirsin.");
     }
   }
 
@@ -126,7 +127,7 @@ export function RecoveryApplicationForm({ service }: { service: RecoveryService 
               Sohbette <strong>fotoğrafı da ekleyip Gönder</strong>.
             </>
           ) : (
-            <> Fotoğraf yoksa metin yeterli — istersen sonra da ekleyebilirsin.</>
+            <> Fotoğraf yoksa metin yeterli.</>
           )}
         </p>
         <div className="rec-done-actions">
@@ -148,64 +149,50 @@ export function RecoveryApplicationForm({ service }: { service: RecoveryService 
 
   return (
     <form className="rec-form" onSubmit={submit}>
-      <div
-        className={`rec-drop ${preview ? "has-file" : ""} ${dragOver ? "is-drag" : ""}`}
-        onDragOver={(e) => {
-          e.preventDefault();
-          setDragOver(true);
-        }}
-        onDragLeave={() => setDragOver(false)}
-        onDrop={(e) => {
-          e.preventDefault();
-          setDragOver(false);
-          const f = e.dataTransfer.files?.[0];
-          if (f) void onFile(f);
-        }}
-      >
+      {/* Galeri — capture YOK, label+input düzgün bağlı */}
+      <div className={`rec-upload ${preview || fileName ? "has-file" : ""}`}>
         <input
           ref={inputRef}
           type="file"
-          accept="image/jpeg,image/png,image/webp,image/gif,image/heic,image/heif,.jpg,.jpeg,.png,.webp,.heic"
-          className="sr-only"
+          accept="image/*"
+          className="rec-upload-input"
           id={`photo-${service.slug}`}
           disabled={busy}
-          onChange={(e) => onFile(e.target.files?.[0] || null)}
+          onChange={(e) => {
+            const f = e.target.files?.[0] || null;
+            void onFile(f);
+            // aynı dosyayı tekrar seçebilsin
+            e.target.value = "";
+          }}
         />
         {preview ? (
           // eslint-disable-next-line @next/next/no-img-element
-          <img src={preview} alt="Yüklenen fotoğraf" className="rec-preview" />
+          <img src={preview} alt="" className="rec-preview" />
         ) : (
-          <label htmlFor={`photo-${service.slug}`} className="rec-drop-copy">
-            <strong>Galeriden fotoğraf ekle (opsiyonel)</strong>
-            <em>{service.imageHint}</em>
-            <em className="rec-drop-sub">Kamera açılmaz · galeri / dosya seç</em>
-          </label>
+          <div className="rec-upload-empty">
+            <strong>Galeriden fotoğraf seç</strong>
+            <span>{service.imageHint}</span>
+            <span className="rec-upload-note">Opsiyonel · kamera açılmaz</span>
+          </div>
         )}
-      </div>
-      {preview ? (
-        <div className="rec-photo-actions">
-          <button
-            type="button"
-            className="btn btn-ghost rec-change-img"
-            onClick={() => inputRef.current?.click()}
-          >
-            Değiştir
-          </button>
-          <button
-            type="button"
-            className="btn btn-ghost rec-change-img"
-            onClick={() => onFile(null)}
-          >
-            Kaldır
-          </button>
+        <div className="rec-upload-bar">
+          <label htmlFor={`photo-${service.slug}`} className="btn btn-primary rec-upload-btn">
+            {fileName ? "Değiştir" : "Galeriden seç"}
+          </label>
+          {fileName ? (
+            <button type="button" className="btn btn-ghost" onClick={() => onFile(null)}>
+              Kaldır
+            </button>
+          ) : null}
         </div>
-      ) : null}
+        {fileName ? <p className="rec-upload-name">{fileName}</p> : null}
+      </div>
 
       <fieldset className="rec-platform-field">
         <legend>Platform seç *</legend>
         <div className="rec-platform-chips" role="group" aria-label="Platform">
           {chipPlatforms.map((p) => {
-            const icon = PLATFORM_ICON[p as keyof typeof PLATFORM_ICON];
+            const icon = PLATFORM_ICON[p];
             return (
               <button
                 key={p}
@@ -226,9 +213,7 @@ export function RecoveryApplicationForm({ service }: { service: RecoveryService 
       </fieldset>
 
       <label className="rec-field">
-        <span>
-          {service.kind === "fake" ? "Sahte hesap kullanıcı adı *" : "Hesap kullanıcı adı *"}
-        </span>
+        <span>Hesap kullanıcı adı *</span>
         <input
           value={username}
           onChange={(e) => setUsername(e.target.value)}
@@ -279,9 +264,7 @@ export function RecoveryApplicationForm({ service }: { service: RecoveryService 
       <button type="submit" className="btn btn-primary rec-submit" disabled={busy}>
         {busy ? "Hazırlanıyor…" : service.cta}
       </button>
-      <p className="rec-foot muted">
-        WhatsApp açılır, yazı dolar. Fotoğraf seçtiysen sohbete eklemen yeterli — zorunlu değil.
-      </p>
+      <p className="rec-foot muted">WhatsApp açılır, yazı dolar. Foto seçtiysen sohbete eklemen yeterli.</p>
 
       <div className="rec-form-guides">
         <p className="rec-form-guides-title">Yardımcı makaleler</p>

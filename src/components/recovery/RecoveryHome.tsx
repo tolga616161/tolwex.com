@@ -24,7 +24,7 @@ export function RecoveryHome() {
               <span>çözümler</span>
             </h1>
             <p className="rec-hero-sub">
-              Kapanan, çalınan, fake hesap ve reklam kısıtları. Platform seç — WhatsApp’tan ulaş.
+              Kapanan ve çalınan hesaplar için teknik çözüm. Platform seç — WhatsApp’tan ulaş.
             </p>
             <div className="rec-hero-actions">
               <a href="#menuler" className="btn btn-primary">
@@ -42,9 +42,9 @@ export function RecoveryHome() {
         <div className="site-shell">
           <div className="rec-services-head">
             <h2 className="display">Menüler</h2>
-            <p>Dört ana çözüm — seç, başvur</p>
+            <p>Kapanan · çalınan — seç, başvur</p>
           </div>
-          <div className="rec-service-grid rec-service-grid-4">
+          <div className="rec-service-grid rec-service-grid-2">
             {RECOVERY_SERVICES.map((s) => (
               <Link key={s.slug} href={s.href} className="rec-service-card rec-cat-card">
                 <span className="rec-cat-num">{s.eyebrow}</span>
@@ -57,6 +57,17 @@ export function RecoveryHome() {
         </div>
       </section>
 
+      <section className="rec-attack-band" aria-label="Siber savaş">
+        <div className="site-shell rec-attack-inner">
+          <p className="rec-attack-kicker">SİBER SAVAŞ · CANLI</p>
+          <h2 className="display">Hesabın hedef alındıysa yalnız değilsin</h2>
+          <p>
+            Kapanan veya çalınan hesaplarda hızlı teknik müdahale. Harita canlı — sen başvur, biz
+            çözüme odaklanıyoruz.
+          </p>
+        </div>
+      </section>
+
       <section className="rec-guides-teaser" id="makaleler">
         <div className="site-shell">
           <div className="rec-services-head">
@@ -64,7 +75,7 @@ export function RecoveryHome() {
             <p>Kısa rehberler</p>
           </div>
           <div className="rec-guide-grid">
-            {GUIDE_ARTICLES.slice(0, 4).map((a) => (
+            {GUIDE_ARTICLES.slice(0, 2).map((a) => (
               <Link key={a.slug} href={`/makaleler/${a.slug}`} className="rec-guide-card">
                 <h3>{a.title}</h3>
                 <p>{a.excerpt}</p>
@@ -84,7 +95,7 @@ export function RecoveryHome() {
           <ol className="rec-how-list">
             <li>
               <strong>Menü seç</strong>
-              <span>Kapanan · reklam · çalıntı · fake</span>
+              <span>Kapanan veya çalınan</span>
             </li>
             <li>
               <strong>Platform + bilgi</strong>
@@ -95,6 +106,17 @@ export function RecoveryHome() {
               <span>{CONTACT_PHONE_DISPLAY}</span>
             </li>
           </ol>
+        </div>
+      </section>
+
+      <section className="rec-origin">
+        <div className="site-shell rec-origin-inner">
+          <p className="rec-origin-year">2020</p>
+          <h2 className="display">tolgamedyam → TOLWEX</h2>
+          <p>
+            2020’den beri sosyal medya teknik çözümleri. Yolculuk <strong>tolgamedyam</strong> ile
+            başladı — bugün <strong>TOLWEX</strong> adıyla devam ediyor.
+          </p>
         </div>
       </section>
     </div>

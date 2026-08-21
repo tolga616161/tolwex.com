@@ -1,6 +1,6 @@
 import { CONTACT_PHONE_DISPLAY, whatsappUrl } from "@/lib/contact";
 
-export type RecoveryKind = "closed" | "stolen" | "fake" | "ad_restrict";
+export type RecoveryKind = "closed" | "stolen";
 
 export type RecoveryPlatform =
   | "Instagram"
@@ -79,50 +79,18 @@ export const RECOVERY_SERVICES: RecoveryService[] = [
     cta: "WhatsApp’tan gönder",
   },
   {
-    kind: "ad_restrict",
-    slug: "reklam-kisit",
-    href: "/basvuru/reklam-kisit",
-    title: "Reklam Kısıtları",
-    short: "Reklam kısıtları",
-    eyebrow: "02",
-    description: "Reklam hesabı kısıtlıysa veya yayınlanmıyorsa başvuru formu.",
-    whenLabel: "Ne zaman kısıtlandı?",
-    whenPlaceholder: "Örn. dün, bu sabah…",
-    reasonLabel: "Kısıt mesajı / detay",
-    reasonPlaceholder: "Ekranda yazan uyarıyı aynen yaz.",
-    imageHint: "Kısıt ekranı — galeriden seç (opsiyonel)",
-    imageRequired: false,
-    cta: "WhatsApp’tan gönder",
-  },
-  {
     kind: "stolen",
     slug: "calinan",
     href: "/basvuru/calinan",
     title: "Çalınan Hesaplar",
     short: "Çalınan hesaplar",
-    eyebrow: "03",
+    eyebrow: "02",
     description: "Hesabın çalındıysa veya şüpheli giriş varsa teknik destek.",
     whenLabel: "Ne zaman çalındı?",
     whenPlaceholder: "Örn. dün gece…",
     reasonLabel: "Ne oldu?",
     reasonPlaceholder: "Şifre / e-posta değişimi, şüpheli hareket…",
     imageHint: "Şüpheli giriş ekranı — galeriden seç (opsiyonel)",
-    imageRequired: false,
-    cta: "WhatsApp’tan gönder",
-  },
-  {
-    kind: "fake",
-    slug: "fake",
-    href: "/basvuru/fake",
-    title: "Fake Hesaplar",
-    short: "Fake hesaplar",
-    eyebrow: "04",
-    description: "Adına veya fotoğrafına açılan sahte hesap için şikayet.",
-    whenLabel: "Ne zaman fark edildi?",
-    whenPlaceholder: "Örn. bu sabah…",
-    reasonLabel: "Sahte hesap detayı",
-    reasonPlaceholder: "Sahte @kullanıcıadı ve neyi taklit ettiği…",
-    imageHint: "Fake profil ekranı — galeriden seç (opsiyonel)",
     imageRequired: false,
     cta: "WhatsApp’tan gönder",
   },
@@ -134,9 +102,7 @@ export function getRecoveryService(slug: string): RecoveryService | undefined {
 
 const KIND_TITLE: Record<RecoveryKind, string> = {
   closed: "KAPANAN HESAP",
-  ad_restrict: "REKLAM KISITI",
   stolen: "ÇALINAN HESAP",
-  fake: "FAKE HESAP",
 };
 
 export function buildRecoveryWhatsAppText(input: {

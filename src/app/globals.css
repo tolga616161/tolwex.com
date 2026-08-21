@@ -4279,7 +4279,7 @@ a.sp-user:hover {
 /* Siber saldırı haritası */
 .cyber-map {
   position: absolute;
-  inset: 8% 4% 22%;
+  inset: 4% 2% 18%;
   opacity: 0.9;
   transform: perspective(900px) rotateX(18deg) scale(1.02);
   transform-origin: center 60%;
@@ -4346,6 +4346,186 @@ a.sp-user:hover {
   .rec-service-grid-4 { grid-template-columns: 1fr !important; }
   .cyber-map { inset: 4% 0 30%; opacity: 0.75; }
 }
+
+
+/* Ortada saldıran siyah hacker */
+.hero-hacker {
+  position: absolute;
+  left: 50%;
+  top: 28%;
+  transform: translateX(-50%);
+  width: min(220px, 52vw);
+  z-index: 4;
+  pointer-events: none;
+  animation: hero-hacker-bob 5.5s ease-in-out infinite;
+  filter: drop-shadow(0 20px 40px rgba(0,0,0,0.65)) drop-shadow(0 0 28px rgba(94,234,212,0.2));
+}
+.hero-hacker-svg {
+  width: 100%;
+  height: auto;
+  display: block;
+  position: relative;
+  z-index: 2;
+}
+.hero-hacker-pulse {
+  position: absolute;
+  left: 50%;
+  top: 42%;
+  width: 140%;
+  height: 70%;
+  transform: translate(-50%, -50%);
+  background: radial-gradient(ellipse, rgba(94,234,212,0.22), transparent 65%);
+  animation: hero-hacker-pulse 2.8s ease-in-out infinite;
+  z-index: 0;
+}
+.hero-hacker-beams {
+  position: absolute;
+  inset: -10% -20% 40%;
+  z-index: 1;
+  pointer-events: none;
+}
+.hero-hacker-beams span {
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  width: 2px;
+  height: 70%;
+  background: linear-gradient(to top, rgba(94,234,212,0.7), transparent);
+  transform-origin: bottom center;
+  animation: hero-beam 2.2s ease-in-out infinite;
+  opacity: 0.55;
+}
+.hero-hacker-beams span:nth-child(1) { transform: translateX(-50%) rotate(-28deg); animation-delay: 0s; }
+.hero-hacker-beams span:nth-child(2) { transform: translateX(-50%) rotate(-10deg); animation-delay: 0.25s; }
+.hero-hacker-beams span:nth-child(3) { transform: translateX(-50%) rotate(10deg); animation-delay: 0.5s; }
+.hero-hacker-beams span:nth-child(4) { transform: translateX(-50%) rotate(28deg); animation-delay: 0.75s; }
+.hero-hacker-rays .ray {
+  stroke-dasharray: 4 8;
+  animation: cyber-arc-flow 2s linear infinite;
+}
+.hero-hacker-rays .r2 { animation-delay: 0.3s; }
+.hero-hacker-rays .r3 { animation-delay: 0.6s; }
+@keyframes hero-hacker-bob {
+  0%, 100% { transform: translateX(-50%) translateY(0); }
+  50% { transform: translateX(-50%) translateY(-10px); }
+}
+@keyframes hero-hacker-pulse {
+  0%, 100% { opacity: 0.45; transform: translate(-50%, -50%) scale(0.92); }
+  50% { opacity: 0.9; transform: translate(-50%, -50%) scale(1.08); }
+}
+@keyframes hero-beam {
+  0%, 100% { opacity: 0.25; height: 55%; }
+  50% { opacity: 0.85; height: 85%; }
+}
+
+/* Hide tiny hat float if leftover */
+.hero-float-hat { display: none !important; }
+
+.rec-service-grid-2 {
+  display: grid !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  gap: 1rem !important;
+}
+@media (max-width: 640px) {
+  .rec-service-grid-2 { grid-template-columns: 1fr !important; }
+  .hero-hacker { top: 18%; width: min(160px, 48vw); }
+}
+
+/* Galeri upload — net, tıklanır */
+.rec-upload {
+  display: grid;
+  gap: 0.75rem;
+  padding: 1rem;
+  border: 1.5px solid rgba(255,255,255,0.14);
+  border-radius: 1rem;
+  background: rgba(255,255,255,0.03);
+}
+.rec-upload.has-file { border-color: rgba(94,234,212,0.35); }
+.rec-upload-input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+}
+.rec-upload-empty {
+  display: grid;
+  gap: 0.35rem;
+  text-align: center;
+  padding: 1.5rem 0.75rem;
+}
+.rec-upload-empty strong { font-size: 1.05rem; }
+.rec-upload-empty span { color: var(--ink-muted); font-size: 0.9rem; }
+.rec-upload-note { color: rgba(94,234,212,0.75) !important; font-size: 0.8rem !important; }
+.rec-upload-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  justify-content: center;
+}
+.rec-upload-btn {
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.rec-upload-name {
+  margin: 0;
+  text-align: center;
+  font-size: 0.82rem;
+  color: rgba(94,234,212,0.85);
+  word-break: break-all;
+}
+.rec-preview {
+  max-height: 220px;
+  width: 100%;
+  object-fit: contain;
+  border-radius: 0.65rem;
+  display: block;
+  margin: 0 auto;
+}
+
+/* Siber savaş band + origin */
+.rec-attack-band {
+  padding: 3rem 0;
+  background:
+    radial-gradient(ellipse 80% 80% at 50% 0%, rgba(94,234,212,0.1), transparent 60%),
+    linear-gradient(180deg, #050505, #0a0a0a);
+  border-top: 1px solid rgba(94,234,212,0.12);
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+.rec-attack-inner { max-width: 640px; }
+.rec-attack-kicker {
+  margin: 0 0 0.55rem;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.75rem;
+  letter-spacing: 0.2em;
+  color: #5eead4;
+}
+.rec-attack-inner h2 { margin: 0 0 0.65rem; }
+.rec-attack-inner p { margin: 0; color: var(--ink-muted); line-height: 1.55; }
+
+.rec-origin {
+  padding: 3.5rem 0 4rem;
+}
+.rec-origin-inner {
+  max-width: 560px;
+  padding: 1.75rem 1.5rem;
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 1.15rem;
+  background:
+    linear-gradient(145deg, rgba(255,255,255,0.04), rgba(94,234,212,0.04));
+}
+.rec-origin-year {
+  margin: 0 0 0.4rem;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.9rem;
+  letter-spacing: 0.28em;
+  color: #5eead4;
+}
+.rec-origin-inner h2 { margin: 0 0 0.65rem; font-size: clamp(1.4rem, 4vw, 2rem); }
+.rec-origin-inner p { margin: 0; color: var(--ink-muted); line-height: 1.6; }
 
 .hero-bit {
   position: absolute;
