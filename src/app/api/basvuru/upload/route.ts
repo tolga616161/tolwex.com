@@ -57,7 +57,10 @@ async function uploadToGithub(buf: Buffer, id: string, token: string): Promise<s
     console.error("github_media_upload", res.status, err.slice(0, 200));
     return null;
   }
-  // raw.githubusercontent.com — WhatsApp’ta açılır
+  const json = (await res.json().catch(() => null)) as {
+    content?: { download_url?: string };
+  } | null;
+  if (json?.content?.download_url) return json.content.download_url;
   return `https://raw.githubusercontent.com/${REPO}/${BRANCH}/${filePath}`;
 }
 
