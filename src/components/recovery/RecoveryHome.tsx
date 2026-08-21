@@ -5,9 +5,10 @@ import { RECOVERY_SERVICES } from "@/lib/recovery";
 import { GUIDE_ARTICLES } from "@/lib/guides";
 import { CONTACT_PHONE_DISPLAY, whatsappUrl } from "@/lib/contact";
 
-const GROUPS: Array<{ id: "hesap" | "reklam"; title: string; note: string }> = [
+const GROUPS: Array<{ id: "hesap" | "reklam" | "fake"; title: string; note: string }> = [
   { id: "hesap", title: "Hesap", note: "Kapanan ve çalınan hesap çözümleri" },
   { id: "reklam", title: "Reklam", note: "Kısıtlanan reklam hesabı desteği" },
+  { id: "fake", title: "Fake Hesaplar", note: "Tespit ve kapatma hizmeti" },
 ];
 
 export function RecoveryHome() {
@@ -26,8 +27,8 @@ export function RecoveryHome() {
             <p className="rec-hero-kicker">TOLWEX</p>
             <h1 className="rec-hero-title display">Sosyal Medya Uzmanı</h1>
             <p className="rec-hero-sub">
-              Kapanan hesap, çalınan hesap ve kısıtlanan reklam hesabı için teknik çözüm.
-              Kategori seç — WhatsApp’tan ulaş.
+              Kapanan, çalınan, kısıtlanan reklam ve fake hesaplar için teknik çözüm. Kategori
+              seç — WhatsApp’tan ulaş.
             </p>
             <div className="rec-hero-actions">
               <a href="#kategoriler" className="btn btn-primary">
@@ -46,7 +47,7 @@ export function RecoveryHome() {
           <div className="rec-services-head">
             <p className="rec-cat-kicker">Kategoriler</p>
             <h2 className="display">Ne için başvuracaksın?</h2>
-            <p>Hesap veya reklam — seç, formu doldur</p>
+            <p>Hesap, reklam veya fake — seç, formu doldur</p>
           </div>
 
           {GROUPS.map((g) => {
@@ -82,8 +83,8 @@ export function RecoveryHome() {
           <p className="rec-attack-kicker">SİBER SAVAŞ · CANLI</p>
           <h2 className="display">Hesabın hedef alındıysa yalnız değilsin</h2>
           <p>
-            Kapanan, çalınan veya reklamı kısıtlanan hesaplarda hızlı teknik müdahale. Harita canlı
-            — sen başvur, biz çözüme odaklanıyoruz.
+            Kapanan, çalınan, reklamı kısıtlanan veya fake hesaplarda hızlı teknik müdahale. Harita
+            canlı — sen başvur, biz çözüme odaklanıyoruz.
           </p>
         </div>
       </section>
@@ -95,7 +96,7 @@ export function RecoveryHome() {
             <p>Kısa rehberler</p>
           </div>
           <div className="rec-guide-grid">
-            {GUIDE_ARTICLES.slice(0, 2).map((a) => (
+            {GUIDE_ARTICLES.slice(0, 3).map((a) => (
               <Link key={a.slug} href={`/makaleler/${a.slug}`} className="rec-guide-card">
                 <h3>{a.title}</h3>
                 <p>{a.excerpt}</p>
@@ -115,7 +116,7 @@ export function RecoveryHome() {
           <ol className="rec-how-list">
             <li>
               <strong>Kategori seç</strong>
-              <span>Hesap veya reklam</span>
+              <span>Hesap, reklam veya fake</span>
             </li>
             <li>
               <strong>Platform + bilgi</strong>

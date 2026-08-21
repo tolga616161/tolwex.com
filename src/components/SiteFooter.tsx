@@ -7,6 +7,8 @@ import { TolwexLogo } from "@/components/brand/TolwexLogo";
 const LINKS = [
   { label: "Kapanan hesaplar", href: "/basvuru/kapanan" },
   { label: "Çalınan hesaplar", href: "/basvuru/calinan" },
+  { label: "Fake hesap tespit", href: "/basvuru/fake-tespit" },
+  { label: "Fake hesap kapatma", href: "/basvuru/fake-kapatma" },
   { label: "Kısıtlanan reklam", href: "/basvuru/reklam-kisit" },
   { label: "Makaleler", href: "/makaleler" },
   { label: "Gizlilik", href: "/privacy" },

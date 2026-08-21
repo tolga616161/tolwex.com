@@ -5,7 +5,7 @@ import { GUIDE_ARTICLES } from "@/lib/guides";
 export const metadata: Metadata = {
   title: "Yardımcı Makaleler",
   description:
-    "Kapanan hesap, askıya alınan hesap, kullanıcı adı alma ve reklam süreçleri için pratik rehberler.",
+    "Kapanan, çalınan, fake hesap ve reklam kısıtı için kısa rehberler. Detaylı bilgi için TOLWEX’e ulaş.",
 };
 
 export default function MakalelerPage() {
@@ -14,7 +14,9 @@ export default function MakalelerPage() {
       <div className="site-shell guide-hero">
         <p className="guide-kicker">Rehber</p>
         <h1 className="display">Yardımcı makaleler</h1>
-        <p>Sosyal medya hesap sorunlarında ilk okuman gereken kısa notlar.</p>
+        <p>
+          Genel notlar — kesin adımlar için her yazıdan TOLWEX’e ulaşıp bilgi al.
+        </p>
       </div>
       <div className="site-shell guide-list">
         {GUIDE_ARTICLES.map((a) => (

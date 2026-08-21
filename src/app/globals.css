@@ -4956,6 +4956,15 @@ a.sp-user:hover {
   color: rgba(255,255,255,0.88);
   font-size: 1.05rem;
 }
+.guide-cta-note {
+  margin-top: 0.5rem !important;
+  padding: 1rem 1.1rem;
+  border: 1px solid rgba(94, 234, 212, 0.25);
+  border-radius: 0.9rem;
+  background: rgba(94, 234, 212, 0.06);
+  color: rgba(255, 255, 255, 0.9) !important;
+  font-size: 0.98rem !important;
+}
 .guide-article-foot {
   display: flex;
   flex-wrap: wrap;

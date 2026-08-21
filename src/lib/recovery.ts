@@ -1,6 +1,11 @@
 import { CONTACT_PHONE_DISPLAY, whatsappUrl } from "@/lib/contact";
 
-export type RecoveryKind = "closed" | "stolen" | "ad_restrict";
+export type RecoveryKind =
+  | "closed"
+  | "stolen"
+  | "ad_restrict"
+  | "fake_detect"
+  | "fake_close";
 
 export type RecoveryPlatform =
   | "Instagram"
@@ -39,7 +44,7 @@ export const PLATFORM_ICON: Partial<Record<RecoveryPlatform, string>> = {
   Snapchat: "/brand/social/sc.png",
   LinkedIn: "/brand/social/in.png",
   Pinterest: "/brand/social/pt.png",
-  WhatsApp: "/brand/social/other.svg",
+  WhatsApp: "/brand/social/wa.svg",
   Diğer: "/brand/social/other.svg",
 };
 
@@ -58,7 +63,7 @@ export type RecoveryService = {
   imageHint: string;
   imageRequired?: boolean;
   cta: string;
-  group: "hesap" | "reklam";
+  group: "hesap" | "reklam" | "fake";
 };
 
 export const RECOVERY_SERVICES: RecoveryService[] = [
@@ -115,6 +120,42 @@ export const RECOVERY_SERVICES: RecoveryService[] = [
     cta: "WhatsApp’a gönder",
     group: "reklam",
   },
+  {
+    kind: "fake_detect",
+    slug: "fake-tespit",
+    href: "/basvuru/fake-tespit",
+    title: "Fake Hesap Tespit",
+    short: "Fake hesap tespit",
+    eyebrow: "04",
+    description:
+      "Taklit / sahte hesap şüphesinde tespit ve doğrulama. Detaylı bilgi için başvur.",
+    whenLabel: "Ne zaman fark ettin?",
+    whenPlaceholder: "Örn. bugün, geçen hafta…",
+    reasonLabel: "Şüpheli hesap / ne gördün?",
+    reasonPlaceholder: "Sahte hesabın @’si, profil linki, ne yaptığını yaz.",
+    imageHint: "Sahte profil / mesaj ekranı — galeriden seç (opsiyonel)",
+    imageRequired: false,
+    cta: "WhatsApp’a gönder",
+    group: "fake",
+  },
+  {
+    kind: "fake_close",
+    slug: "fake-kapatma",
+    href: "/basvuru/fake-kapatma",
+    title: "Fake Hesap Kapatma",
+    short: "Fake hesap kapatma",
+    eyebrow: "05",
+    description:
+      "Adını / markanı kullanan fake hesapların kapatılması için teknik başvuru.",
+    whenLabel: "Ne zamandır aktif?",
+    whenPlaceholder: "Örn. 1 haftadır, yeni açılmış…",
+    reasonLabel: "Kapatılmasını istediğin hesap",
+    reasonPlaceholder: "Fake hesabın @’si, linki ve neden kapanması gerektiği.",
+    imageHint: "Fake profil ekranı — galeriden seç (opsiyonel)",
+    imageRequired: false,
+    cta: "WhatsApp’a gönder",
+    group: "fake",
+  },
 ];
 
 export function getRecoveryService(slug: string): RecoveryService | undefined {
@@ -125,6 +166,8 @@ const KIND_TITLE: Record<RecoveryKind, string> = {
   closed: "KAPANAN HESAP",
   stolen: "ÇALINAN HESAP",
   ad_restrict: "KISITLANAN REKLAM HESABI",
+  fake_detect: "FAKE HESAP TESPİT",
+  fake_close: "FAKE HESAP KAPATMA",
 };
 
 export function buildRecoveryWhatsAppText(input: {

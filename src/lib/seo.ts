@@ -1,6 +1,6 @@
 export const SITE_NAME = "TOLWEX";
 export const SITE_TAGLINE =
-  "TOLWEX Sosyal Medya Uzmanı · kapanan hesap, çalınan hesap, reklam kısıtı";
+  "TOLWEX Sosyal Medya Uzmanı · kapanan, çalınan, fake hesap, reklam kısıtı";
 
 export function siteUrl(): string {
   const raw =
@@ -17,6 +17,9 @@ export const SEO_KEYWORDS = [
   "teknik destek",
   "kapanan hesap",
   "çalınan hesap",
+  "fake hesap",
+  "fake hesap kapatma",
+  "fake hesap tespit",
   "Instagram hesap",
   "reklam kısıtı",
   "influencer",

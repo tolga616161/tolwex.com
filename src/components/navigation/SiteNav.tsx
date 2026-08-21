@@ -11,7 +11,8 @@ const NAV = [
   { label: "Ana Sayfa", href: "/" },
   { label: "Kapanan", href: "/basvuru/kapanan" },
   { label: "Çalınan", href: "/basvuru/calinan" },
-  { label: "Reklam kısıt", href: "/basvuru/reklam-kisit" },
+  { label: "Fake", href: "/basvuru/fake-tespit" },
+  { label: "Reklam", href: "/basvuru/reklam-kisit" },
   { label: "Kategoriler", href: "/#kategoriler" },
 ];
 
