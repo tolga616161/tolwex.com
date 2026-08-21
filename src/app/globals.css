@@ -4487,6 +4487,45 @@ a.sp-user:hover {
 }
 
 /* Siber savaş band + origin */
+
+/* Kategori blokları */
+.rec-cat-kicker {
+  margin: 0 0 0.4rem;
+  font-size: 0.78rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: #5eead4;
+  font-weight: 600;
+}
+.rec-cat-block {
+  margin-bottom: 2.2rem;
+}
+.rec-cat-block-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.55rem 1rem;
+  margin-bottom: 0.9rem;
+}
+.rec-cat-block-head h3 {
+  margin: 0;
+  font-size: 1.15rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+.rec-cat-block-head span {
+  color: var(--ink-muted);
+  font-size: 0.9rem;
+}
+
+/* Hacker — daha büyük, net silüet */
+.hero-hacker {
+  width: min(260px, 58vw) !important;
+  top: 22% !important;
+}
+@media (max-width: 640px) {
+  .hero-hacker { width: min(190px, 52vw) !important; top: 14% !important; }
+}
 .rec-attack-band {
   padding: 3rem 0;
   background:

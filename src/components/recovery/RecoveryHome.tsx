@@ -5,6 +5,11 @@ import { RECOVERY_SERVICES } from "@/lib/recovery";
 import { GUIDE_ARTICLES } from "@/lib/guides";
 import { CONTACT_PHONE_DISPLAY, whatsappUrl } from "@/lib/contact";
 
+const GROUPS: Array<{ id: "hesap" | "reklam"; title: string; note: string }> = [
+  { id: "hesap", title: "Hesap", note: "Kapanan ve çalınan hesap çözümleri" },
+  { id: "reklam", title: "Reklam", note: "Kısıtlanan reklam hesabı desteği" },
+];
+
 export function RecoveryHome() {
   const wa = whatsappUrl("Merhaba, TOLWEX sosyal medya uzman desteği için yazıyorum.");
 
@@ -24,11 +29,12 @@ export function RecoveryHome() {
               <span>çözümler</span>
             </h1>
             <p className="rec-hero-sub">
-              Kapanan ve çalınan hesaplar için teknik çözüm. Platform seç — WhatsApp’tan ulaş.
+              Kapanan hesap, çalınan hesap, kısıtlanan reklam hesabı. Kategori seç — WhatsApp’tan
+              ulaş.
             </p>
             <div className="rec-hero-actions">
-              <a href="#menuler" className="btn btn-primary">
-                Menüler
+              <a href="#kategoriler" className="btn btn-primary">
+                Kategoriler
               </a>
               <a href={wa} className="btn btn-ghost" target="_blank" rel="noopener noreferrer">
                 WhatsApp
@@ -38,22 +44,35 @@ export function RecoveryHome() {
         </div>
       </section>
 
-      <section className="rec-services" id="menuler">
+      <section className="rec-services" id="kategoriler">
         <div className="site-shell">
           <div className="rec-services-head">
-            <h2 className="display">Menüler</h2>
-            <p>Kapanan · çalınan — seç, başvur</p>
+            <p className="rec-cat-kicker">Kategoriler</p>
+            <h2 className="display">Ne için başvuracaksın?</h2>
+            <p>Hesap veya reklam — seç, formu doldur</p>
           </div>
-          <div className="rec-service-grid rec-service-grid-2">
-            {RECOVERY_SERVICES.map((s) => (
-              <Link key={s.slug} href={s.href} className="rec-service-card rec-cat-card">
-                <span className="rec-cat-num">{s.eyebrow}</span>
-                <h3>{s.title}</h3>
-                <p>{s.description}</p>
-                <span className="rec-service-go">Başvur →</span>
-              </Link>
-            ))}
-          </div>
+
+          {GROUPS.map((g) => {
+            const items = RECOVERY_SERVICES.filter((s) => s.group === g.id);
+            return (
+              <div key={g.id} className="rec-cat-block">
+                <div className="rec-cat-block-head">
+                  <h3>{g.title}</h3>
+                  <span>{g.note}</span>
+                </div>
+                <div className="rec-service-grid rec-service-grid-auto">
+                  {items.map((s) => (
+                    <Link key={s.slug} href={s.href} className="rec-service-card rec-cat-card">
+                      <span className="rec-cat-num">{s.eyebrow}</span>
+                      <h3>{s.title}</h3>
+                      <p>{s.description}</p>
+                      <span className="rec-service-go">Başvur →</span>
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            );
+          })}
         </div>
       </section>
 
@@ -62,8 +81,8 @@ export function RecoveryHome() {
           <p className="rec-attack-kicker">SİBER SAVAŞ · CANLI</p>
           <h2 className="display">Hesabın hedef alındıysa yalnız değilsin</h2>
           <p>
-            Kapanan veya çalınan hesaplarda hızlı teknik müdahale. Harita canlı — sen başvur, biz
-            çözüme odaklanıyoruz.
+            Kapanan, çalınan veya reklamı kısıtlanan hesaplarda hızlı teknik müdahale. Harita canlı
+            — sen başvur, biz çözüme odaklanıyoruz.
           </p>
         </div>
       </section>
@@ -94,8 +113,8 @@ export function RecoveryHome() {
           <h2 className="display">3 adım</h2>
           <ol className="rec-how-list">
             <li>
-              <strong>Menü seç</strong>
-              <span>Kapanan veya çalınan</span>
+              <strong>Kategori seç</strong>
+              <span>Hesap veya reklam</span>
             </li>
             <li>
               <strong>Platform + bilgi</strong>

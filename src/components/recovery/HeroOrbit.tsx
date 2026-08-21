@@ -9,7 +9,7 @@ const SOCIAL = [
   { id: "tg", src: "/brand/social/tg.svg", label: "Telegram", cls: "hero-sm-tg" },
 ];
 
-/** 3D hero: siber savaş haritası + ortada saldıran siyah hacker */
+/** 3D hero: siber savaş haritası + ortada mature hacker silüeti */
 export function HeroOrbit() {
   return (
     <div className="hero-orbit" aria-hidden>
@@ -36,8 +36,7 @@ export function HeroOrbit() {
         </div>
       ))}
 
-      {/* Ortada: şapkalı siyah hacker — haritaya saldırıyor */}
-      <div className="hero-hacker" title="Hacker">
+      <div className="hero-hacker" title="Operator">
         <div className="hero-hacker-pulse" />
         <div className="hero-hacker-beams">
           <span />
@@ -109,21 +108,30 @@ function CyberAttackMap() {
   );
 }
 
-/** Tam figür: şapkalı siyah hacker (hoodie + laptop saldırı pozu) */
+/** Olgun silüet: fedora + hoodie + maske + terminal — çocuksu değil */
 function HackerFigure() {
   return (
-    <svg viewBox="0 0 200 240" className="hero-hacker-svg" aria-hidden>
+    <svg viewBox="0 0 220 280" className="hero-hacker-svg" aria-hidden>
       <defs>
-        <linearGradient id="hoodieGrad" x1="0%" y1="0%" x2="0%" y2="100%">
-          <stop offset="0%" stopColor="#1a1a1a" />
+        <linearGradient id="coatGrad" x1="0%" y1="0%" x2="40%" y2="100%">
+          <stop offset="0%" stopColor="#1c1c1c" />
+          <stop offset="55%" stopColor="#0a0a0a" />
+          <stop offset="100%" stopColor="#000" />
+        </linearGradient>
+        <linearGradient id="hatGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stopColor="#222" />
           <stop offset="100%" stopColor="#050505" />
         </linearGradient>
-        <linearGradient id="screenGlow" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stopColor="#5eead4" stopOpacity="0.9" />
-          <stop offset="100%" stopColor="#5eead4" stopOpacity="0.2" />
+        <linearGradient id="scrGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stopColor="#5eead4" stopOpacity="0.85" />
+          <stop offset="100%" stopColor="#0d3d36" stopOpacity="0.4" />
         </linearGradient>
-        <filter id="hackerGlow">
-          <feGaussianBlur stdDeviation="3" result="b" />
+        <radialGradient id="eyeGlow" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stopColor="#5eead4" stopOpacity="1" />
+          <stop offset="100%" stopColor="#5eead4" stopOpacity="0" />
+        </radialGradient>
+        <filter id="softGlow" x="-40%" y="-40%" width="180%" height="180%">
+          <feGaussianBlur stdDeviation="2.5" result="b" />
           <feMerge>
             <feMergeNode in="b" />
             <feMergeNode in="SourceGraphic" />
@@ -131,104 +139,136 @@ function HackerFigure() {
         </filter>
       </defs>
 
-      {/* Shadow */}
-      <ellipse cx="100" cy="228" rx="48" ry="8" fill="rgba(94,234,212,0.12)" />
+      {/* Floor shadow */}
+      <ellipse cx="110" cy="268" rx="56" ry="7" fill="rgba(94,234,212,0.1)" />
 
-      {/* Body / hoodie */}
+      {/* Long coat / body silhouette */}
       <path
-        d="M58 118c8-28 28-48 42-48s34 20 42 48c6 22 8 48 6 72H52c-2-24 0-50 6-72z"
-        fill="url(#hoodieGrad)"
-        stroke="#5eead4"
-        strokeWidth="1.4"
-        strokeOpacity="0.45"
+        d="M62 128
+           C70 96 88 78 110 78
+           C132 78 150 96 158 128
+           C168 168 172 220 168 252
+           L52 252
+           C48 220 52 168 62 128Z"
+        fill="url(#coatGrad)"
+        stroke="rgba(94,234,212,0.28)"
+        strokeWidth="1.2"
       />
-      {/* Hood */}
-      <path
-        d="M72 95c6-22 18-34 28-34s22 12 28 34c-8 6-18 10-28 10s-20-4-28-10z"
-        fill="#0d0d0d"
-        stroke="rgba(255,255,255,0.12)"
-        strokeWidth="1"
-      />
+      {/* Lapel lines */}
+      <path d="M96 130 L88 210" stroke="rgba(255,255,255,0.08)" strokeWidth="1.2" fill="none" />
+      <path d="M124 130 L132 210" stroke="rgba(255,255,255,0.08)" strokeWidth="1.2" fill="none" />
 
-      {/* Face (shadowed) */}
-      <ellipse cx="100" cy="88" rx="18" ry="20" fill="#0a0a0a" />
-      <ellipse cx="93" cy="86" rx="3" ry="2" fill="#5eead4" opacity="0.85" filter="url(#hackerGlow)" />
-      <ellipse cx="107" cy="86" rx="3" ry="2" fill="#5eead4" opacity="0.85" filter="url(#hackerGlow)" />
-
-      {/* Hacker hat */}
+      {/* Hood under hat */}
       <path
-        d="M68 78c4-22 16-34 32-34s28 12 32 34H68z"
+        d="M78 118 C86 92 98 82 110 82 C122 82 134 92 142 118 C130 126 118 130 110 130 C102 130 90 126 78 118Z"
         fill="#080808"
-        stroke="#5eead4"
-        strokeWidth="1.5"
       />
+
+      {/* Head / mask */}
+      <ellipse cx="110" cy="112" rx="22" ry="26" fill="#0b0b0b" />
       <path
-        d="M62 78h76c2 0 3.5 1.2 3.5 2.8S140 84 138 84H62c-2 0-3.5-1.4-3.5-3.2S60 78 62 78z"
-        fill="#111"
-        stroke="rgba(255,255,255,0.18)"
+        d="M90 118 C96 128 104 132 110 132 C116 132 124 128 130 118"
+        fill="#050505"
+        stroke="rgba(94,234,212,0.2)"
         strokeWidth="0.8"
       />
-      <path
-        d="M108 48c2-10 8-16 16-18-1 8 0 14-4 18"
-        fill="none"
-        stroke="#5eead4"
-        strokeWidth="1.6"
-        strokeLinecap="round"
+      {/* Mask visor */}
+      <rect
+        x="92"
+        y="104"
+        width="36"
+        height="12"
+        rx="3"
+        fill="#04110e"
+        stroke="rgba(94,234,212,0.45)"
+        strokeWidth="1"
       />
-      <circle cx="100" cy="68" r="2.2" fill="#5eead4" />
+      <ellipse cx="101" cy="110" rx="4" ry="3" fill="url(#eyeGlow)" filter="url(#softGlow)" />
+      <ellipse cx="119" cy="110" rx="4" ry="3" fill="url(#eyeGlow)" filter="url(#softGlow)" />
+      <line x1="105" y1="110" x2="115" y2="110" stroke="#5eead4" strokeWidth="0.7" opacity="0.5" />
 
-      {/* Arms to laptop */}
+      {/* Fedora — sharp, adult proportions */}
+      <ellipse cx="110" cy="86" rx="48" ry="7" fill="#0a0a0a" stroke="rgba(94,234,212,0.35)" strokeWidth="1.1" />
       <path
-        d="M58 140c-18 18-28 38-30 52"
-        fill="none"
-        stroke="#111"
-        strokeWidth="14"
+        d="M78 86
+           C82 58 94 46 110 46
+           C126 46 138 58 142 86
+           Z"
+        fill="url(#hatGrad)"
+        stroke="rgba(94,234,212,0.4)"
+        strokeWidth="1.3"
+      />
+      {/* Hat band */}
+      <path
+        d="M82 78 H138"
+        stroke="#5eead4"
+        strokeWidth="2"
+        opacity="0.55"
         strokeLinecap="round"
       />
+      {/* Feather / antenna accent */}
       <path
-        d="M142 140c18 18 28 38 30 52"
-        fill="none"
-        stroke="#111"
-        strokeWidth="14"
-        strokeLinecap="round"
-      />
-      <path
-        d="M58 140c-18 18-28 38-30 52"
+        d="M128 52 C138 40 148 38 154 42"
         fill="none"
         stroke="#5eead4"
-        strokeWidth="1.2"
-        strokeOpacity="0.35"
+        strokeWidth="1.4"
+        strokeLinecap="round"
+        opacity="0.7"
+      />
+
+      {/* Arms — folded toward keyboard */}
+      <path
+        d="M62 150 C40 175 32 205 36 228"
+        fill="none"
+        stroke="#0c0c0c"
+        strokeWidth="16"
         strokeLinecap="round"
       />
       <path
-        d="M142 140c18 18 28 38 30 52"
+        d="M158 150 C180 175 188 205 184 228"
         fill="none"
-        stroke="#5eead4"
+        stroke="#0c0c0c"
+        strokeWidth="16"
+        strokeLinecap="round"
+      />
+      <path
+        d="M62 150 C40 175 32 205 36 228"
+        fill="none"
+        stroke="rgba(94,234,212,0.25)"
         strokeWidth="1.2"
-        strokeOpacity="0.35"
+        strokeLinecap="round"
+      />
+      <path
+        d="M158 150 C180 175 188 205 184 228"
+        fill="none"
+        stroke="rgba(94,234,212,0.25)"
+        strokeWidth="1.2"
         strokeLinecap="round"
       />
 
-      {/* Laptop */}
-      <rect x="48" y="168" width="104" height="58" rx="4" fill="#0a0a0a" stroke="#5eead4" strokeWidth="1.3" />
-      <rect x="54" y="174" width="92" height="40" rx="2" fill="#04110c" />
-      <rect x="54" y="174" width="92" height="40" rx="2" fill="url(#screenGlow)" opacity="0.35" />
-      {/* Code lines on screen */}
-      <g stroke="#5eead4" strokeWidth="1.2" opacity="0.8">
-        <line x1="62" y1="184" x2="110" y2="184" />
-        <line x1="62" y1="192" x2="128" y2="192" />
-        <line x1="62" y1="200" x2="98" y2="200" />
-        <line x1="62" y1="208" x2="118" y2="208" />
+      {/* Terminal / laptop — low, cinematic */}
+      <rect
+        x="48"
+        y="208"
+        width="124"
+        height="42"
+        rx="3"
+        fill="#050505"
+        stroke="rgba(94,234,212,0.4)"
+        strokeWidth="1.2"
+      />
+      <rect x="54" y="213" width="112" height="28" rx="2" fill="#02110d" />
+      <rect x="54" y="213" width="112" height="28" rx="2" fill="url(#scrGrad)" opacity="0.28" />
+      <g fontFamily="ui-monospace, monospace" fontSize="6.5" fill="#5eead4" opacity="0.85">
+        <text x="60" y="223">root@tolwex:~# inject --target</text>
+        <text x="60" y="232">[OK] session opened · 01</text>
       </g>
-      <text x="70" y="206" fill="#5eead4" fontSize="7" fontFamily="monospace" opacity="0.7">
-        01 ATTACK
-      </text>
 
-      {/* Attack rays from laptop upward to map */}
-      <g className="hero-hacker-rays" stroke="#5eead4" strokeWidth="1.2" fill="none" opacity="0.7">
-        <path d="M100 168 L100 120" className="ray r1" />
-        <path d="M80 170 L40 100" className="ray r2" />
-        <path d="M120 170 L160 100" className="ray r3" />
+      {/* Attack beams up to map */}
+      <g className="hero-hacker-rays" stroke="#5eead4" strokeWidth="1.15" fill="none" opacity="0.65">
+        <path className="ray r1" d="M110 208 L110 150" />
+        <path className="ray r2" d="M78 210 L42 130" />
+        <path className="ray r3" d="M142 210 L178 130" />
       </g>
     </svg>
   );

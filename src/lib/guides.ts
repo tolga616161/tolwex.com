@@ -32,6 +32,18 @@ export const GUIDE_ARTICLES: GuideArticle[] = [
       "TOLWEX’e platform, @ ve kısa olay özeti gönder; fotoğraf opsiyonel.",
     ],
   },
+  {
+    slug: "kisitlanan-reklam-hesabi",
+    title: "Kısıtlanan reklam hesabı",
+    excerpt: "Reklam hesabı kısıtı veya yayınlanmayan reklamlar için kısa checklist.",
+    tags: ["Reklam", "Kısıt"],
+    relatedHref: "/basvuru/reklam-kisit",
+    body: [
+      "Kısıt mesajını ve hesap adını not et.",
+      "Hangi reklamlar etkilendiğini yaz.",
+      "Kısıtlanan reklam hesabı kategorisinden başvurunu ilet.",
+    ],
+  },
 ];
 
 export function getGuide(slug: string) {

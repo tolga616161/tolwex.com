@@ -1,6 +1,6 @@
 import { CONTACT_PHONE_DISPLAY, whatsappUrl } from "@/lib/contact";
 
-export type RecoveryKind = "closed" | "stolen";
+export type RecoveryKind = "closed" | "stolen" | "ad_restrict";
 
 export type RecoveryPlatform =
   | "Instagram"
@@ -58,6 +58,7 @@ export type RecoveryService = {
   imageHint: string;
   imageRequired?: boolean;
   cta: string;
+  group: "hesap" | "reklam";
 };
 
 export const RECOVERY_SERVICES: RecoveryService[] = [
@@ -77,6 +78,7 @@ export const RECOVERY_SERVICES: RecoveryService[] = [
     imageHint: "Kapanma ekranı — galeriden seç (opsiyonel)",
     imageRequired: false,
     cta: "WhatsApp’a gönder",
+    group: "hesap",
   },
   {
     kind: "stolen",
@@ -93,6 +95,25 @@ export const RECOVERY_SERVICES: RecoveryService[] = [
     imageHint: "Şüpheli giriş ekranı — galeriden seç (opsiyonel)",
     imageRequired: false,
     cta: "WhatsApp’a gönder",
+    group: "hesap",
+  },
+  {
+    kind: "ad_restrict",
+    slug: "reklam-kisit",
+    href: "/basvuru/reklam-kisit",
+    title: "Kısıtlanan Reklam Hesabı",
+    short: "Kısıtlanan reklam",
+    eyebrow: "03",
+    description:
+      "Reklam hesabın kısıtlandıysa, reklamlar yayınlanmıyorsa teknik başvuru.",
+    whenLabel: "Ne zaman kısıtlandı?",
+    whenPlaceholder: "Örn. dün, bu sabah…",
+    reasonLabel: "Kısıt mesajı / detay",
+    reasonPlaceholder: "Ekranda yazan uyarıyı aynen yaz.",
+    imageHint: "Kısıt ekranı — galeriden seç (opsiyonel)",
+    imageRequired: false,
+    cta: "WhatsApp’a gönder",
+    group: "reklam",
   },
 ];
 
@@ -103,6 +124,7 @@ export function getRecoveryService(slug: string): RecoveryService | undefined {
 const KIND_TITLE: Record<RecoveryKind, string> = {
   closed: "KAPANAN HESAP",
   stolen: "ÇALINAN HESAP",
+  ad_restrict: "KISITLANAN REKLAM HESABI",
 };
 
 export function buildRecoveryWhatsAppText(input: {
