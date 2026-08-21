@@ -1,10 +1,13 @@
 "use client";
 
-/** Sade hero dekor: IG / FB + dönen yıldız & dünya — abartısız */
+/** Hero dekor: IG / FB + dönen yıldız & dünya — abartısız, üstü doldurur */
 export function HeroOrbit() {
   return (
     <div className="hero-orbit" aria-hidden>
-      <div className="hero-orbit-ring" />
+      <div className="hero-orbit-glow" />
+      <div className="hero-orbit-ring hero-orbit-ring-a" />
+      <div className="hero-orbit-ring hero-orbit-ring-b" />
+
       <div className="hero-float hero-float-ig" title="Instagram">
         <IgMark />
       </div>
@@ -17,9 +20,11 @@ export function HeroOrbit() {
       <div className="hero-float hero-float-globe">
         <GlobeMark />
       </div>
-      <span className="hero-bit hero-bit-a">01</span>
-      <span className="hero-bit hero-bit-b">10</span>
+
+      <span className="hero-bit hero-bit-a">010101</span>
+      <span className="hero-bit hero-bit-b">101010</span>
       <span className="hero-bit hero-bit-c">01</span>
+      <span className="hero-bit hero-bit-d">10</span>
     </div>
   );
 }

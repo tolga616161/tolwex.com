@@ -17,8 +17,8 @@ export function RecoveryHome() {
     <div className="rec-home is-clean">
       <section className="rec-hero rec-hero-clean rec-hero-filled">
         <div className="rec-hero-soft" aria-hidden />
+        <HeroOrbit />
         <div className="site-shell rec-hero-stack">
-          <HeroOrbit />
           <div className="rec-hero-inner">
             <div className="rec-hero-logo">
               <TolwexLogo size="lg" showMark showWordmark />
