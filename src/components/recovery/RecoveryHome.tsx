@@ -5,16 +5,6 @@ import { RECOVERY_SERVICES } from "@/lib/recovery";
 import { GUIDE_ARTICLES } from "@/lib/guides";
 import { CONTACT_PHONE_DISPLAY, whatsappUrl } from "@/lib/contact";
 
-const GROUPS: Array<{ id: "hesap" | "buyume" | "reklam"; title: string; note: string }> = [
-  {
-    id: "hesap",
-    title: "Hesap çözümleri",
-    note: "Kapanan, askıya alınan, kullanıcı adı ve güvenlik",
-  },
-  { id: "buyume", title: "Büyüme & influencer", note: "Creator ve büyüme danışmanlığı" },
-  { id: "reklam", title: "Reklam", note: "Kısıt kaldırma ve reklam onayları" },
-];
-
 export function RecoveryHome() {
   const wa = whatsappUrl("Merhaba, TOLWEX sosyal medya uzman desteği için yazıyorum.");
 
@@ -34,11 +24,10 @@ export function RecoveryHome() {
               <span>çözümler</span>
             </h1>
             <p className="rec-hero-sub">
-              Kapanan hesap, askıya alınan hesap, kullanıcı adı alma — Instagram, TikTok, X ve daha
-              fazlası. Platform seç, başvur, WhatsApp’tan ulaş.
+              Kapanan, çalınan, fake hesap ve reklam kısıtları. Platform seç — WhatsApp’tan ulaş.
             </p>
             <div className="rec-hero-actions">
-              <a href="#kategoriler" className="btn btn-primary">
+              <a href="#menuler" className="btn btn-primary">
                 Menüler
               </a>
               <a href={wa} className="btn btn-ghost" target="_blank" rel="noopener noreferrer">
@@ -49,29 +38,22 @@ export function RecoveryHome() {
         </div>
       </section>
 
-      <section className="rec-services" id="kategoriler">
+      <section className="rec-services" id="menuler">
         <div className="site-shell">
-          {GROUPS.map((g) => {
-            const items = RECOVERY_SERVICES.filter((s) => s.group === g.id);
-            return (
-              <div key={g.id} className="rec-group">
-                <div className="rec-services-head">
-                  <h2 className="display">{g.title}</h2>
-                  <p>{g.note}</p>
-                </div>
-                <div className="rec-service-grid rec-service-grid-auto">
-                  {items.map((s) => (
-                    <Link key={s.slug} href={s.href} className="rec-service-card rec-cat-card">
-                      <span className="rec-cat-num">{s.eyebrow}</span>
-                      <h3>{s.title}</h3>
-                      <p>{s.description}</p>
-                      <span className="rec-service-go">Başvur →</span>
-                    </Link>
-                  ))}
-                </div>
-              </div>
-            );
-          })}
+          <div className="rec-services-head">
+            <h2 className="display">Menüler</h2>
+            <p>Dört ana çözüm — seç, başvur</p>
+          </div>
+          <div className="rec-service-grid rec-service-grid-4">
+            {RECOVERY_SERVICES.map((s) => (
+              <Link key={s.slug} href={s.href} className="rec-service-card rec-cat-card">
+                <span className="rec-cat-num">{s.eyebrow}</span>
+                <h3>{s.title}</h3>
+                <p>{s.description}</p>
+                <span className="rec-service-go">Başvur →</span>
+              </Link>
+            ))}
+          </div>
         </div>
       </section>
 
@@ -79,7 +61,7 @@ export function RecoveryHome() {
         <div className="site-shell">
           <div className="rec-services-head">
             <h2 className="display">Yardımcı makaleler</h2>
-            <p>Başvurmadan önce oku — süreç daha hızlı ilerler</p>
+            <p>Kısa rehberler</p>
           </div>
           <div className="rec-guide-grid">
             {GUIDE_ARTICLES.slice(0, 4).map((a) => (
@@ -102,11 +84,11 @@ export function RecoveryHome() {
           <ol className="rec-how-list">
             <li>
               <strong>Menü seç</strong>
-              <span>Kapanan, askı, username…</span>
+              <span>Kapanan · reklam · çalıntı · fake</span>
             </li>
             <li>
               <strong>Platform + bilgi</strong>
-              <span>Logo seç, kısa yaz — foto opsiyonel</span>
+              <span>Logo seç — foto galeriden (opsiyonel)</span>
             </li>
             <li>
               <strong>WhatsApp</strong>

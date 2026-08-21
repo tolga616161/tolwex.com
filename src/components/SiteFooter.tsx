@@ -5,12 +5,11 @@ import { usePathname } from "next/navigation";
 import { TolwexLogo } from "@/components/brand/TolwexLogo";
 
 const LINKS = [
-  { label: "Kapanan hesap", href: "/basvuru/kapanan" },
-  { label: "Askıya alınan", href: "/basvuru/aski" },
-  { label: "Kullanıcı adı", href: "/basvuru/kullanici-adi" },
+  { label: "Kapanan hesaplar", href: "/basvuru/kapanan" },
+  { label: "Reklam kısıtları", href: "/basvuru/reklam-kisit" },
+  { label: "Çalınan hesaplar", href: "/basvuru/calinan" },
+  { label: "Fake hesaplar", href: "/basvuru/fake" },
   { label: "Makaleler", href: "/makaleler" },
-  { label: "Influencer", href: "/basvuru/influencer" },
-  { label: "Reklam", href: "/basvuru/reklam-kisit" },
   { label: "Gizlilik", href: "/privacy" },
   { label: "Kullanım Koşulları", href: "/terms" },
 ];

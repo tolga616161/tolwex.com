@@ -165,8 +165,7 @@ export function RecoveryApplicationForm({ service }: { service: RecoveryService 
         <input
           ref={inputRef}
           type="file"
-          accept="image/*,.heic,.heif,.jpg,.jpeg,.png,.webp"
-          capture="environment"
+          accept="image/jpeg,image/png,image/webp,image/gif,image/heic,image/heif,.jpg,.jpeg,.png,.webp,.heic"
           className="sr-only"
           id={`photo-${service.slug}`}
           disabled={busy}
@@ -177,9 +176,9 @@ export function RecoveryApplicationForm({ service }: { service: RecoveryService 
           <img src={preview} alt="Yüklenen fotoğraf" className="rec-preview" />
         ) : (
           <label htmlFor={`photo-${service.slug}`} className="rec-drop-copy">
-            <strong>Fotoğraf ekle (opsiyonel)</strong>
+            <strong>Galeriden fotoğraf ekle (opsiyonel)</strong>
             <em>{service.imageHint}</em>
-            <em className="rec-drop-sub">Dokun · sürükle-bırak · JPG PNG WEBP</em>
+            <em className="rec-drop-sub">Kamera açılmaz · galeri / dosya seç</em>
           </label>
         )}
       </div>
@@ -228,11 +227,7 @@ export function RecoveryApplicationForm({ service }: { service: RecoveryService 
 
       <label className="rec-field">
         <span>
-          {service.kind === "username"
-            ? "İstediğin kullanıcı adı *"
-            : service.kind === "fake"
-              ? "Sahte hesap kullanıcı adı *"
-              : "Hesap kullanıcı adı *"}
+          {service.kind === "fake" ? "Sahte hesap kullanıcı adı *" : "Hesap kullanıcı adı *"}
         </span>
         <input
           value={username}

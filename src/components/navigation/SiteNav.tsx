@@ -10,10 +10,10 @@ import { whatsappUrl } from "@/lib/contact";
 const NAV = [
   { label: "Ana Sayfa", href: "/" },
   { label: "Kapanan", href: "/basvuru/kapanan" },
-  { label: "Askı", href: "/basvuru/aski" },
-  { label: "Username", href: "/basvuru/kullanici-adi" },
+  { label: "Reklam kısıtları", href: "/basvuru/reklam-kisit" },
+  { label: "Çalınan", href: "/basvuru/calinan" },
+  { label: "Fake", href: "/basvuru/fake" },
   { label: "Makaleler", href: "/makaleler" },
-  { label: "Influencer", href: "/basvuru/influencer" },
 ];
 
 export function SiteNav() {
@@ -72,12 +72,6 @@ export function SiteNav() {
                 {item.label}
               </a>
             ))}
-            <a href="/basvuru/reklam-kisit" className="mobile-nav-link" onClick={() => setMobileOpen(false)}>
-              Reklam kısıtı
-            </a>
-            <a href="/#kategoriler" className="mobile-nav-link" onClick={() => setMobileOpen(false)}>
-              Tüm menüler
-            </a>
           </nav>
           <div className="mt-10 grid gap-3">
             <a
@@ -120,7 +114,7 @@ export function SiteNav() {
             <a
               key={item.href}
               href={item.href}
-              className={`nav-link ${pathname === item.href || pathname.startsWith(item.href + "/") ? "is-active" : ""}`}
+              className={`nav-link ${pathname === item.href ? "is-active" : ""}`}
             >
               {item.label}
             </a>
