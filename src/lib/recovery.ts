@@ -124,8 +124,8 @@ export const RECOVERY_SERVICES: RecoveryService[] = [
     kind: "fake_detect",
     slug: "fake-tespit",
     href: "/basvuru/fake-tespit",
-    title: "Fake Hesap Tespit",
-    short: "Fake hesap tespit",
+    title: "Fake Hesap Tespiti",
+    short: "Fake hesap tespiti",
     eyebrow: "04",
     description:
       "Taklit / sahte hesap şüphesinde tespit ve doğrulama. Detaylı bilgi için başvur.",

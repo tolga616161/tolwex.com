@@ -11,7 +11,8 @@ const NAV = [
   { label: "Ana Sayfa", href: "/" },
   { label: "Kapanan", href: "/basvuru/kapanan" },
   { label: "Çalınan", href: "/basvuru/calinan" },
-  { label: "Fake", href: "/basvuru/fake-tespit" },
+  { label: "Fake Hesaplar", href: "/basvuru/fake-kapatma" },
+  { label: "Fake Hesap Tespiti", href: "/basvuru/fake-tespit" },
   { label: "Reklam", href: "/basvuru/reklam-kisit" },
   { label: "Kategoriler", href: "/#kategoriler" },
 ];
@@ -92,18 +93,12 @@ export function SiteNav() {
   return (
     <header className={`site-nav ${scrolled ? "is-scrolled" : ""}`}>
       <div className="site-shell nav-inner">
-        <button
-          type="button"
-          className={`hamburger ${mobileOpen ? "is-open" : ""}`}
-          aria-label={mobileOpen ? "Menüyü kapat" : "Menüyü aç"}
-          aria-expanded={mobileOpen}
-          aria-controls="mobile-menu"
-          onClick={() => setMobileOpen((v) => !v)}
+        <Link
+          href="/basvuru/fake-kapatma"
+          className={`nav-fake-left ${pathname.startsWith("/basvuru/fake-kapatma") ? "is-active" : ""}`}
         >
-          <span />
-          <span />
-          <span />
-        </button>
+          Fake Hesaplar
+        </Link>
 
         <Link href="/" className="nav-brand" aria-label="TOLWEX ana sayfa">
           <TolwexLogo size="sm" />
@@ -122,6 +117,18 @@ export function SiteNav() {
         </nav>
 
         <div className="nav-actions">
+          <button
+            type="button"
+            className={`hamburger ${mobileOpen ? "is-open" : ""}`}
+            aria-label={mobileOpen ? "Menüyü kapat" : "Menüyü aç"}
+            aria-expanded={mobileOpen}
+            aria-controls="mobile-menu"
+            onClick={() => setMobileOpen((v) => !v)}
+          >
+            <span />
+            <span />
+            <span />
+          </button>
           <a href={wa} className="btn btn-primary nav-cta" target="_blank" rel="noopener noreferrer">
             WhatsApp
           </a>

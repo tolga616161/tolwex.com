@@ -207,7 +207,7 @@ h3,
 
 .nav-inner {
   display: grid;
-  grid-template-columns: 48px 1fr auto;
+  grid-template-columns: auto 1fr auto;
   align-items: center;
   min-height: 72px;
   gap: 0.75rem;
@@ -216,9 +216,37 @@ h3,
 }
 
 .nav-brand {
-  justify-self: start;
+  justify-self: center;
   position: relative;
   z-index: 1;
+}
+
+.nav-fake-left {
+  justify-self: start;
+  display: inline-flex;
+  align-items: center;
+  max-width: 42vw;
+  padding: 0.55rem 0.75rem;
+  border: 1px solid rgba(94, 234, 212, 0.35);
+  border-radius: 0.65rem;
+  background: rgba(94, 234, 212, 0.08);
+  color: #5eead4;
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  line-height: 1.15;
+  text-decoration: none;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  z-index: 80;
+  transition: background 0.2s, border-color 0.2s, color 0.2s;
+}
+.nav-fake-left:hover,
+.nav-fake-left.is-active {
+  background: rgba(94, 234, 212, 0.16);
+  border-color: rgba(94, 234, 212, 0.55);
+  color: #fff;
 }
 
 .nav-desktop {
@@ -229,10 +257,13 @@ h3,
 }
 
 .nav-actions {
-  display: none;
+  display: flex;
   align-items: center;
   gap: 0.35rem;
   justify-self: end;
+}
+.nav-actions .nav-cta {
+  display: none;
 }
 
 .nav-link {
@@ -327,14 +358,21 @@ h3,
   .nav-inner {
     grid-template-columns: auto 1fr auto;
   }
+  .nav-brand {
+    justify-self: start;
+  }
+  .nav-fake-left {
+    font-size: 0.88rem;
+    max-width: none;
+  }
   .hamburger {
     display: none;
   }
   .nav-desktop {
     display: flex;
   }
-  .nav-actions {
-    display: flex;
+  .nav-actions .nav-cta {
+    display: inline-flex;
   }
   .nav-login {
     display: inline-flex;
@@ -4972,8 +5010,8 @@ a.sp-user:hover {
 }
 
 @media (max-width: 900px) {
-  .nav-desktop { gap: 0.35rem; }
-  .nav-desktop .nav-link { font-size: 0.78rem; padding: 0.35rem 0.4rem; }
+  .nav-desktop { gap: 0.2rem; flex-wrap: wrap; justify-content: flex-end; }
+  .nav-desktop .nav-link { font-size: 0.76rem; padding: 0.35rem 0.45rem; }
 }
 @media (max-width: 640px) {
   .rec-hero-filled {
