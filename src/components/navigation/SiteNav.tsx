@@ -41,7 +41,7 @@ export function SiteNav() {
 
   if (pathname.startsWith("/admin61")) return null;
 
-  const wa = whatsappUrl("Merhaba, TOLWEX sosyal medya uzman desteği için yazıyorum.");
+  const wa = whatsappUrl("Merhaba, TOLWEX Sosyal Medya Uzmanı — destek için yazıyorum.");
 
   const mobileMenu =
     mounted &&

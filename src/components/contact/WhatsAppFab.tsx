@@ -10,7 +10,7 @@ export function WhatsAppFab() {
 
   return (
     <a
-      href={whatsappUrl("Merhaba, TOLWEX hesap kurtarma için yazıyorum.")}
+      href={whatsappUrl("Merhaba, TOLWEX Sosyal Medya Uzmanı — destek için yazıyorum.")}
       className="wa-fab"
       target="_blank"
       rel="noopener noreferrer"

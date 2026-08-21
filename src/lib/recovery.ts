@@ -138,7 +138,7 @@ export function buildRecoveryWhatsAppText(input: {
 }): string {
   const title = KIND_TITLE[input.kind] || "BAŞVURU";
   return [
-    `TOLWEX · ${title}`,
+    `TOLWEX Sosyal Medya Uzmanı · ${title}`,
     "",
     `Platform: ${input.platform}`,
     `Hesap / kullanıcı: ${input.username}`,

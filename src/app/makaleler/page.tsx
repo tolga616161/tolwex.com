@@ -36,7 +36,7 @@ export default function MakalelerPage() {
       </div>
       <div className="site-shell guide-cta">
         <Link href="/#kategoriler" className="btn btn-primary">
-          Menülere dön
+          Kategorilere dön
         </Link>
       </div>
     </div>

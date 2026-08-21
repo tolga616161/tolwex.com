@@ -30,7 +30,7 @@ export default async function BasvuruPage({ params }: Props) {
       <div className="rec-apply-bg" aria-hidden />
       <div className="site-shell rec-apply-shell">
         <p className="rec-apply-kicker">
-          <Link href="/">TOLWEX</Link> · {service.short}
+          <Link href="/">TOLWEX Sosyal Medya Uzmanı</Link> · {service.short}
         </p>
         <h1 className="display rec-apply-title">{service.title}</h1>
         <p className="rec-apply-lead">{service.description}</p>

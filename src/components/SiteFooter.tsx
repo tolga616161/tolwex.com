@@ -22,7 +22,7 @@ export function SiteFooter() {
       <div className="site-shell footer-inner">
         <div className="footer-brand">
           <TolwexLogo size="md" />
-          <p className="footer-tag">2020’den beri · tolgamedyam → TOLWEX</p>
+          <p className="footer-tag">TOLWEX Sosyal Medya Uzmanı · 2020’den beri</p>
         </div>
         <nav className="footer-links" aria-label="Footer">
           {LINKS.map((l) => (
@@ -33,7 +33,7 @@ export function SiteFooter() {
         </nav>
       </div>
       <div className="site-shell footer-bottom">
-        <p>© 2020 TOLWEX. Tüm hakları saklıdır.</p>
+        <p>© 2020 TOLWEX Sosyal Medya Uzmanı. Tüm hakları saklıdır.</p>
       </div>
     </footer>
   );

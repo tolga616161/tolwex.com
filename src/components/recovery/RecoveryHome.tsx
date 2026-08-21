@@ -11,7 +11,7 @@ const GROUPS: Array<{ id: "hesap" | "reklam"; title: string; note: string }> = [
 ];
 
 export function RecoveryHome() {
-  const wa = whatsappUrl("Merhaba, TOLWEX sosyal medya uzman desteği için yazıyorum.");
+  const wa = whatsappUrl("Merhaba, TOLWEX Sosyal Medya Uzmanı — destek için yazıyorum.");
 
   return (
     <div className="rec-home is-clean">
@@ -23,14 +23,11 @@ export function RecoveryHome() {
             <div className="rec-hero-logo">
               <TolwexLogo size="lg" showWordmark />
             </div>
-            <p className="rec-hero-kicker">Sosyal medya uzmanı</p>
-            <h1 className="rec-hero-title display">
-              Teknik
-              <span>çözümler</span>
-            </h1>
+            <p className="rec-hero-kicker">TOLWEX</p>
+            <h1 className="rec-hero-title display">Sosyal Medya Uzmanı</h1>
             <p className="rec-hero-sub">
-              Kapanan hesap, çalınan hesap, kısıtlanan reklam hesabı. Kategori seç — WhatsApp’tan
-              ulaş.
+              Kapanan hesap, çalınan hesap ve kısıtlanan reklam hesabı için teknik çözüm.
+              Kategori seç — WhatsApp’tan ulaş.
             </p>
             <div className="rec-hero-actions">
               <a href="#kategoriler" className="btn btn-primary">
@@ -60,7 +57,11 @@ export function RecoveryHome() {
                   <h3>{g.title}</h3>
                   <span>{g.note}</span>
                 </div>
-                <div className="rec-service-grid rec-service-grid-auto">
+                <div
+                  className={`rec-service-grid rec-service-grid-auto${
+                    items.length === 1 ? " is-single" : ""
+                  }`}
+                >
                   {items.map((s) => (
                     <Link key={s.slug} href={s.href} className="rec-service-card rec-cat-card">
                       <span className="rec-cat-num">{s.eyebrow}</span>
@@ -133,8 +134,9 @@ export function RecoveryHome() {
           <p className="rec-origin-year">2020</p>
           <h2 className="display">tolgamedyam → TOLWEX</h2>
           <p>
-            2020’den beri sosyal medya teknik çözümleri. Yolculuk <strong>tolgamedyam</strong> ile
-            başladı — bugün <strong>TOLWEX</strong> adıyla devam ediyor.
+            2020’den beri <strong>TOLWEX Sosyal Medya Uzmanı</strong>. Yolculuk{" "}
+            <strong>tolgamedyam</strong> ile başladı — bugün <strong>TOLWEX</strong> adıyla devam
+            ediyor.
           </p>
         </div>
       </section>

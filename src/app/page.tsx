@@ -2,9 +2,9 @@ import type { Metadata } from "next";
 import { RecoveryHome } from "@/components/recovery/RecoveryHome";
 
 export const metadata: Metadata = {
-  title: "TOLWEX | Kapanan & Çalınan Hesap",
+  title: "TOLWEX | Sosyal Medya Uzmanı",
   description:
-    "Kapanan ve çalınan hesaplar için teknik çözüm. 2020’den beri tolgamedyam → TOLWEX.",
+    "TOLWEX Sosyal Medya Uzmanı — kapanan, çalınan ve kısıtlanan hesaplar için teknik çözüm. 2020’den beri tolgamedyam → TOLWEX.",
 };
 
 export default function HomePage() {
