@@ -4218,15 +4218,38 @@ a.sp-user:hover {
 .hero-spin-slow { animation: hero-spin 14s linear infinite; color: #5eead4; }
 .hero-spin-slower { animation: hero-spin 22s linear infinite reverse; color: rgba(255,255,255,0.85); }
 
-/* Sosyal logo konumları — yanlarda, ortadaki sahneyi bozmaz */
-.hero-sm-ig { top: 12%; left: 6%; animation: hero-float-3d-a 5.2s ease-in-out infinite; }
-.hero-sm-fb { top: 12%; right: 6%; animation: hero-float-3d-b 5.6s ease-in-out 0.2s infinite; }
-.hero-sm-tt { top: 28%; left: 2%; animation: hero-float-3d-c 6s ease-in-out 0.4s infinite; }
-.hero-sm-tw { top: 28%; right: 2%; animation: hero-float-3d-d 6.2s ease-in-out 0.5s infinite; }
-.hero-sm-yt { top: 46%; left: 5%; animation: hero-float-3d-a 6.5s ease-in-out 0.1s infinite; }
-.hero-sm-tg { top: 46%; right: 5%; animation: hero-float-3d-b 6.8s ease-in-out 0.35s infinite; }
-.hero-sm-sc { top: 14%; left: 28%; animation: hero-float-3d-c 7s ease-in-out 0.6s infinite; }
-.hero-sm-in { top: 14%; right: 28%; animation: hero-float-3d-d 7.2s ease-in-out 0.15s infinite; }
+/* Sosyal logo — figürün etrafında, merkeze yakın */
+.hero-sm-ig {
+  top: 28%;
+  left: calc(50% - min(210px, 42vw));
+  animation: hero-float-3d-a 5.2s ease-in-out infinite;
+  z-index: 5;
+}
+.hero-sm-tw {
+  top: 28%;
+  right: calc(50% - min(210px, 42vw));
+  left: auto;
+  animation: hero-float-3d-b 5.6s ease-in-out 0.2s infinite;
+  z-index: 5;
+}
+.hero-sm-yt {
+  top: 48%;
+  left: calc(50% - min(240px, 48vw));
+  animation: hero-float-3d-c 6s ease-in-out 0.35s infinite;
+  z-index: 5;
+}
+.hero-sm-wa {
+  top: 48%;
+  right: calc(50% - min(240px, 48vw));
+  left: auto;
+  animation: hero-float-3d-d 6.2s ease-in-out 0.45s infinite;
+  z-index: 5;
+}
+.hero-sm-fb,
+.hero-sm-tt,
+.hero-sm-tg,
+.hero-sm-sc,
+.hero-sm-in { display: none !important; }
 .hero-float-hat {
   top: 40%;
   left: 50%;
@@ -4379,15 +4402,15 @@ a.sp-user:hover {
 .hero-hacker {
   position: absolute;
   left: 50%;
-  top: 50%;
-  transform: translate(-50%, -46%);
-  width: min(300px, 68vw);
+  top: 46%;
+  transform: translate(-50%, -50%);
+  width: min(320px, 72vw);
   z-index: 4;
   pointer-events: none;
   animation: hero-hacker-bob 5.5s ease-in-out infinite;
   filter:
-    drop-shadow(0 28px 48px rgba(0, 0, 0, 0.75))
-    drop-shadow(0 0 36px rgba(94, 234, 212, 0.18));
+    drop-shadow(0 28px 48px rgba(0, 0, 0, 0.8))
+    drop-shadow(0 0 28px rgba(255, 255, 255, 0.06));
 }
 .hero-hacker-svg {
   width: 100%;
@@ -4439,8 +4462,8 @@ a.sp-user:hover {
 .hero-hacker-rays .r4 { animation-delay: 0.6s; }
 .hero-hacker-rays .r5 { animation-delay: 0.8s; }
 @keyframes hero-hacker-bob {
-  0%, 100% { transform: translate(-50%, -46%) translateY(0); }
-  50% { transform: translate(-50%, -46%) translateY(-8px); }
+  0%, 100% { transform: translate(-50%, -50%) translateY(0); }
+  50% { transform: translate(-50%, -50%) translateY(-8px); }
 }
 @keyframes hero-hacker-pulse {
   0%, 100% { opacity: 0.45; transform: translate(-50%, -50%) scale(1); }
@@ -4479,11 +4502,11 @@ a.sp-user:hover {
   gap: 1rem !important;
 }
 @media (max-width: 760px) {
-  .hero-hacker { width: min(240px, 72vw); }
+  .hero-hacker { width: min(260px, 76vw); }
 }
 @media (max-width: 640px) {
   .rec-service-grid-2 { grid-template-columns: 1fr !important; }
-  .hero-hacker { width: min(210px, 70vw) !important; top: 46% !important; }
+  .hero-hacker { width: min(230px, 74vw) !important; top: 42% !important; }
 }
 
 /* Galeri upload — net, tıklanır */
@@ -4950,11 +4973,13 @@ a.sp-user:hover {
     padding-top: 4.5rem !important;
     padding-bottom: 1.5rem !important;
   }
-  .hero-float { width: 46px; height: 46px; border-radius: 13px; }
-  .hero-brand-img { width: 24px; height: 24px; }
+  .hero-float { width: 50px; height: 50px; border-radius: 14px; }
+  .hero-brand-img { width: 26px; height: 26px; }
   .hero-hat-svg { width: 28px; height: 28px; }
-  .hero-sm-sc, .hero-sm-in { display: none; }
-  .hero-sm-yt, .hero-sm-tg { display: none; }
+  .hero-sm-ig { top: 26%; left: calc(50% - min(150px, 38vw)); }
+  .hero-sm-tw { top: 26%; right: calc(50% - min(150px, 38vw)); }
+  .hero-sm-yt { top: 44%; left: calc(50% - min(165px, 42vw)); }
+  .hero-sm-wa { top: 44%; right: calc(50% - min(165px, 42vw)); }
   .hero-float-hat { top: 36%; }
   .rec-home.is-clean .rec-hero-inner { max-width: 100%; padding: 0.95rem 0.9rem 1.05rem; }
 }
