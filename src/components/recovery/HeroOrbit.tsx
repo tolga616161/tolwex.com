@@ -1,23 +1,38 @@
 "use client";
 
-/** Hero dekor: IG / FB + dönen yıldız & dünya — abartısız, üstü doldurur */
+/** Hero: 3D derinlik + IG/FB + dönen yıldız & dünya */
 export function HeroOrbit() {
   return (
     <div className="hero-orbit" aria-hidden>
+      <div className="hero-depth">
+        <div className="hero-aurora hero-aurora-a" />
+        <div className="hero-aurora hero-aurora-b" />
+        <div className="hero-orb hero-orb-1" />
+        <div className="hero-orb hero-orb-2" />
+        <div className="hero-orb hero-orb-3" />
+        <div className="hero-grid-floor" />
+        <div className="hero-vignette" />
+      </div>
+
       <div className="hero-orbit-glow" />
       <div className="hero-orbit-ring hero-orbit-ring-a" />
       <div className="hero-orbit-ring hero-orbit-ring-b" />
+      <div className="hero-orbit-ring hero-orbit-ring-c" />
 
-      <div className="hero-float hero-float-ig" title="Instagram">
+      <div className="hero-float hero-float-ig hero-float-3d" title="Instagram">
+        <span className="hero-float-shine" />
         <IgMark />
       </div>
-      <div className="hero-float hero-float-fb" title="Facebook">
+      <div className="hero-float hero-float-fb hero-float-3d" title="Facebook">
+        <span className="hero-float-shine" />
         <FbMark />
       </div>
-      <div className="hero-float hero-float-star">
+      <div className="hero-float hero-float-star hero-float-3d">
+        <span className="hero-float-shine" />
         <StarMark />
       </div>
-      <div className="hero-float hero-float-globe">
+      <div className="hero-float hero-float-globe hero-float-3d">
+        <span className="hero-float-shine" />
         <GlobeMark />
       </div>
 
