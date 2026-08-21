@@ -76,7 +76,7 @@ export const RECOVERY_SERVICES: RecoveryService[] = [
     reasonPlaceholder: "Ekranda yazan uyarıyı veya kapanma sebebini yaz.",
     imageHint: "Kapanma ekranı — galeriden seç (opsiyonel)",
     imageRequired: false,
-    cta: "WhatsApp’tan gönder",
+    cta: "WhatsApp’a gönder",
   },
   {
     kind: "stolen",
@@ -92,7 +92,7 @@ export const RECOVERY_SERVICES: RecoveryService[] = [
     reasonPlaceholder: "Şifre / e-posta değişimi, şüpheli hareket…",
     imageHint: "Şüpheli giriş ekranı — galeriden seç (opsiyonel)",
     imageRequired: false,
-    cta: "WhatsApp’tan gönder",
+    cta: "WhatsApp’a gönder",
   },
 ];
 
@@ -112,6 +112,7 @@ export function buildRecoveryWhatsAppText(input: {
   email?: string;
   whenText: string;
   reason: string;
+  imageUrl?: string;
 }): string {
   const title = KIND_TITLE[input.kind] || "BAŞVURU";
   return [
@@ -122,8 +123,8 @@ export function buildRecoveryWhatsAppText(input: {
     input.email ? `E-posta: ${input.email}` : "",
     input.whenText ? `Zaman: ${input.whenText}` : "",
     `Detay:\n${input.reason}`,
+    input.imageUrl ? `\nGörsel:\n${input.imageUrl}` : "",
     "",
-    "Görsel varsa bu sohbete ekliyorum.",
     `İletişim: ${CONTACT_PHONE_DISPLAY}`,
   ]
     .filter(Boolean)

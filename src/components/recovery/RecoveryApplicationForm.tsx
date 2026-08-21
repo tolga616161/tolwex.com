@@ -11,7 +11,7 @@ import {
   type RecoveryService,
 } from "@/lib/recovery";
 import { CONTACT_PHONE_DISPLAY } from "@/lib/contact";
-import { prepareImagePreview } from "@/lib/image-compress";
+import { fileToJpegFile, prepareImagePreview } from "@/lib/image-compress";
 import { GUIDE_ARTICLES } from "@/lib/guides";
 
 export function RecoveryApplicationForm({ service }: { service: RecoveryService }) {
@@ -29,6 +29,7 @@ export function RecoveryApplicationForm({ service }: { service: RecoveryService 
   const [done, setDone] = useState(false);
   const [waHref, setWaHref] = useState<string | null>(null);
   const [hint, setHint] = useState<string | null>(null);
+  const [sentWithImage, setSentWithImage] = useState(false);
 
   const relatedGuides = GUIDE_ARTICLES.filter((g) => g.relatedHref === service.href).slice(0, 2);
 
@@ -55,31 +56,49 @@ export function RecoveryApplicationForm({ service }: { service: RecoveryService 
       setPreview(result.previewUrl);
       if (result.warning) setHint(result.warning);
     } else {
-      // Dosya yine tutulur — önizleme olmasa da WhatsApp’a gider
-      setHint(result.warning || "Önizleme yok — dosya seçildi, gönderince WhatsApp’a ekleyebilirsin.");
+      setHint(result.warning || "Önizleme yok — dosya seçildi.");
     }
   }
 
-  async function openWhatsApp(href: string, message: string) {
-    const file = fileRef.current;
+  async function uploadImage(file: File): Promise<string | null> {
     try {
-      if (file && typeof navigator !== "undefined" && navigator.canShare) {
-        const shareFile = new File([file], file.name || "ekran.jpg", {
-          type: file.type || "image/jpeg",
-        });
-        if (navigator.canShare({ files: [shareFile], text: message })) {
-          await navigator.share({
-            files: [shareFile],
-            text: message,
-            title: service.title,
-          });
-          return;
+      const fd = new FormData();
+      fd.append("file", file, file.name || "tolwex-ekran.jpg");
+      const res = await fetch("/api/basvuru/upload", { method: "POST", body: fd });
+      const data = (await res.json().catch(() => null)) as { url?: string } | null;
+      return data?.url || null;
+    } catch {
+      return null;
+    }
+  }
+
+  /** Görseli WhatsApp’a ilet — share (ek) + wa.me (linkli metin) */
+  async function sendToWhatsApp(message: string, href: string, imageFile: File | null) {
+    // 1) Mobil: sistem paylaşımı → WhatsApp (görsel ekli açılır)
+    if (imageFile && typeof navigator !== "undefined" && navigator.share && navigator.canShare) {
+      try {
+        const payload: ShareData = {
+          files: [imageFile],
+          text: message,
+          title: service.title,
+        };
+        if (navigator.canShare(payload)) {
+          await navigator.share(payload);
+          setSentWithImage(true);
+          return "shared";
+        }
+      } catch (err) {
+        // Kullanıcı iptal ettiyse yine wa.me aç
+        if (err instanceof Error && err.name === "AbortError") {
+          /* devam */
         }
       }
-    } catch {
-      /* iptal */
     }
-    window.open(href, "_blank", "noopener,noreferrer");
+
+    // 2) WhatsApp uygulamasını / web’i metin + görsel linki ile aç
+    setSentWithImage(Boolean(imageFile));
+    window.location.href = href;
+    return "wa";
   }
 
   async function submit(e: React.FormEvent) {
@@ -99,42 +118,65 @@ export function RecoveryApplicationForm({ service }: { service: RecoveryService 
     }
 
     setBusy(true);
-    const message = buildRecoveryWhatsAppText({
-      kind: service.kind,
-      platform,
-      username: username.trim(),
-      email: email.trim() || undefined,
-      whenText: whenText.trim(),
-      reason: reason.trim(),
-    });
-    const href = recoveryWhatsAppHref(message);
-    setWaHref(href);
-    setDone(true);
-    setBusy(false);
-    await openWhatsApp(href, message);
+    try {
+      let imageFile: File | null = null;
+      let imageUrl: string | undefined;
+
+      if (fileRef.current) {
+        imageFile = await fileToJpegFile(fileRef.current);
+        imageUrl = (await uploadImage(imageFile)) || undefined;
+        if (!imageUrl) {
+          setHint("Görsel linki oluşamadı — paylaşım ekranından WhatsApp’ı seç.");
+        }
+      }
+
+      const message = buildRecoveryWhatsAppText({
+        kind: service.kind,
+        platform,
+        username: username.trim(),
+        email: email.trim() || undefined,
+        whenText: whenText.trim(),
+        reason: reason.trim(),
+        imageUrl,
+      });
+      const href = recoveryWhatsAppHref(message);
+      setWaHref(href);
+      setDone(true);
+      await sendToWhatsApp(message, href, imageFile);
+    } finally {
+      setBusy(false);
+    }
   }
 
   if (done && waHref) {
     return (
       <div className="rec-done">
         <p className="rec-done-kicker">Başvuru hazır</p>
-        <h2>WhatsApp açıldı</h2>
+        <h2>WhatsApp’a iletildi</h2>
         <p>
-          Bilgiler {CONTACT_PHONE_DISPLAY} numarasına yazıldı.
-          {fileRef.current ? (
+          {sentWithImage ? (
             <>
-              {" "}
-              Sohbette <strong>fotoğrafı da ekleyip Gönder</strong>.
+              Görsel + yazı hazır. Açılan ekranda <strong>WhatsApp</strong>’ı seçip{" "}
+              <strong>Gönder</strong>’e bas — {CONTACT_PHONE_DISPLAY} numarasına düşer.
             </>
           ) : (
-            <> Fotoğraf yoksa metin yeterli.</>
+            <>
+              WhatsApp açıldı, metin hazır. Sohbette <strong>Gönder</strong>’e bas.
+            </>
           )}
         </p>
         <div className="rec-done-actions">
-          <a href={waHref} target="_blank" rel="noopener noreferrer" className="btn btn-primary">
+          <a href={waHref} className="btn btn-primary">
             WhatsApp’ı tekrar aç
           </a>
-          <button type="button" className="btn btn-ghost" onClick={() => setDone(false)}>
+          <button
+            type="button"
+            className="btn btn-ghost"
+            onClick={() => {
+              setDone(false);
+              setSentWithImage(false);
+            }}
+          >
             Formu düzenle
           </button>
         </div>
@@ -149,7 +191,6 @@ export function RecoveryApplicationForm({ service }: { service: RecoveryService 
 
   return (
     <form className="rec-form" onSubmit={submit}>
-      {/* Galeri — capture YOK, label+input düzgün bağlı */}
       <div className={`rec-upload ${preview || fileName ? "has-file" : ""}`}>
         <input
           ref={inputRef}
@@ -161,7 +202,6 @@ export function RecoveryApplicationForm({ service }: { service: RecoveryService 
           onChange={(e) => {
             const f = e.target.files?.[0] || null;
             void onFile(f);
-            // aynı dosyayı tekrar seçebilsin
             e.target.value = "";
           }}
         />
@@ -172,7 +212,7 @@ export function RecoveryApplicationForm({ service }: { service: RecoveryService 
           <div className="rec-upload-empty">
             <strong>Galeriden fotoğraf seç</strong>
             <span>{service.imageHint}</span>
-            <span className="rec-upload-note">Opsiyonel · kamera açılmaz</span>
+            <span className="rec-upload-note">Gönderince WhatsApp’a otomatik eklenir</span>
           </div>
         )}
         <div className="rec-upload-bar">
@@ -262,9 +302,11 @@ export function RecoveryApplicationForm({ service }: { service: RecoveryService 
       {hint ? <p className="rec-hint rec-hint-soft">{hint}</p> : null}
 
       <button type="submit" className="btn btn-primary rec-submit" disabled={busy}>
-        {busy ? "Hazırlanıyor…" : service.cta}
+        {busy ? "WhatsApp’a hazırlanıyor…" : "WhatsApp’a gönder"}
       </button>
-      <p className="rec-foot muted">WhatsApp açılır, yazı dolar. Foto seçtiysen sohbete eklemen yeterli.</p>
+      <p className="rec-foot muted">
+        Foto seçtiysen gönder’de WhatsApp açılır — görsel otomatik eklenir / link mesaja yazılır.
+      </p>
 
       <div className="rec-form-guides">
         <p className="rec-form-guides-title">Yardımcı makaleler</p>

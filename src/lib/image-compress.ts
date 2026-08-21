@@ -20,7 +20,6 @@ export async function prepareImagePreview(file: File): Promise<ImagePrepareResul
     };
   }
 
-  // Object URL her zaman çalışır (HEIC dahil çoğu telefonda)
   const objectUrl = URL.createObjectURL(file);
 
   try {
@@ -32,7 +31,6 @@ export async function prepareImagePreview(file: File): Promise<ImagePrepareResul
       };
     }
 
-    // Canvas compress dene; olmazsa object URL ile devam
     if (typeof createImageBitmap === "function" && file.type && !/heic|heif/i.test(file.type)) {
       try {
         const bitmap = await createImageBitmap(file);
@@ -67,7 +65,36 @@ export async function prepareImagePreview(file: File): Promise<ImagePrepareResul
   }
 }
 
-/** Eski API — soft wrapper (throw etmez, boş string döner) */
+/** Paylaşım / upload için JPEG File üret */
+export async function fileToJpegFile(file: File, name = "tolwex-ekran.jpg"): Promise<File> {
+  try {
+    if (typeof createImageBitmap !== "function") return file;
+    if (file.type && /heic|heif/i.test(file.type)) return file;
+    const bitmap = await createImageBitmap(file);
+    const maxEdge = 1600;
+    const scale = Math.min(1, maxEdge / Math.max(bitmap.width, bitmap.height));
+    const w = Math.max(1, Math.round(bitmap.width * scale));
+    const h = Math.max(1, Math.round(bitmap.height * scale));
+    const canvas = document.createElement("canvas");
+    canvas.width = w;
+    canvas.height = h;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) {
+      bitmap.close();
+      return file;
+    }
+    ctx.drawImage(bitmap, 0, 0, w, h);
+    bitmap.close();
+    const blob: Blob | null = await new Promise((resolve) =>
+      canvas.toBlob((b) => resolve(b), "image/jpeg", 0.82)
+    );
+    if (!blob) return file;
+    return new File([blob], name, { type: "image/jpeg" });
+  } catch {
+    return file;
+  }
+}
+
 export async function compressImageToDataUrl(
   file: File,
   _opts?: { maxEdge?: number; quality?: number }
@@ -76,4 +103,5 @@ export async function compressImageToDataUrl(
   if (r.ok && r.previewUrl) return r.previewUrl;
   throw new Error(r.warning || "Görsel işlenemedi");
 }
+
 
