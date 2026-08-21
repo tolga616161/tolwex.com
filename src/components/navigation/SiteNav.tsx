@@ -9,9 +9,11 @@ import { whatsappUrl } from "@/lib/contact";
 
 const NAV = [
   { label: "Ana Sayfa", href: "/" },
-  { label: "Kategoriler", href: "/#kategoriler" },
+  { label: "Kapanan", href: "/basvuru/kapanan" },
+  { label: "Askı", href: "/basvuru/aski" },
+  { label: "Username", href: "/basvuru/kullanici-adi" },
+  { label: "Makaleler", href: "/makaleler" },
   { label: "Influencer", href: "/basvuru/influencer" },
-  { label: "Reklam", href: "/basvuru/reklam-kisit" },
 ];
 
 export function SiteNav() {
@@ -40,7 +42,7 @@ export function SiteNav() {
 
   if (pathname.startsWith("/admin61")) return null;
 
-  const wa = whatsappUrl("Merhaba, TOLWEX hesap kurtarma için yazıyorum.");
+  const wa = whatsappUrl("Merhaba, TOLWEX sosyal medya uzman desteği için yazıyorum.");
 
   const mobileMenu =
     mounted &&
@@ -70,6 +72,12 @@ export function SiteNav() {
                 {item.label}
               </a>
             ))}
+            <a href="/basvuru/reklam-kisit" className="mobile-nav-link" onClick={() => setMobileOpen(false)}>
+              Reklam kısıtı
+            </a>
+            <a href="/#kategoriler" className="mobile-nav-link" onClick={() => setMobileOpen(false)}>
+              Tüm menüler
+            </a>
           </nav>
           <div className="mt-10 grid gap-3">
             <a
@@ -112,7 +120,7 @@ export function SiteNav() {
             <a
               key={item.href}
               href={item.href}
-              className={`nav-link ${pathname === item.href ? "is-active" : ""}`}
+              className={`nav-link ${pathname === item.href || pathname.startsWith(item.href + "/") ? "is-active" : ""}`}
             >
               {item.label}
             </a>

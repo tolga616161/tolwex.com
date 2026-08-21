@@ -2,9 +2,9 @@ import type { Metadata } from "next";
 import { RecoveryHome } from "@/components/recovery/RecoveryHome";
 
 export const metadata: Metadata = {
-  title: "TOLWEX | Teknik Destek",
+  title: "TOLWEX | Sosyal Medya Uzmanı",
   description:
-    "Hesap, büyüme ve reklam teknik destek. Kategori seç, fotoğraf ekle, WhatsApp’tan ilet.",
+    "Kapanan hesap, askıya alınan hesap, kullanıcı adı alma. Instagram, TikTok, X — teknik çözümler.",
 };
 
 export default function HomePage() {

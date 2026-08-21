@@ -26,10 +26,10 @@ const body = IBM_Plex_Sans({
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl()),
   title: {
-    default: `${SITE_NAME} | Teknik Destek`,
+    default: `${SITE_NAME} | Sosyal Medya Uzmanı`,
     template: `%s | ${SITE_NAME}`,
   },
-  description: `${SITE_TAGLINE}. Başvuru formu doldur, ekran görüntüsü yükle, WhatsApp’tan ilet.`,
+  description: `${SITE_TAGLINE}. Platform seç, başvurunu WhatsApp’tan ilet.`,
   keywords: SEO_KEYWORDS,
   authors: [{ name: SITE_NAME, url: siteUrl() }],
   creator: SITE_NAME,
@@ -45,7 +45,7 @@ export const metadata: Metadata = {
     locale: "tr_TR",
     url: siteUrl(),
     siteName: SITE_NAME,
-    title: `${SITE_NAME} | Teknik Destek`,
+    title: `${SITE_NAME} | Sosyal Medya Uzmanı`,
     description: SITE_TAGLINE,
     images: [
       {
@@ -58,7 +58,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: `${SITE_NAME} | Teknik Destek`,
+    title: `${SITE_NAME} | Sosyal Medya Uzmanı`,
     description: SITE_TAGLINE,
     images: [absoluteUrl("/icon.png")],
   },

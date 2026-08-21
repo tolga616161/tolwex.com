@@ -5,10 +5,12 @@ import { usePathname } from "next/navigation";
 import { TolwexLogo } from "@/components/brand/TolwexLogo";
 
 const LINKS = [
-  { label: "Kategoriler", href: "/#kategoriler" },
+  { label: "Kapanan hesap", href: "/basvuru/kapanan" },
+  { label: "Askıya alınan", href: "/basvuru/aski" },
+  { label: "Kullanıcı adı", href: "/basvuru/kullanici-adi" },
+  { label: "Makaleler", href: "/makaleler" },
   { label: "Influencer", href: "/basvuru/influencer" },
-  { label: "Büyüme", href: "/basvuru/buyume" },
-  { label: "Reklam Onay", href: "/basvuru/reklam-onay" },
+  { label: "Reklam", href: "/basvuru/reklam-kisit" },
   { label: "Gizlilik", href: "/privacy" },
   { label: "Kullanım Koşulları", href: "/terms" },
 ];
@@ -22,7 +24,7 @@ export function SiteFooter() {
       <div className="site-shell footer-inner">
         <div className="footer-brand">
           <TolwexLogo size="md" />
-          <p className="footer-tag">Teknik destek · hesap, büyüme ve reklam</p>
+          <p className="footer-tag">Sosyal medya uzmanı · teknik çözümler</p>
         </div>
         <nav className="footer-links" aria-label="Footer">
           {LINKS.map((l) => (

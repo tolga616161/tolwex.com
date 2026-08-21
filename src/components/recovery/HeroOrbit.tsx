@@ -1,6 +1,17 @@
 "use client";
 
-/** Hero: 3D derinlik + IG/FB + dönen yıldız & dünya */
+const SOCIAL = [
+  { id: "ig", src: "/brand/social/ig.png", label: "Instagram", cls: "hero-sm-ig" },
+  { id: "fb", src: "/brand/social/fb.png", label: "Facebook", cls: "hero-sm-fb" },
+  { id: "tt", src: "/brand/social/tt.svg", label: "TikTok", cls: "hero-sm-tt" },
+  { id: "tw", src: "/brand/social/tw.png", label: "X", cls: "hero-sm-tw" },
+  { id: "yt", src: "/brand/social/yt.png", label: "YouTube", cls: "hero-sm-yt" },
+  { id: "tg", src: "/brand/social/tg.svg", label: "Telegram", cls: "hero-sm-tg" },
+  { id: "sc", src: "/brand/social/sc.png", label: "Snapchat", cls: "hero-sm-sc" },
+  { id: "in", src: "/brand/social/in.png", label: "LinkedIn", cls: "hero-sm-in" },
+];
+
+/** 3D hero: tüm sosyal logolar + hacker şapka — siyah/beyaz + hafif yeşil */
 export function HeroOrbit() {
   return (
     <div className="hero-orbit" aria-hidden>
@@ -19,19 +30,23 @@ export function HeroOrbit() {
       <div className="hero-orbit-ring hero-orbit-ring-b" />
       <div className="hero-orbit-ring hero-orbit-ring-c" />
 
-      <div className="hero-float hero-float-ig hero-float-3d" title="Instagram">
+      {SOCIAL.map((s) => (
+        <div key={s.id} className={`hero-float hero-float-3d ${s.cls}`} title={s.label}>
+          <span className="hero-float-shine" />
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={s.src} alt="" className="hero-brand-img" width={34} height={34} />
+        </div>
+      ))}
+
+      <div className="hero-float hero-float-3d hero-float-hat" title="Hacker">
         <span className="hero-float-shine" />
-        <IgMark />
+        <HackerHat />
       </div>
-      <div className="hero-float hero-float-fb hero-float-3d" title="Facebook">
-        <span className="hero-float-shine" />
-        <FbMark />
-      </div>
-      <div className="hero-float hero-float-star hero-float-3d">
+      <div className="hero-float hero-float-3d hero-float-star">
         <span className="hero-float-shine" />
         <StarMark />
       </div>
-      <div className="hero-float hero-float-globe hero-float-3d">
+      <div className="hero-float hero-float-3d hero-float-globe">
         <span className="hero-float-shine" />
         <GlobeMark />
       </div>
@@ -44,31 +59,19 @@ export function HeroOrbit() {
   );
 }
 
-function IgMark() {
+function HackerHat() {
   return (
-    <svg viewBox="0 0 24 24" className="hero-brand-svg" aria-hidden>
-      <defs>
-        <linearGradient id="igHeroGrad" x1="0%" y1="100%" x2="100%" y2="0%">
-          <stop offset="0%" stopColor="#f58529" />
-          <stop offset="45%" stopColor="#dd2a7b" />
-          <stop offset="100%" stopColor="#8134af" />
-        </linearGradient>
-      </defs>
-      <rect x="2" y="2" width="20" height="20" rx="5.5" fill="url(#igHeroGrad)" />
-      <circle cx="12" cy="12" r="4.2" fill="none" stroke="#fff" strokeWidth="1.7" />
-      <circle cx="17.2" cy="6.8" r="1.15" fill="#fff" />
-    </svg>
-  );
-}
-
-function FbMark() {
-  return (
-    <svg viewBox="0 0 24 24" className="hero-brand-svg" aria-hidden>
-      <rect x="2" y="2" width="20" height="20" rx="5.5" fill="#1877F2" />
+    <svg viewBox="0 0 64 64" className="hero-hat-svg" aria-hidden>
+      <ellipse cx="32" cy="48" rx="22" ry="5" fill="rgba(255,255,255,0.12)" />
       <path
-        fill="#fff"
-        d="M13.4 20v-6.3h2.1l.3-2.4h-2.4V9.7c0-.7.2-1.2 1.2-1.2h1.3V6.3c-.2 0-1-.1-1.9-.1-1.9 0-3.2 1.2-3.2 3.3v1.8H8.6v2.4h2.2V20h2.6z"
+        d="M12 40c2-14 10-22 20-22s18 8 20 22H12z"
+        fill="#111"
+        stroke="#5eead4"
+        strokeWidth="1.4"
       />
+      <path d="M10 40h44c1 0 2 .8 2 2s-1 2-2 2H10c-1 0-2-.8-2-2s1-2 2-2z" fill="#1a1a1a" />
+      <path d="M28 22c0-6 3-10 8-12 1 4 2 8-1 12" fill="none" stroke="#5eead4" strokeWidth="1.5" />
+      <circle cx="32" cy="34" r="2.2" fill="#5eead4" />
     </svg>
   );
 }

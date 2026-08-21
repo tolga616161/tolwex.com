@@ -1,5 +1,5 @@
 export const SITE_NAME = "TOLWEX";
-export const SITE_TAGLINE = "Teknik destek · hesap, büyüme ve reklam";
+export const SITE_TAGLINE = "Sosyal medya uzmanı · kapanan hesap, askı, kullanıcı adı";
 
 export function siteUrl(): string {
   const raw =

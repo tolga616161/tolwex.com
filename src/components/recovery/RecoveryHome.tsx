@@ -2,16 +2,21 @@ import Link from "next/link";
 import { TolwexLogo } from "@/components/brand/TolwexLogo";
 import { HeroOrbit } from "@/components/recovery/HeroOrbit";
 import { RECOVERY_SERVICES } from "@/lib/recovery";
+import { GUIDE_ARTICLES } from "@/lib/guides";
 import { CONTACT_PHONE_DISPLAY, whatsappUrl } from "@/lib/contact";
 
 const GROUPS: Array<{ id: "hesap" | "buyume" | "reklam"; title: string; note: string }> = [
-  { id: "hesap", title: "Hesap hizmetleri", note: "Kapanan, çalınan, fake ve genel hesap" },
-  { id: "buyume", title: "Büyüme & influencer", note: "Büyüme ve influencer başvuruları" },
+  {
+    id: "hesap",
+    title: "Hesap çözümleri",
+    note: "Kapanan, askıya alınan, kullanıcı adı ve güvenlik",
+  },
+  { id: "buyume", title: "Büyüme & influencer", note: "Creator ve büyüme danışmanlığı" },
   { id: "reklam", title: "Reklam", note: "Kısıt kaldırma ve reklam onayları" },
 ];
 
 export function RecoveryHome() {
-  const wa = whatsappUrl("Merhaba, TOLWEX hizmetleri için yazıyorum.");
+  const wa = whatsappUrl("Merhaba, TOLWEX sosyal medya uzman desteği için yazıyorum.");
 
   return (
     <div className="rec-home is-clean">
@@ -23,16 +28,18 @@ export function RecoveryHome() {
             <div className="rec-hero-logo">
               <TolwexLogo size="lg" showWordmark />
             </div>
+            <p className="rec-hero-kicker">Sosyal medya uzmanı</p>
             <h1 className="rec-hero-title display">
               Teknik
-              <span>destek</span>
+              <span>çözümler</span>
             </h1>
             <p className="rec-hero-sub">
-              Instagram · Facebook hesap, büyüme ve reklam. Kategori seç, fotoğraf ekle — WhatsApp’tan bize ulaşır.
+              Kapanan hesap, askıya alınan hesap, kullanıcı adı alma — Instagram, TikTok, X ve daha
+              fazlası. Platform seç, başvur, WhatsApp’tan ulaş.
             </p>
             <div className="rec-hero-actions">
               <a href="#kategoriler" className="btn btn-primary">
-                Kategoriler
+                Menüler
               </a>
               <a href={wa} className="btn btn-ghost" target="_blank" rel="noopener noreferrer">
                 WhatsApp
@@ -68,20 +75,41 @@ export function RecoveryHome() {
         </div>
       </section>
 
+      <section className="rec-guides-teaser" id="makaleler">
+        <div className="site-shell">
+          <div className="rec-services-head">
+            <h2 className="display">Yardımcı makaleler</h2>
+            <p>Başvurmadan önce oku — süreç daha hızlı ilerler</p>
+          </div>
+          <div className="rec-guide-grid">
+            {GUIDE_ARTICLES.slice(0, 4).map((a) => (
+              <Link key={a.slug} href={`/makaleler/${a.slug}`} className="rec-guide-card">
+                <h3>{a.title}</h3>
+                <p>{a.excerpt}</p>
+                <span>Oku →</span>
+              </Link>
+            ))}
+          </div>
+          <p className="rec-guides-all">
+            <Link href="/makaleler">Tüm makaleler →</Link>
+          </p>
+        </div>
+      </section>
+
       <section className="rec-how">
         <div className="site-shell rec-how-inner rec-how-clean">
           <h2 className="display">3 adım</h2>
           <ol className="rec-how-list">
             <li>
-              <strong>Kategori seç</strong>
-              <span>Hesap, büyüme veya reklam</span>
+              <strong>Menü seç</strong>
+              <span>Kapanan, askı, username…</span>
             </li>
             <li>
-              <strong>Bilgi + fotoğraf</strong>
-              <span>Formu doldur, ekran ekle</span>
+              <strong>Platform + bilgi</strong>
+              <span>Logo seç, kısa yaz — foto opsiyonel</span>
             </li>
             <li>
-              <strong>WhatsApp’a gönder</strong>
+              <strong>WhatsApp</strong>
               <span>{CONTACT_PHONE_DISPLAY}</span>
             </li>
           </ol>

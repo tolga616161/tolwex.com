@@ -1,19 +1,23 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import Link from "next/link";
 import {
   buildRecoveryWhatsAppText,
+  PLATFORM_ICON,
   RECOVERY_PLATFORMS,
   recoveryWhatsAppHref,
   type RecoveryPlatform,
   type RecoveryService,
 } from "@/lib/recovery";
 import { CONTACT_PHONE_DISPLAY } from "@/lib/contact";
-import { compressImageToDataUrl } from "@/lib/image-compress";
+import { prepareImagePreview } from "@/lib/image-compress";
+import { GUIDE_ARTICLES } from "@/lib/guides";
 
 export function RecoveryApplicationForm({ service }: { service: RecoveryService }) {
   const inputRef = useRef<HTMLInputElement>(null);
   const fileRef = useRef<File | null>(null);
+  const previewRef = useRef<string | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
   const [platform, setPlatform] = useState<RecoveryPlatform>("Instagram");
   const [username, setUsername] = useState("");
@@ -24,22 +28,34 @@ export function RecoveryApplicationForm({ service }: { service: RecoveryService 
   const [done, setDone] = useState(false);
   const [waHref, setWaHref] = useState<string | null>(null);
   const [hint, setHint] = useState<string | null>(null);
-  const needImage = service.imageRequired !== false;
+  const [dragOver, setDragOver] = useState(false);
+
+  const relatedGuides = GUIDE_ARTICLES.filter(
+    (g) => g.relatedHref === service.href || g.tags.some((t) => service.title.includes(t.split(" ")[0]))
+  ).slice(0, 2);
+
+  useEffect(() => {
+    return () => {
+      if (previewRef.current?.startsWith("blob:")) URL.revokeObjectURL(previewRef.current);
+    };
+  }, []);
 
   async function onFile(file: File | null) {
     setHint(null);
-    fileRef.current = file;
-    if (!file) {
-      setPreview(null);
-      return;
-    }
-    try {
-      const url = await compressImageToDataUrl(file);
-      setPreview(url);
-    } catch (e) {
-      fileRef.current = null;
-      setPreview(null);
-      setHint(e instanceof Error ? e.message : "Görsel yüklenemedi");
+    if (previewRef.current?.startsWith("blob:")) URL.revokeObjectURL(previewRef.current);
+    previewRef.current = null;
+    fileRef.current = null;
+    setPreview(null);
+    if (!file) return;
+
+    const result = await prepareImagePreview(file);
+    if (result.ok && result.previewUrl) {
+      fileRef.current = file;
+      previewRef.current = result.previewUrl;
+      setPreview(result.previewUrl);
+      if (result.warning) setHint(result.warning);
+    } else {
+      setHint(result.warning || "Bu dosya önizlenemedi — WhatsApp’tan yine foto ekleyebilirsin.");
     }
   }
 
@@ -68,10 +84,6 @@ export function RecoveryApplicationForm({ service }: { service: RecoveryService 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
     setHint(null);
-    if (needImage && !preview) {
-      setHint("Fotoğraf / ekran görüntüsü zorunlu");
-      return;
-    }
     if (!username.trim()) {
       setHint("Hesap / kullanıcı adını yaz");
       return;
@@ -86,11 +98,10 @@ export function RecoveryApplicationForm({ service }: { service: RecoveryService 
     }
 
     setBusy(true);
-    const rawUser = username.trim();
     const message = buildRecoveryWhatsAppText({
       kind: service.kind,
       platform,
-      username: rawUser.startsWith("@") || !rawUser.includes(" ") ? rawUser : rawUser,
+      username: username.trim(),
       email: email.trim() || undefined,
       whenText: whenText.trim(),
       reason: reason.trim(),
@@ -105,11 +116,18 @@ export function RecoveryApplicationForm({ service }: { service: RecoveryService 
   if (done && waHref) {
     return (
       <div className="rec-done">
-        <p className="rec-done-kicker">010101 · paket hazır</p>
+        <p className="rec-done-kicker">Başvuru hazır</p>
         <h2>WhatsApp açıldı</h2>
         <p>
-          Platform, hesap, sebep ve notlar {CONTACT_PHONE_DISPLAY} numarasına yazıldı. Sohbette{" "}
-          <strong>fotoğrafı da ekleyip Gönder</strong>.
+          Bilgiler {CONTACT_PHONE_DISPLAY} numarasına yazıldı.
+          {fileRef.current ? (
+            <>
+              {" "}
+              Sohbette <strong>fotoğrafı da ekleyip Gönder</strong>.
+            </>
+          ) : (
+            <> Fotoğraf yoksa metin yeterli — istersen sonra da ekleyebilirsin.</>
+          )}
         </p>
         <div className="rec-done-actions">
           <a href={waHref} target="_blank" rel="noopener noreferrer" className="btn btn-primary">
@@ -119,19 +137,38 @@ export function RecoveryApplicationForm({ service }: { service: RecoveryService 
             Formu düzenle
           </button>
         </div>
+        <p className="rec-foot muted" style={{ marginTop: "1.25rem" }}>
+          <Link href="/makaleler">Yardımcı makalelere göz at →</Link>
+        </p>
       </div>
     );
   }
 
+  const chipPlatforms = RECOVERY_PLATFORMS.filter((p) => p !== "Diğer");
+
   return (
     <form className="rec-form" onSubmit={submit}>
-      <label className={`rec-drop ${preview ? "has-file" : ""}`}>
+      <div
+        className={`rec-drop ${preview ? "has-file" : ""} ${dragOver ? "is-drag" : ""}`}
+        onDragOver={(e) => {
+          e.preventDefault();
+          setDragOver(true);
+        }}
+        onDragLeave={() => setDragOver(false)}
+        onDrop={(e) => {
+          e.preventDefault();
+          setDragOver(false);
+          const f = e.dataTransfer.files?.[0];
+          if (f) void onFile(f);
+        }}
+      >
         <input
           ref={inputRef}
           type="file"
-          accept="image/jpeg,image/png,image/webp,image/*"
+          accept="image/*,.heic,.heif,.jpg,.jpeg,.png,.webp"
           capture="environment"
           className="sr-only"
+          id={`photo-${service.slug}`}
           disabled={busy}
           onChange={(e) => onFile(e.target.files?.[0] || null)}
         />
@@ -139,62 +176,63 @@ export function RecoveryApplicationForm({ service }: { service: RecoveryService 
           // eslint-disable-next-line @next/next/no-img-element
           <img src={preview} alt="Yüklenen fotoğraf" className="rec-preview" />
         ) : (
-          <span className="rec-drop-copy">
-              <strong>
-                Fotoğraf / ekran ekle{needImage ? " *" : " (önerilir)"}
-              </strong>
-              <em>{service.imageHint}</em>
-              <em className="rec-drop-sub">JPG · PNG · WEBP</em>
-          </span>
+          <label htmlFor={`photo-${service.slug}`} className="rec-drop-copy">
+            <strong>Fotoğraf ekle (opsiyonel)</strong>
+            <em>{service.imageHint}</em>
+            <em className="rec-drop-sub">Dokun · sürükle-bırak · JPG PNG WEBP</em>
+          </label>
         )}
-      </label>
+      </div>
       {preview ? (
-        <button
-          type="button"
-          className="btn btn-ghost rec-change-img"
-          onClick={() => {
-            setPreview(null);
-            fileRef.current = null;
-            if (inputRef.current) inputRef.current.value = "";
-          }}
-        >
-          Fotoğrafı değiştir
-        </button>
+        <div className="rec-photo-actions">
+          <button
+            type="button"
+            className="btn btn-ghost rec-change-img"
+            onClick={() => inputRef.current?.click()}
+          >
+            Değiştir
+          </button>
+          <button
+            type="button"
+            className="btn btn-ghost rec-change-img"
+            onClick={() => onFile(null)}
+          >
+            Kaldır
+          </button>
+        </div>
       ) : null}
 
-      <label className="rec-field">
-        <span>Platform *</span>
-        <select
-          value={platform}
-          onChange={(e) => setPlatform(e.target.value as RecoveryPlatform)}
-          disabled={busy}
-          required
-        >
-          {RECOVERY_PLATFORMS.map((p) => (
-            <option key={p} value={p}>
-              {p}
-            </option>
-          ))}
-        </select>
-      </label>
-
-      <div className="rec-platform-chips" role="group" aria-label="Hızlı platform">
-        {RECOVERY_PLATFORMS.filter((p) => p !== "Diğer").map((p) => (
-          <button
-            key={p}
-            type="button"
-            className={`rec-chip ${platform === p ? "is-on" : ""}`}
-            onClick={() => setPlatform(p)}
-            disabled={busy}
-          >
-            {p}
-          </button>
-        ))}
-      </div>
+      <fieldset className="rec-platform-field">
+        <legend>Platform seç *</legend>
+        <div className="rec-platform-chips" role="group" aria-label="Platform">
+          {chipPlatforms.map((p) => {
+            const icon = PLATFORM_ICON[p as keyof typeof PLATFORM_ICON];
+            return (
+              <button
+                key={p}
+                type="button"
+                className={`rec-chip rec-chip-icon ${platform === p ? "is-on" : ""}`}
+                onClick={() => setPlatform(p)}
+                disabled={busy}
+              >
+                {icon ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={icon} alt="" width={18} height={18} />
+                ) : null}
+                <span>{p === "X / Twitter" ? "X" : p}</span>
+              </button>
+            );
+          })}
+        </div>
+      </fieldset>
 
       <label className="rec-field">
         <span>
-          {service.kind === "fake" ? "Sahte hesap kullanıcı adı *" : "Hesap kullanıcı adı *"}
+          {service.kind === "username"
+            ? "İstediğin kullanıcı adı *"
+            : service.kind === "fake"
+              ? "Sahte hesap kullanıcı adı *"
+              : "Hesap kullanıcı adı *"}
         </span>
         <input
           value={username}
@@ -241,14 +279,28 @@ export function RecoveryApplicationForm({ service }: { service: RecoveryService 
         />
       </label>
 
-      {hint ? <p className="rec-hint">{hint}</p> : null}
+      {hint ? <p className="rec-hint rec-hint-soft">{hint}</p> : null}
 
       <button type="submit" className="btn btn-primary rec-submit" disabled={busy}>
-        {busy ? "Paket hazırlanıyor…" : service.cta}
+        {busy ? "Hazırlanıyor…" : service.cta}
       </button>
       <p className="rec-foot muted">
-        Gönderince WhatsApp açılır — yazı otomatik dolar, fotoğrafı sohbete eklemen yeterli.
+        WhatsApp açılır, yazı dolar. Fotoğraf seçtiysen sohbete eklemen yeterli — zorunlu değil.
       </p>
+
+      <div className="rec-form-guides">
+        <p className="rec-form-guides-title">Yardımcı makaleler</p>
+        <ul>
+          {(relatedGuides.length ? relatedGuides : GUIDE_ARTICLES.slice(0, 2)).map((g) => (
+            <li key={g.slug}>
+              <Link href={`/makaleler/${g.slug}`}>{g.title}</Link>
+            </li>
+          ))}
+          <li>
+            <Link href="/makaleler">Tüm makaleler →</Link>
+          </li>
+        </ul>
+      </div>
     </form>
   );
 }
