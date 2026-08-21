@@ -1,5 +1,5 @@
 export const SITE_NAME = "TOLWEX";
-export const SITE_TAGLINE = "Kapanan ve çalınan hesap kurtarma";
+export const SITE_TAGLINE = "Teknik destek · hesap, büyüme ve reklam";
 
 export function siteUrl(): string {
   const raw =
@@ -10,11 +10,12 @@ export function siteUrl(): string {
 }
 
 export const SEO_KEYWORDS = [
-  "kapanan hesap kurtarma",
-  "çalınan hesap kurtarma",
-  "Instagram hesap kurtarma",
-  "hesap kapandı",
-  "hesap çalındı",
+  "teknik destek",
+  "kapanan hesap",
+  "çalınan hesap",
+  "Instagram hesap",
+  "reklam kısıtı",
+  "influencer",
   "TOLWEX",
   "Instagram yardım",
 ];
