@@ -21,14 +21,14 @@ export function RecoveryHome() {
         <div className="site-shell rec-hero-stack">
           <div className="rec-hero-inner">
             <div className="rec-hero-logo">
-              <TolwexLogo size="lg" showMark showWordmark />
+              <TolwexLogo size="lg" showWordmark />
             </div>
             <h1 className="rec-hero-title display">
-              Hesap &amp; büyüme
-              <span>başvuru merkezi</span>
+              Teknik
+              <span>destek</span>
             </h1>
             <p className="rec-hero-sub">
-              Instagram · Facebook… Kategori seç, fotoğraf ekle — WhatsApp’tan bize ulaşır.
+              Instagram · Facebook hesap, büyüme ve reklam. Kategori seç, fotoğraf ekle — WhatsApp’tan bize ulaşır.
             </p>
             <div className="rec-hero-actions">
               <a href="#kategoriler" className="btn btn-primary">

@@ -22,7 +22,7 @@ export function SiteFooter() {
       <div className="site-shell footer-inner">
         <div className="footer-brand">
           <TolwexLogo size="md" />
-          <p className="footer-tag">Hesap, büyüme ve reklam başvuru merkezi</p>
+          <p className="footer-tag">Teknik destek · hesap, büyüme ve reklam</p>
         </div>
         <nav className="footer-links" aria-label="Footer">
           {LINKS.map((l) => (
